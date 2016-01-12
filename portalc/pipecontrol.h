@@ -7,6 +7,8 @@ void pipecontrol_cleanup(void);
 
 void aplay(const char *filename);//filename full path string
 
+void web_output(int mode1, int mode2);//filename full path string
+
 void ahrs_command(int number); //numerical command for what state to be in
 
 void gst_command(int number);
@@ -18,7 +20,6 @@ void gst_command(int number);
 //6 open a open orange portal
 //7 open a closed orange portal
 
-
-
+int read_web_pipe(void);
 
 #endif

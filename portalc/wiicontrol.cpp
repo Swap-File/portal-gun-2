@@ -54,7 +54,6 @@ void wiicontrol_update(void){
 		}
 	}
 };
-
 int wiicontrol_c(void){
 	
 	return c;

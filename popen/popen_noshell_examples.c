@@ -23,14 +23,16 @@
 //this crashes if left running for hours! figure it out
 char *alsasrc[] = {"gst-launch-1.0","alsasrc","device=hw:1","buffer-time=20000","!","queue","!","udpsink","","port=5000", NULL};
 
+
+char *raspivid_src[] = {"raspivid","-w","400","-h","240","-fps","30","-g","10","-n","-pf","baseline","-ex","auto","-t","0","-o","-", NULL};
+char *raspivid_sink[] = {"gst-launch-1.0","fdsrc","!","h264parse","!","tee","name=t","!","queue","!","rtph264pay","config-interval=1","pt=96","!","udpsink","","port=9000","t.","!","queue","!","avdec_h264","!","videoflip","method=1","!","jpegenc","!","multifilesink","location=/var/www/html/tmp/snapshot.jpg",NULL};
+
+
 //gstreamer launch codes
 //queues are NEEDED otherwise occasionally launch will fail
 //queue takes up the slack
 char videotestsrc[] = "videotestsrc ! queue ! eglglessink";
 char videotestsrc_cubed[] = "videotestsrc ! queue ! glupload ! glfiltercube ! gldownload ! eglglessink";
-
-char *raspivid_src[] = {"raspivid","-w","400","-h","240","-fps","30","-g","10","-n","-pf","baseline","-ex","auto","-t","0","-o","-", NULL};
-char *raspivid_sink[] = {"gst-launch-1.0","fdsrc","!","h264parse","!","tee","name=t","!","queue","!","rtph264pay","config-interval=1","pt=96","!","udpsink","","port=9000","t.","!","queue","!","avdec_h264","!","videoflip","method=1","!","jpegenc","!","multifilesink","location=/var/www/html/tmp/snapshot.jpg",NULL};
 
 char normal[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! queue ! eglglessink";
 

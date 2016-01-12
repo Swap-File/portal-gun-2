@@ -87,9 +87,9 @@ void udpcontrol_setup(void){
 }
 
 int udp_send_state(int *state, uint32_t * offset){
-	int n =sprintf (buf, "%d %d", *state, *offset);
+	int n = sprintf (buf, "%d %d", *state, *offset);
 	//n + 1 to include null terminator!
-	return sendto(sender_sockfd, buf, n + 1, 0, (struct sockaddr*)&sender_addr, srlen);
+	return sendto(sender_sockfd, buf, n + 1, MSG_DONTWAIT, (struct sockaddr*)&sender_addr, srlen);
 }
 
 int udp_receive_state(int * state, uint32_t * offset){

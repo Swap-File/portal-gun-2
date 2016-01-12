@@ -54,7 +54,8 @@ pipecontrol.o: pipecontrol.cpp /usr/include/stdc-predef.h \
  /usr/include/asm-generic/sockios.h /usr/include/netinet/in.h \
  /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stdint.h \
  /usr/include/stdint.h /usr/include/arm-linux-gnueabihf/bits/wchar.h \
- /usr/include/arm-linux-gnueabihf/bits/in.h pipecontrol.h
+ /usr/include/arm-linux-gnueabihf/bits/in.h pipecontrol.h \
+ /usr/include/arm-linux-gnueabihf/sys/stat.h
 
 /usr/include/stdc-predef.h:
 
@@ -197,3 +198,5 @@ pipecontrol.o: pipecontrol.cpp /usr/include/stdc-predef.h \
 /usr/include/arm-linux-gnueabihf/bits/in.h:
 
 pipecontrol.h:
+
+/usr/include/arm-linux-gnueabihf/sys/stat.h:

@@ -50,13 +50,14 @@ int main(void){
 	wiicontrol_setup();
 	int gst_backend = 0;
 	
+	
 	while(1){
 		
 		
 		sampletime += 10;
 		if (sampletime < millis()){
 			sampletime = millis();
-			printf("Missed cycle(s), Skipping...\n");
+			//printf("Missed cycle(s), Skipping...\n");
 			missed++;
 			
 		}else{
@@ -65,10 +66,20 @@ int main(void){
 
 		wiicontrol_update();
 		
-		if (wiicontrol_c()) gst_backend = 2;
-		else gst_backend = 1;
+		int result = read_web_pipe();
+	
+		if (result != -1){
+			printf("PIPE INCOMING! %d",result);
+			gst_backend = result;
+			aplay("/home/pi/physcannon/physcannon_charge1.wav");
+				
+		}
+		
+		
+		if (!wiicontrol_c()) gst_backend = 1;
 		
 		gst_command(gst_backend);	
+
 
 		uint32_t time_this_cycle = millis();
 			
@@ -109,19 +120,24 @@ int main(void){
 		
 		//float buttonbrightness = ledcontrol_update(color1,width_request,width_speed,shutdown_effect, total_time_offset);
 		//ahrs_update(2,2,0);
-		ledcontrol_update(20,20,200,0,total_time_offset);
 		
+		ledcontrol_update(20,20,200,0,total_time_offset);
+
 		
 		//send data to other gun
 		if (time_this_cycle - udp_send_time > 100){
+				
 			udp_send_state(&local_state,&time_this_cycle);
 			udp_send_time = time_this_cycle;
+			
+			web_output(gst_backend,0);
+			
 		}
 		
 		//fps counter code
 		fps++;
 		if (fps_counter < millis()){
-			printf("SPI FPS:%d \n",fps);
+			printf("SPI FPS:%d missed: %d\n",fps,missed);
 			fps = 0;
 			fps_counter += 1000;
 			if (fps_counter < millis()){
