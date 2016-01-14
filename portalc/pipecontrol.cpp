@@ -58,7 +58,8 @@ void pipecontrol_setup(void){
 	fflush(bash_fp);
 	
 	printf("WEB_PIPE has been opened.\n");
-		
+	
+	system("LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i 'input_file.so -f /var/www/html/tmp -n snapshot.jpg' -o 'output_http.so -w /usr/local/www' &");
 }
 
 void ahrs_command(int x, int y, int z, int number){
