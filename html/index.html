@@ -1,0 +1,64 @@
+
+<br><br>
+
+<input type="text" id="changeto"><br>
+    <button type="button" id="force" onclick="submit(this)" >force</button><br><br>
+<br>
+  <button type="button" id="orangeself" onclick="submit(this)" >Orange Self</button>
+	  <button type="button" id="orangewifi" onclick="submit(this)" >Orange Wifi</button>
+	    <button type="button" id="close" onclick="submit(this)" >Close</button>
+		  <button type="button" id="blueself" onclick="submit(this)" >Blue Self</button>
+		    <button type="button" id="bluewifi" onclick="submit(this)" >Blue Wifi</button>
+<br>
+<img id="streamimage"  src="loading.jpg">
+<div id="latestData">Suit Buffering...</div>
+<script src="jquery-2.2.0.min.js"></script>
+
+
+<script>
+   function submit(button) {
+   
+		if (button.id == 'force'){
+			  var changeto = $('#changeto').val();
+		}
+		
+			if (button.id == 'orangewifi'){
+			 var changeto = 100;
+		}
+		
+			if (button.id == 'orangeself'){
+			var changeto = 101;
+		}
+		
+			if (button.id == 'close'){
+			var changeto = 102;
+		}
+		
+			if (button.id == 'blueself'){
+			var changeto = 103;
+		}
+		
+			if (button.id == 'bluewifi'){
+			var changeto = '104';
+		}
+		console.log(changeto);
+		
+        $.post('index_post.php', {
+            changeto:  changeto
+        });
+		}
+	
+   $(document).ready(function () {
+   
+
+	$('#streamimage').attr("src", 'http://' + location.host + ':8080/?action=stream');
+ 
+  
+    setInterval(function() {
+        $.get("/tmp/portal.txt", function (result) {
+            $('#latestData').html(result);
+        });
+    }, 100);
+});
+  
+</script>

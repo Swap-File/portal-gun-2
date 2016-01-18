@@ -1,13 +1,14 @@
-portal.o: portal.cpp /usr/include/stdc-predef.h ledcontrol.h udpcontrol.h \
- /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stdint.h \
+portal.o: portal.cpp /usr/include/stdc-predef.h portal.h ledcontrol.h \
+ udpcontrol.h /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stdint.h \
  /usr/include/stdint.h /usr/include/features.h \
  /usr/include/arm-linux-gnueabihf/sys/cdefs.h \
  /usr/include/arm-linux-gnueabihf/bits/wordsize.h \
  /usr/include/arm-linux-gnueabihf/gnu/stubs.h \
  /usr/include/arm-linux-gnueabihf/gnu/stubs-hard.h \
  /usr/include/arm-linux-gnueabihf/bits/wchar.h pipecontrol.h wiicontrol.h \
- /usr/include/stdio.h \
+ /usr/include/string.h \
  /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stddef.h \
+ /usr/include/xlocale.h /usr/include/stdio.h \
  /usr/include/arm-linux-gnueabihf/bits/types.h \
  /usr/include/arm-linux-gnueabihf/bits/typesizes.h /usr/include/libio.h \
  /usr/include/_G_config.h /usr/include/wchar.h \
@@ -23,8 +24,8 @@ portal.o: portal.cpp /usr/include/stdc-predef.h ledcontrol.h udpcontrol.h \
  /usr/include/arm-linux-gnueabihf/bits/endian.h \
  /usr/include/arm-linux-gnueabihf/bits/byteswap.h \
  /usr/include/arm-linux-gnueabihf/bits/byteswap-16.h \
- /usr/include/xlocale.h /usr/include/arm-linux-gnueabihf/sys/types.h \
- /usr/include/time.h /usr/include/arm-linux-gnueabihf/sys/select.h \
+ /usr/include/arm-linux-gnueabihf/sys/types.h /usr/include/time.h \
+ /usr/include/arm-linux-gnueabihf/sys/select.h \
  /usr/include/arm-linux-gnueabihf/bits/select.h \
  /usr/include/arm-linux-gnueabihf/bits/sigset.h \
  /usr/include/arm-linux-gnueabihf/bits/time.h \
@@ -37,16 +38,42 @@ portal.o: portal.cpp /usr/include/stdc-predef.h ledcontrol.h udpcontrol.h \
  /usr/include/arm-linux-gnueabihf/bits/errno.h /usr/include/linux/errno.h \
  /usr/include/arm-linux-gnueabihf/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
- /usr/include/signal.h /usr/include/arm-linux-gnueabihf/bits/signum.h \
+ /usr/include/arm-linux-gnueabihf/sys/fcntl.h /usr/include/fcntl.h \
+ /usr/include/arm-linux-gnueabihf/bits/fcntl.h \
+ /usr/include/arm-linux-gnueabihf/bits/fcntl-linux.h \
+ /usr/include/arm-linux-gnueabihf/bits/uio.h \
+ /usr/include/arm-linux-gnueabihf/bits/stat.h \
+ /usr/include/arm-linux-gnueabihf/sys/ioctl.h \
+ /usr/include/arm-linux-gnueabihf/bits/ioctls.h \
+ /usr/include/arm-linux-gnueabihf/asm/ioctls.h \
+ /usr/include/asm-generic/ioctls.h /usr/include/linux/ioctl.h \
+ /usr/include/arm-linux-gnueabihf/asm/ioctl.h \
+ /usr/include/asm-generic/ioctl.h \
+ /usr/include/arm-linux-gnueabihf/bits/ioctl-types.h \
+ /usr/include/arm-linux-gnueabihf/sys/ttydefaults.h /usr/include/signal.h \
+ /usr/include/arm-linux-gnueabihf/bits/signum.h \
  /usr/include/arm-linux-gnueabihf/bits/siginfo.h \
  /usr/include/arm-linux-gnueabihf/bits/sigaction.h \
  /usr/include/arm-linux-gnueabihf/bits/sigcontext.h \
  /usr/include/arm-linux-gnueabihf/asm/sigcontext.h \
  /usr/include/arm-linux-gnueabihf/bits/sigstack.h \
  /usr/include/arm-linux-gnueabihf/sys/ucontext.h \
- /usr/include/arm-linux-gnueabihf/bits/sigthread.h
+ /usr/include/arm-linux-gnueabihf/bits/sigthread.h \
+ /usr/include/arm-linux-gnueabihf/sys/time.h /usr/include/net/if.h \
+ /usr/include/arm-linux-gnueabihf/sys/socket.h \
+ /usr/include/arm-linux-gnueabihf/sys/uio.h \
+ /usr/include/arm-linux-gnueabihf/bits/socket.h \
+ /usr/include/arm-linux-gnueabihf/bits/socket_type.h \
+ /usr/include/arm-linux-gnueabihf/bits/sockaddr.h \
+ /usr/include/arm-linux-gnueabihf/asm/socket.h \
+ /usr/include/asm-generic/socket.h \
+ /usr/include/arm-linux-gnueabihf/asm/sockios.h \
+ /usr/include/asm-generic/sockios.h /usr/include/arpa/inet.h \
+ /usr/include/netinet/in.h /usr/include/arm-linux-gnueabihf/bits/in.h
 
 /usr/include/stdc-predef.h:
+
+portal.h:
 
 ledcontrol.h:
 
@@ -72,9 +99,13 @@ pipecontrol.h:
 
 wiicontrol.h:
 
-/usr/include/stdio.h:
+/usr/include/string.h:
 
 /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stddef.h:
+
+/usr/include/xlocale.h:
+
+/usr/include/stdio.h:
 
 /usr/include/arm-linux-gnueabihf/bits/types.h:
 
@@ -118,8 +149,6 @@ wiicontrol.h:
 
 /usr/include/arm-linux-gnueabihf/bits/byteswap-16.h:
 
-/usr/include/xlocale.h:
-
 /usr/include/arm-linux-gnueabihf/sys/types.h:
 
 /usr/include/time.h:
@@ -156,6 +185,36 @@ wiicontrol.h:
 
 /usr/include/asm-generic/errno-base.h:
 
+/usr/include/arm-linux-gnueabihf/sys/fcntl.h:
+
+/usr/include/fcntl.h:
+
+/usr/include/arm-linux-gnueabihf/bits/fcntl.h:
+
+/usr/include/arm-linux-gnueabihf/bits/fcntl-linux.h:
+
+/usr/include/arm-linux-gnueabihf/bits/uio.h:
+
+/usr/include/arm-linux-gnueabihf/bits/stat.h:
+
+/usr/include/arm-linux-gnueabihf/sys/ioctl.h:
+
+/usr/include/arm-linux-gnueabihf/bits/ioctls.h:
+
+/usr/include/arm-linux-gnueabihf/asm/ioctls.h:
+
+/usr/include/asm-generic/ioctls.h:
+
+/usr/include/linux/ioctl.h:
+
+/usr/include/arm-linux-gnueabihf/asm/ioctl.h:
+
+/usr/include/asm-generic/ioctl.h:
+
+/usr/include/arm-linux-gnueabihf/bits/ioctl-types.h:
+
+/usr/include/arm-linux-gnueabihf/sys/ttydefaults.h:
+
 /usr/include/signal.h:
 
 /usr/include/arm-linux-gnueabihf/bits/signum.h:
@@ -173,3 +232,31 @@ wiicontrol.h:
 /usr/include/arm-linux-gnueabihf/sys/ucontext.h:
 
 /usr/include/arm-linux-gnueabihf/bits/sigthread.h:
+
+/usr/include/arm-linux-gnueabihf/sys/time.h:
+
+/usr/include/net/if.h:
+
+/usr/include/arm-linux-gnueabihf/sys/socket.h:
+
+/usr/include/arm-linux-gnueabihf/sys/uio.h:
+
+/usr/include/arm-linux-gnueabihf/bits/socket.h:
+
+/usr/include/arm-linux-gnueabihf/bits/socket_type.h:
+
+/usr/include/arm-linux-gnueabihf/bits/sockaddr.h:
+
+/usr/include/arm-linux-gnueabihf/asm/socket.h:
+
+/usr/include/asm-generic/socket.h:
+
+/usr/include/arm-linux-gnueabihf/asm/sockios.h:
+
+/usr/include/asm-generic/sockios.h:
+
+/usr/include/arpa/inet.h:
+
+/usr/include/netinet/in.h:
+
+/usr/include/arm-linux-gnueabihf/bits/in.h:

@@ -55,7 +55,11 @@ pipecontrol.o: pipecontrol.cpp /usr/include/stdc-predef.h \
  /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stdint.h \
  /usr/include/stdint.h /usr/include/arm-linux-gnueabihf/bits/wchar.h \
  /usr/include/arm-linux-gnueabihf/bits/in.h pipecontrol.h \
- /usr/include/arm-linux-gnueabihf/sys/stat.h
+ /usr/include/arm-linux-gnueabihf/sys/stat.h /usr/include/errno.h \
+ /usr/include/arm-linux-gnueabihf/bits/errno.h /usr/include/linux/errno.h \
+ /usr/include/arm-linux-gnueabihf/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+ /usr/include/arm-linux-gnueabihf/sys/time.h
 
 /usr/include/stdc-predef.h:
 
@@ -200,3 +204,17 @@ pipecontrol.o: pipecontrol.cpp /usr/include/stdc-predef.h \
 pipecontrol.h:
 
 /usr/include/arm-linux-gnueabihf/sys/stat.h:
+
+/usr/include/errno.h:
+
+/usr/include/arm-linux-gnueabihf/bits/errno.h:
+
+/usr/include/linux/errno.h:
+
+/usr/include/arm-linux-gnueabihf/asm/errno.h:
+
+/usr/include/asm-generic/errno.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/arm-linux-gnueabihf/sys/time.h:

@@ -25,13 +25,13 @@ void reinit(int fd){
 	int result = -1;
 	while (result < 0) {
 		result = wiringPiI2CWriteReg8(fd, 0xF0 , 0x55 );
-		if (result < 0) fprintf(stderr, "I2C error: %d\n", errno);
+		//if (result < 0) fprintf(stderr, "I2C error: %d\n", errno);
 	}
 	
 	result = -1;
 	while (result < 0) {
 		result = wiringPiI2CWriteReg8(fd, 0xFB , 0x00);
-		if (result < 0) fprintf(stderr, "I2C error: %d\n", errno);
+		//if (result < 0) fprintf(stderr, "I2C error: %d\n", errno);
 	}
 	
 	delayMicroseconds(500);
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 		int result = -1;
 		while (result < 0) {
 			result = wiringPiI2CWrite(fd, 0x00);
-			if (result < 0) fprintf(stderr, "I2C error: %d\n", errno);
+			//if (result < 0) fprintf(stderr, "I2C error: %d\n", errno);
 		}
 		
 		delayMicroseconds(500);
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 			bytes[i] = -1;
 			while (bytes[i] < 0) {
 				bytes[i] = wiringPiI2CRead(fd);
-				if (bytes[i] < 0) fprintf(stderr, "I2C error: %d\n", errno);
+				//if (bytes[i] < 0) fprintf(stderr, "I2C error: %d\n", errno);
 			}
 			
 			if (bytes[i] == 0xff) disconnected++;

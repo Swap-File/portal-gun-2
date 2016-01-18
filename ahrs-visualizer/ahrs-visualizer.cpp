@@ -275,18 +275,19 @@ int main(int argc, char *argv[])
 			char buffer[100];
 			//stdin is line buffered so we can cheat a little bit
 			while (count > 0){ // dump entire buffer
-				count = read(STDIN_FILENO, buffer, sizeof(buffer)-1);
+				count = read(STDIN_FILENO, buffer, sizeof(buffer));
 				if (count > 1){ //ignore blank lines
-					buffer[count-1] = '\0';
-					//keep most recent line
-					float acceleration_temp[3];
-					int result = sscanf(buffer,"%f %f %f %d", &acceleration_temp[0], &acceleration_temp[2], &acceleration_temp[1], &frame);
+					buffer[count-1] = '\0'; //replace last char with string ending
+					//printf("!%s!\n",buffer);
+					//check the line
+					float temp[3];
+					int result = sscanf(buffer,"%f %f %f %d", &temp[0], &temp[2], &temp[1], &frame);
 					if (result != 4){
 						fprintf(stderr, "AHRS_Process: Unrecognized input with %d items.\n", result);
 					}else{
-						acceleration[0] = acceleration_temp[0] * -1.0;
-						acceleration[1] = acceleration_temp[1] * -1.0;	
-						acceleration[2] = acceleration_temp[2];	
+						acceleration[0] = temp[0] * -1.0;
+						acceleration[1] = temp[1] * -1.0;	
+						acceleration[2] = temp[2];	
 						if (state != frame){
 							printf("AHRS_Process: %d\n",frame);
 							state = frame;

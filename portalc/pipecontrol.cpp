@@ -9,10 +9,14 @@
 #include "pipecontrol.h"
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
+#include <sys/time.h>  
 
-int camera_PID;
-int audio_send_PID;
+int ip;
+
 int web_control;
+int gstreamer_crashes = 0;
+int ahrs_crashes = 0;
 
 FILE *bash_fp;
 FILE *ahrs_fp;
@@ -21,28 +25,24 @@ FILE *gst_fp;
 void pipecontrol_cleanup(void){
 	//printf("KILLING OLD PROCESSES\n");
 	system("pkill gst");
+	system("pkill mjpeg");
 	system("pkill raspivid");
 	system("pkill ahrs");
 	system("pkill popen");
 }
 
-void pipecontrol_setup(void){
+void pipecontrol_setup(int new_ip){
+	ip = new_ip;
 	pipecontrol_cleanup();
 	
 	printf("BASH_CONTROL: SPAWNING PROCESS\n");
 	bash_fp = popen("bash", "w");
-	//fcntl(fileno(bash_fp), F_SETFL, O_NONBLOCK);
+	fcntl(fileno(bash_fp), F_SETFL, fcntl(fileno(bash_fp), F_GETFL, 0) | O_NONBLOCK);
 	printf("BASH_CONTROL: READY\n");
 	
-	printf("AHRS_CONTROL: SPAWNING PROCESS\n");
-	ahrs_fp = popen("/home/pi/ahrs-visualizer/ahrs-visualizer", "w");
-	//fcntl(fileno(ahrs_fp), F_SETFL, O_NONBLOCK);
-	printf("AHRS_CONTROL: READY\n");
+	launch_ahrs_control();
 	
-	printf("GST_CONTROL: SPAWNING PROCESS\n");
-	gst_fp = popen("/home/pi/popen/popen", "w");
-	fcntl(fileno(gst_fp), F_SETFL, O_NONBLOCK);
-	printf("GST_CONTROL: READY\n");
+	launch_gst_control();
 	
 	printf("WEB_PIPE: MKFIFO\n");
 	mkfifo ("/tmp/FIFO_PIPE", 0777 );
@@ -52,7 +52,7 @@ void pipecontrol_setup(void){
 		perror("WEB_PIPE: Could not open named pipe for reading.");
 		exit(-1);
 	}
-	fcntl(web_control, F_SETFL, O_NONBLOCK);
+	fcntl(web_control, F_SETFL, fcntl(web_control, F_GETFL, 0) | O_NONBLOCK);
 	
 	fprintf(bash_fp, "sudo chown www-data /tmp/FIFO_PIPE\n");
 	fflush(bash_fp);
@@ -63,14 +63,64 @@ void pipecontrol_setup(void){
 }
 
 void ahrs_command(int x, int y, int z, int number){
-	fprintf(ahrs_fp, "%d %d %d %d\n",x,y,z,number);
-	fflush(ahrs_fp);
+	
+	errno = 0;
+	int completed = 0;
+	
+	while (completed == 0){
+		
+		fprintf(ahrs_fp, "%d %d %d %d\n",x,y,z,number);
+		fflush(ahrs_fp);
+		if (errno == EPIPE) {
+			printf("BROKEN PIPE TO AHRS_CONTROL!\n");
+			fclose(ahrs_fp);
+			launch_ahrs_control();
+			errno = 0;
+			ahrs_crashes++;
+		}else{
+			completed = 1;
+		}
+	}
+	
+
 }		
 
+void launch_ahrs_control(void){
+	printf("AHRS_CONTROL: SPAWNING PROCESS\n");
+	ahrs_fp = popen("/home/pi/ahrs-visualizer/ahrs-visualizer", "w");
+	fcntl(fileno(ahrs_fp), F_SETFL, fcntl(fileno(ahrs_fp), F_GETFL, 0) | O_NONBLOCK);
+	printf("AHRS_CONTROL: READY\n");
+}
+
 void gst_command(int number){
-	fprintf(gst_fp, "%d\n",number);
-	fflush(gst_fp);
-}		
+	
+	errno = 0;
+	int completed = 0;
+	
+	while (completed == 0){
+		
+		fprintf(gst_fp, "%d\n",number);
+		fflush(gst_fp);
+		if (errno == EPIPE) {
+			printf("BROKEN PIPE %d TO GST_CONTROL!\n",gstreamer_crashes);
+			fclose(gst_fp);
+			launch_gst_control();
+			errno = 0;
+			gstreamer_crashes++;
+		}else{
+			completed = 1;
+		}
+	}
+}
+
+void launch_gst_control(void){
+	printf("GST_CONTROL: SPAWNING PROCESS\n");
+	if (ip == 22) gst_fp = popen("/home/pi/popen/popen 22", "w");
+	else if (ip == 23) gst_fp = popen("/home/pi/popen/popen 23", "w");
+	fcntl(fileno(gst_fp), F_SETFL, fcntl(fileno(gst_fp), F_GETFL, 0) | O_NONBLOCK);
+	printf("GST_CONTROL: READY\n");
+}
+
 
 void aplay(const char *filename){
 	printf("aplay %s\n",filename);
@@ -87,26 +137,24 @@ void web_output(int mode1, int mode2){
 int read_web_pipe(void){
 	int temp = -1;
 	
-		int count = 1;
-		char buffer[100];
-		//stdin is line buffered so we can cheat a little bit
-		while (count > 0){ // dump entire buffer
-			count = read(web_control, buffer, sizeof(buffer)-1);
-			if (count > 1){ //ignore blank lines
-				buffer[count-1] = '\0';
-				//keep most recent line
-				int temp_state = 0;
-				int result = sscanf(buffer,"%d", &temp_state);
-				if (result != 1){
-					fprintf(stderr, "WEB_PIPE: Unrecognized input with %d items.\n", result);
-				}else{
-					temp = temp_state;
-				}
+	int count = 1;
+	char buffer[100];
+	//stdin is line buffered so we can cheat a little bit
+	while (count > 0){ // dump entire buffer
+		count = read(web_control, buffer, sizeof(buffer)-1);
+		if (count > 1){ //ignore blank lines
+			buffer[count-1] = '\0';
+			//keep most recent line
+			int temp_state = 0;
+			int result = sscanf(buffer,"%d", &temp_state);
+			if (result != 1){
+				fprintf(stderr, "WEB_PIPE: Unrecognized input with %d items.\n", result);
+			}else{
+				temp = temp_state;
 			}
 		}
-	
-	
-	
+	}
+
 	return temp;
 }
 

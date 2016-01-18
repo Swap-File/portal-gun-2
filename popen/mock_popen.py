@@ -8,7 +8,7 @@ def out(*args):
 i =0;
 while 1:
 	out(i)
-	time.sleep(3)
+	time.sleep(1)
 	i+=1
 	if i == 4: i = 10
 	if i == 16: i = 20

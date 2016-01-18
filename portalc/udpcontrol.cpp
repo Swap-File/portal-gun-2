@@ -25,11 +25,17 @@ struct sockaddr_in receiver_addr, incoming_addr;
 int receiver_sockfd;
 socklen_t srlen=sizeof(incoming_addr);
 
-void getIP(void);
 
-void udpcontrol_setup(void){
+void udpcontrol_setup(int ip){
 	
-	getIP();
+	if (ip == 22){
+		strcpy(my_ip, "192.168.1.22");
+		strcpy(dest_ip, "192.168.1.23");
+	}
+	else if (ip == 23){
+		strcpy(my_ip, "192.168.1.23");
+		strcpy(dest_ip, "192.168.1.22");
+	}
 	
 	printf("UDP_Control : My IP: %s\n",my_ip);
 	printf("UDP_Control : Dest IP: %s\n",dest_ip);
@@ -103,40 +109,8 @@ int udp_receive_state(int * state, uint32_t * offset){
 			//sscanf( inet_ntoa(incoming_addr.sin_addr), "%3u.%3u.%3u.%3u", &ipbytes[3], &ipbytes[2], &ipbytes[1], &ipbytes[0]);
 			//printf("%d %d %d %d\n", ipbytes[0] , ipbytes[1] , ipbytes[2], ipbytes[3]);
 			sscanf( buf, "%d %d",state,offset);
-			return n;
+			
 		}
 	}
-	return 0;
-}
-
-void getIP(void){
-
-	int fd;
-	struct ifreq ifr;
-
-	fd = socket(AF_INET, SOCK_DGRAM, 0);
-
-	/* I want to get an IPv4 IP address */
-	ifr.ifr_addr.sa_family = AF_INET;
-
-	/* I want IP address attached to "eth0" */
-	strncpy(ifr.ifr_name, "eth0", IFNAMSIZ-1);
-
-	ioctl(fd, SIOCGIFADDR, &ifr);
-
-	close(fd);
-
-	/* display result */
-	sprintf(my_ip,"%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-
-	if (strstr(my_ip,"192.168.1.22")){
-		strcpy(dest_ip, "192.168.1.23");
-	}
-	else if (strstr(my_ip,"192.168.1.23")){
-		strcpy(dest_ip, "192.168.1.22");
-
-	}
-
-	return;
-	
+	return n;
 }
