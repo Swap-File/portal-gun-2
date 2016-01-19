@@ -20,13 +20,14 @@
 #define EFFECT_RESOLUTION 400
 #define LED_STRIP_LENGTH 20
 
-const uint8_t ending[2] = {0x00};
+const uint8_t ending[2] = {0x00,0x00};
 
 int spi_handle; 
 
-uint8_t raw_buffer[LED_STRIP_LENGTH*3]= {0x00};
-uint8_t effect_buffer[LED_STRIP_LENGTH*3]= {0x00}; 
-int timearray[LED_STRIP_LENGTH]= {0};
+uint8_t blank[2*LED_STRIP_LENGTH*3]; 
+uint8_t raw_buffer[LED_STRIP_LENGTH*3];
+uint8_t effect_buffer[LED_STRIP_LENGTH*3]; 
+int timearray[LED_STRIP_LENGTH];
 
 int color1 = 0; 
 int color2 = -1; 
@@ -97,6 +98,8 @@ void Wheel(int WheelPos, uint8_t *b, uint8_t *r, uint8_t *g){
 }
 
 void ledcontrol_setup(void) {
+	
+	for (int i = 0; i < 2*LED_STRIP_LENGTH*3; i++) blank[i] = 0x80;
 	
 	overlay_timer =  millis();
 	printf("LED_Control : Building Lookup Table...\n");
@@ -315,3 +318,7 @@ float ledcontrol_update(int color_temp,int width_temp,int width_speed_temp,int o
 	return effect_array[(total_offset + timeoffset) % EFFECT_RESOLUTION];
 }
 
+void ledcontrol_wipe(void){
+	write(spi_handle,blank,sizeof(blank));
+	write(spi_handle,ending,sizeof(ending));
+}

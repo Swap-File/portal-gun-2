@@ -22,7 +22,7 @@
 #define EFFECT_RESOLUTION 400
 #define BREATHING_RATE 2000
 
-#define STATION_EXPIRE 1000 //expire a station in 1 second
+#define GUN_EXPIRE 1000 //expire a gun in 1 second
 
 #define BUTTON_BOTH_LONG_BLUE 0
 #define BUTTON_BOTH_LONG_ORANGE 1
@@ -41,9 +41,11 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
+struct this_gun_struct;
+struct other_gun_struct;
+
 int get_ip(void);
 void INThandler(int dummy);
-void local_state_engine(int button);
-void network_state_engine(int button);
-void led_update(int time_this_cycle, uint32_t other_gun_clock_offset);
+void local_state_engine(int button,struct this_gun_struct *this_gun,struct other_gun_struct *other_gun);
+void led_update(struct this_gun_struct *this_gun,struct other_gun_struct *other_gun);
 #endif
