@@ -97,9 +97,7 @@ void local_state_engine(int button, this_gun_struct *this_gun, other_gun_struct 
 		}
 	}else{
 		//code to pull out of self state
-		if ((other_gun->state_previous != other_gun->state )&& (other_gun->state <= -2)){
-			//cmus_remote_play("/home/pi/portalgun/portal_open2->wav");		
-			
+		if ((other_gun->state_previous != other_gun->state)&& (other_gun->state <= -2)){
 			if (this_gun->private_state <= -3 || this_gun->private_state >= 3){
 				this_gun->shared_state = 4;
 			}else{

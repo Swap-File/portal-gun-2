@@ -14,7 +14,7 @@ void launch_ahrs_control(void);
 //8 and 9 is closed
 //1 open a closed blue portal 
 //0 open a open blue portal
-
+void audio_effects(this_gun_struct *this_gun);
 //6 open a open orange portal
 //7 open a closed orange portal
 

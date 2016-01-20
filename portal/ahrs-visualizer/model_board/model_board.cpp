@@ -290,7 +290,7 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	glBindTexture(GL_TEXTURE_2D, 0);  // Turn off textures
 
 	// Acceleration
-	const float accel_scale = 10;
+	//const float accel_scale = 10;
 	
 	
 	
@@ -356,7 +356,7 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 		vertices[arrayindex + 1] = x ;
 		vertices[arrayindex +2] = 0.0;
 		 
-		float length = 1;
+		//float length = 1;
 		
 		//float twist = running_magnitude * .5 * PI;
 		

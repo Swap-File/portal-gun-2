@@ -1,4 +1,5 @@
 #include "portal.h"
+#include "gstvideo/gstvideo.h"
 #include "ledcontrol.h"
 #include "udpcontrol.h"
 #include "pipecontrol.h"
@@ -55,7 +56,7 @@ int main(void){
 	
 	int gst_backend = 0;
 	int next_effect = 50;
-	bool every_other_cycle = true; //toggles every other cycle
+	bool freq_division = true; //toggles every other cycle
 	
 	while(1){
 		sampletime += 10;
@@ -68,7 +69,7 @@ int main(void){
 		}
 		
 		this_gun.clock = millis();  //stop time for duration of frame
-		every_other_cycle = !every_other_cycle;
+		freq_division = !freq_division;
 		this_gun.shared_state_previous = this_gun.shared_state;
 		this_gun.private_state_previous = this_gun.private_state;
 		other_gun.state_previous = other_gun.state;
@@ -119,10 +120,10 @@ int main(void){
 		//shared state stuff
 		
 		//start camera (preload in state 3, shutter is closed)
-		if(this_gun.shared_state <= -3) gst_backend = 3;
+		if(this_gun.shared_state <= -3) gst_backend = RPICAMSRC;
 		
 		//start live feed playback (preload in state 3, shutter is closed)
-		if(this_gun.shared_state >= 3) gst_backend = 4;
+		if(this_gun.shared_state >= 3) gst_backend = NORMAL;
 		
 		
 		//private state stuff
@@ -130,17 +131,17 @@ int main(void){
 		//preload next effect and start in background if its video
 		if ((this_gun.private_state_previous != -3 && this_gun.private_state == -3) || (this_gun.private_state_previous != 3  && this_gun.private_state == 3) ){
 			//movies
-			if (gst_backend >= 50){
-				gst_backend = 0;
+			if (gst_backend >= MOVIE_FIRST && gst_backend <= MOVIE_LAST){
+				gst_backend = GST_BLANK;
 			}
 			next_effect = private_playlist[private_playlist_index++];
 			if (private_playlist[private_playlist_index] < 0) private_playlist_index = 0;
 			
-			if (next_effect >= 10 && next_effect < 20){
+			if (next_effect >= LIBVISUAL_FIRST && next_effect < LIBVISUAL_LAST){
 				gst_backend = next_effect;
 				printf("\n\nPreloading vis\n");
 			}else{
-				gst_backend = 0;
+				gst_backend = GST_BLANK;
 				printf("\n\nNot preloading movie\n");
 			}
 		}
@@ -153,9 +154,9 @@ int main(void){
 			
 			printf("\n\n Starting Video or viz\n");
 			gst_backend = next_effect; //run video
-			if (gst_backend >= 50 && gst_backend <= 61){
+			if (gst_backend >= MOVIE_FIRST && gst_backend <= MOVIE_LAST){
 				video_start_time = this_gun.clock;
-				active_video_lentgh = video_length[gst_backend - 50];			
+				active_video_lentgh = video_length[gst_backend - MOVIE_FIRST];			
 			}
 		}
 		
@@ -164,43 +165,40 @@ int main(void){
 			if ( this_gun.clock - video_start_time >  active_video_lentgh + 1500){
 				if (this_gun.private_state == 5)       this_gun.private_state = 3;
 				else if (this_gun.private_state == -5) this_gun.private_state = -3;
-				gst_backend = 0;
+				gst_backend = GST_BLANK;
 			}
 		}
 		
 		//video kill switch
-		if ((this_gun.private_state != 4 && this_gun.private_state != -4 && this_gun.private_state != 5 && this_gun.private_state != -5 && gst_backend >= 50 )){
-			gst_backend = 0;			
-		}
+		//master clear
+		if(this_gun.shared_state < 3 && this_gun.shared_state > -3 && \
+			this_gun.private_state < 3 && this_gun.private_state > -3) gst_backend = GST_BLANK;
 		
 		//ahrs effects
-		int ahrs_number = 9;
+		int ahrs_number = 9; 
 		// for networked modes
 		if (this_gun.private_state == 0){
-			if (this_gun.shared_state ==3) {
-				ahrs_number = 7;
-			}else if (this_gun.shared_state >= 4) {
-				ahrs_number = 6;
-			}		
+			if (this_gun.shared_state ==3) 	ahrs_number = 7;
+			else if (this_gun.shared_state >= 4) ahrs_number = 6;		
 		}
 		// for self modes
 		if (this_gun.shared_state == 0){
-			if (this_gun.private_state == 3 || this_gun.private_state == 4){
-				ahrs_number = 7;
-			}else if (this_gun.private_state == -3 || this_gun.private_state == -4){
-				ahrs_number =  1;
-			}else if (this_gun.private_state < -4){
-				ahrs_number = 0;
-			}else if (this_gun.private_state > 4){
-				ahrs_number = 6;
-			}		
+			if (this_gun.private_state == 3 || this_gun.private_state == 4)	ahrs_number = 7;
+			else if (this_gun.private_state == -3 || this_gun.private_state == -4)	ahrs_number =  1;
+			else if (this_gun.private_state < -4) ahrs_number = 0;
+			else if (this_gun.private_state > 4) ahrs_number = 6;	
 		}
+		
+		//calulate sfx down here
+		
+		audio_effects(&this_gun);
+		
 		ahrs_command(2,2,2,ahrs_number);
 		
 		gst_command(gst_backend);	
 		
 		//this keeps the subprocesses running at 50hz since main thread is 100hz	
-		if(every_other_cycle) led_update(&this_gun,&other_gun);
+		if(freq_division) led_update(&this_gun,&other_gun);
 		
 		//send data to other gun
 		if (this_gun.clock - udp_send_time > 100){

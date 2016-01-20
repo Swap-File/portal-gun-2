@@ -1,12 +1,14 @@
+#include "gstvideo.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>  
+#include <sys/time.h>
+#include <gst/gst.h>  
 #include <unistd.h>
 #include <fcntl.h>
 #include <wiringPi.h>
-#include <gst/gst.h>
+
 
 int main(int argc, char *argv[]) {
 	//gstreamer launch codes
@@ -134,50 +136,50 @@ int main(int argc, char *argv[]) {
 			//figure out the correct app
 			switch (requested_state){
 				//the basics
-			case 0: new_cmd = blank; break;
-			case 1:	new_cmd = videotestsrc;	break;
-			case 2: new_cmd = videotestsrc_cubed; break;
-			case 3: new_cmd = rpicamsrc; break;
-			case 4: new_cmd = normal; break; 	
+			case GST_BLANK: new_cmd = blank; break;
+			case VIDEOTESTSRC:	new_cmd = videotestsrc;	break;
+			case VIDEOTESTSRC_CUBED: new_cmd = videotestsrc_cubed; break;
+			case RPICAMSRC: new_cmd = rpicamsrc; break;
+			case NORMAL: new_cmd = normal; break; 	
 				
 				//libvisual 10 - 18
-			case 10: new_cmd = libvisual_jess; break;	  //good
-			case 13: new_cmd = libvisual_infinite; break;	//good
-			case 14: new_cmd = libvisual_jakdaw; break;	//good
-			case 15: new_cmd = libvisual_oinksie; break;	//good		
+			case LIBVISUAL_JESS: new_cmd = libvisual_jess; break;	  //good
+			case LIBVISUAL_INFINITE: new_cmd = libvisual_infinite; break;	//good
+			case LIBVISUAL_JACKDAW: new_cmd = libvisual_jakdaw; break;	//good
+			case LIBVISUAL_OINKSIE: new_cmd = libvisual_oinksie; break;	//good		
 				//tv effects	
-			case 20: new_cmd = revtv; break;//good
-			case 21: new_cmd = agingtv; break;//steampunk
-			case 22: new_cmd = dicetv; break;//works
-			case 23: new_cmd = warptv; break;//works
-			case 24: new_cmd = shagadelictv; break;//works			
-			case 25: new_cmd = vertigotv; break;//works
-			case 26: new_cmd = kaleidoscope; break;//
-			case 27: new_cmd = marble; break;//
-			case 28: new_cmd = rippletv; break;//works
-			case 29: new_cmd = edgetv; break;//works					
+			case REVTV: new_cmd = revtv; break;//good
+			case AGINGTV: new_cmd = agingtv; break;//steampunk
+			case DICETV: new_cmd = dicetv; break;//works
+			case WARPTV: new_cmd = warptv; break;//works
+			case SHAGADELICTV: new_cmd = shagadelictv; break;//works			
+			case VERTIGOTV: new_cmd = vertigotv; break;//works
+			case KALEIDOSCOPE: new_cmd = kaleidoscope; break;//
+			case MARBLE: new_cmd = marble; break;//
+			case RIPPLETV: new_cmd = rippletv; break;//works
+			case EDGETV: new_cmd = edgetv; break;//works					
 				//gl effects	
-			case 30: new_cmd = glfiltercube; break;
-			case 31: new_cmd = gleffects_mirror; break;
-			case 32: new_cmd = gleffects_squeeze; break;
-			case 33: new_cmd = gleffects_stretch; break;
-			case 34: new_cmd = gleffects_tunnel; break;	//really good O	
-			case 35: new_cmd = gleffects_twirl; break; //creepy as fuck
-			case 36: new_cmd = gleffects_bulge; break;	
-			case 37: new_cmd = gleffects_heat; break;
+			case GLCUBE: new_cmd = glfiltercube; break;
+			case GLMIRROR: new_cmd = gleffects_mirror; break;
+			case GLSQUEEZE: new_cmd = gleffects_squeeze; break;
+			case GLSTRETCH: new_cmd = gleffects_stretch; break;
+			case GLTUNNEL: new_cmd = gleffects_tunnel; break;	//really good O	
+			case GLTWIRL: new_cmd = gleffects_twirl; break; //creepy as fuck
+			case GLBULDGE: new_cmd = gleffects_bulge; break;	
+			case GLHEAT: new_cmd = gleffects_heat; break;
 
-			case 50: new_cmd = movie1; break;	
-			case 51: new_cmd = movie2; break;	
-			case 52: new_cmd = movie3; break;	
-			case 53: new_cmd = movie4; break;	
-			case 54: new_cmd = movie5; break;	
-			case 55: new_cmd = movie6; break;	
-			case 56: new_cmd = movie7; break;	
-			case 57: new_cmd = movie8; break;	
-			case 58: new_cmd = movie9; break;	
-			case 59: new_cmd = movie10; break;	
-			case 60: new_cmd = movie11; break;	
-			case 61: new_cmd = movie12; break;	
+			case MOVIE1: new_cmd = movie1; break;	
+			case MOVIE2: new_cmd = movie2; break;	
+			case MOVIE3: new_cmd = movie3; break;	
+			case MOVIE4: new_cmd = movie4; break;	
+			case MOVIE5: new_cmd = movie5; break;	
+			case MOVIE6: new_cmd = movie6; break;	
+			case MOVIE7: new_cmd = movie7; break;	
+			case MOVIE8: new_cmd = movie8; break;	
+			case MOVIE9: new_cmd = movie9; break;	
+			case MOVIE10: new_cmd = movie10; break;	
+			case MOVIE11: new_cmd = movie11; break;	
+			case MOVIE12: new_cmd = movie12; break;	
 				
 			default:
 				//skip bad requests by claiming we already did it!

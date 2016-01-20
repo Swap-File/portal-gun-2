@@ -20,7 +20,7 @@ FILE * wiifp;
 
 void wiicontrol_setup(void){	
 	printf("WII_CONTROL: SPAWNING\n");
-	wiifp = popen("sudo /home/pi/wii/wii", "r");
+	wiifp = popen("sudo /home/pi/portal/wii/wii", "r");
 	fcntl(fileno(wiifp), F_SETFL, fcntl(fileno(wiifp), F_GETFL, 0) | O_NONBLOCK);
 	printf("WII_CONTROL: READY\n");
 }
