@@ -1,21 +1,12 @@
-#include <err.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <alloca.h>
 #include <sys/time.h>  
-#include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <wiringPi.h>
 #include <gst/gst.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <net/if.h>
-#include <arpa/inet.h>
 
 int main(int argc, char *argv[]) {
 	//gstreamer launch codes
@@ -74,11 +65,11 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Need IP As Argument (22 or 23)\n");
 		exit(1);
 	}
-	
-	char *arg1_gst[]  = {"popen"};
-	char *arg2_gst[]  = {"--gst-disable-registry-update"};
-	char *arg3_gst[]  = {"--gst-debug-level=0"};
-	char ** argv_gst[3] = {arg1_gst,arg2_gst,arg3_gst};
+
+	const char *arg1_gst[]  = {"popen"};
+	const char *arg2_gst[]  = {"--gst-disable-registry-update"};
+	const char *arg3_gst[]  = {"--gst-debug-level=0"};
+	char ** argv_gst[3] = {(char **)arg1_gst,(char **)arg2_gst,(char **)arg3_gst};
 	int argc_gst = 3;
 	/* Initialize GStreamer */
 	gst_init (&argc_gst, argv_gst );
@@ -88,7 +79,11 @@ int main(int argc, char *argv[]) {
 	
 	if (ip == 23) rpicamsrc = rpicamsrc22;
 	else if (ip ==22) rpicamsrc = rpicamsrc23;
-	
+	else {
+		fprintf(stderr, "Need IP As Argument (22 or 23)\n");
+		exit(1);
+	}
+
 	//stats
 	uint32_t sampletime = 0;
 	int missed = 0;

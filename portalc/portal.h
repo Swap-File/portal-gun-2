@@ -1,26 +1,25 @@
 #ifndef _PORTAL_H
 #define _PORTAL_H
 
-#include "ledcontrol.h"
-#include "udpcontrol.h"
-#include "pipecontrol.h"
-#include "wiicontrol.h"
-#include <string.h>
-#include <stdio.h>
 #include <stdint.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <wiringPi.h>
-#include <errno.h>
-#include <sys/fcntl.h>
-#include <sys/ioctl.h>
-#include <signal.h>
-#include <sys/time.h>  
-#include <net/if.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#define EFFECT_RESOLUTION 400
-#define BREATHING_RATE 2000
+
+struct this_gun_struct {
+	float brightness = 0.0;
+	int shared_state = 0;  //state reported to other gun
+	int shared_state_previous = 0;
+	int private_state = 0; //internal state for single player modes
+	int private_state_previous = 0;
+	bool initiator = false; //Did this gun start the connection request?
+	uint32_t clock = 0;
+};  
+
+struct other_gun_struct {
+	int state = 0; //state read from other gun
+	int state_previous = 0;
+	bool connected = false; 
+	uint32_t last_seen = 0;
+	uint32_t clock = 0;
+};  
 
 #define GUN_EXPIRE 1000 //expire a gun in 1 second
 
@@ -41,11 +40,8 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-struct this_gun_struct;
-struct other_gun_struct;
-
 int get_ip(void);
 void INThandler(int dummy);
-void local_state_engine(int button,struct this_gun_struct *this_gun,struct other_gun_struct *other_gun);
-void led_update(struct this_gun_struct *this_gun,struct other_gun_struct *other_gun);
+void local_state_engine(int button, this_gun_struct *this_gun, other_gun_struct *other_gun);
+
 #endif

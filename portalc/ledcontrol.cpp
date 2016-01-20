@@ -1,24 +1,18 @@
+#include "portal.h"
+#include "ledcontrol.h" 
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <linux/types.h>
 #include <stdlib.h>
-#include <linux/spi/spidev.h>
-#include <sys/ioctl.h>
-#include <errno.h>
 #include <math.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/stat.h>
-#include "ledcontrol.h" 
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-
-#define EFFECT_RESOLUTION 400
 #define LED_STRIP_LENGTH 20
+#define BREATHING_PERIOD 2 
+#define EFFECT_RESOLUTION 400
+#define BREATHING_RATE 2000
 
 const uint8_t ending[2] = {0x00,0x00};
 
@@ -38,8 +32,6 @@ bool overlay_enabled = false;
 int overlay_timer;
 
 int timeoffset=0;
-
-
 int offset_target_time = 0 ;
 
 //leading edge mode
@@ -55,13 +47,47 @@ int total_offset_previous = 0;
 int width_speed = 200; //.2 seconds
 int cooldown_time= 0; 
 
-#define BREATHINGRATE 2  //period of 2 seconds
 float effect_array[EFFECT_RESOLUTION];
 int ticks_since_overlay_enable = 128; //disabled overlay on bootup
 //int shift_speed_last_update;
 int width_speed_last_update = 0;
 uint8_t brightnesslookup[128][EFFECT_RESOLUTION];
 
+void led_update( this_gun_struct *this_gun, other_gun_struct *other_gun){
+	
+	int color1 = -1;  //default color of white for shutdown state
+	//set color from state data		
+	if (this_gun->shared_state > 0 || this_gun->private_state > 0)		color1 = 20;
+	else if(this_gun->shared_state < 0 || this_gun->private_state < 0)	color1 = 240;
+	
+	int width_request = 20;
+	//set width
+	if(this_gun->shared_state == 1 || this_gun->private_state == -1 || this_gun->private_state == 1 || this_gun->shared_state == -3 ){
+		width_request = 10;
+	}else if(this_gun->shared_state == -1)	width_request = 1;	
+	else if(this_gun->shared_state == -2)	width_request = 5;	
+	
+	int width_speed = 200;
+	//set width speed
+	if (this_gun->shared_state <= -4 || this_gun->shared_state >= 4 || this_gun->private_state <= -4 || this_gun->private_state>= 4 ){
+		width_speed = 0;
+	}
+	
+	int shutdown_effect = 0;
+	//shutdown_effect
+	if (this_gun->shared_state == 0 && this_gun->private_state == 0) shutdown_effect = 1;
+	
+
+	int total_time_offset;
+	if (other_gun->connected) {
+		total_time_offset = (this_gun->clock >> 1) + (other_gun->clock >> 1);  //average the two values
+	}else{
+		total_time_offset = this_gun->clock;
+	}
+	total_time_offset = int((float)(total_time_offset % BREATHING_RATE) * ((float)EFFECT_RESOLUTION)/((float)BREATHING_RATE));
+	
+	this_gun->brightness = ledcontrol_update(color1,width_request,width_speed,shutdown_effect,total_time_offset);
+}
 
 //red and blue swapped
 void Wheel(int WheelPos, uint8_t *b, uint8_t *r, uint8_t *g){
@@ -105,7 +131,7 @@ void ledcontrol_setup(void) {
 	printf("LED_Control : Building Lookup Table...\n");
 	for ( int i = 0; i < EFFECT_RESOLUTION; i++ ) { 
 		//add pi/2 to put max value (1) at start of range
-		effect_array[i] =  ((exp(sin( M_PI/2  +(float(i)/(EFFECT_RESOLUTION/BREATHINGRATE)*M_PI))) )/ (M_E));
+		effect_array[i] =  ((exp(sin( M_PI/2  +(float(i)/(EFFECT_RESOLUTION/BREATHING_PERIOD)*M_PI))) )/ (M_E));
 		//printf( "Y: %f\n", effect_array[i]);
 	}
 	

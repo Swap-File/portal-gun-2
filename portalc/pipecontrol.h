@@ -4,9 +4,7 @@
 void pipecontrol_setup(int ip);
 void pipecontrol_cleanup(void);
 
-
 void aplay(const char *filename);//filename full path string
-
 void web_output(int mode1, int mode2);//filename full path string
 
 void ahrs_command(int x, int y, int z, int number); //numerical command for what state to be in
