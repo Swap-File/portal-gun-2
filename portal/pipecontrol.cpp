@@ -195,7 +195,16 @@ void audio_effects(this_gun_struct *this_gun){
 	//on quick swap to transmit
 	if ((this_gun->shared_state_previous >= 4 )&& (this_gun->shared_state <= -4)){
 		aplay("/home/pi/portalgun/portal_fizzle2.wav");
-	}			
+	}	
+
+	//shared effect change close portal end sfx
+	if (this_gun->shared_state_previous == 4 && this_gun->shared_state == 5){
+		aplay("/home/pi/portalgun/portal_close1.wav");
+	}	
+	//shared effect change open portal end sfx
+	if (this_gun->shared_state_previous == 5 && this_gun->shared_state == 4){
+		aplay("/home/pi/portalgun/portal_open1.wav");
+	}	
 	
 	//SELF STATES
 	if ((this_gun->private_state_previous != this_gun->private_state) && (this_gun->private_state == 1 || this_gun->private_state == -1)){
@@ -210,6 +219,7 @@ void audio_effects(this_gun_struct *this_gun){
 	if ((this_gun->private_state_previous < 3 && this_gun->private_state_previous > -3  ) && (this_gun->private_state == 3 || this_gun->private_state == -3)){
 		aplay("/home/pi/portalgun/portalgun_shoot_blue1.wav");
 	}
+
 
 	
 	//on quick swap 

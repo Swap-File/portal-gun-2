@@ -289,21 +289,9 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 
 	glBindTexture(GL_TEXTURE_2D, 0);  // Turn off textures
 
-	// Acceleration
-	//const float accel_scale = 10;
-	
-	
-	
-	if CHECK_BIT(frame,2){
-		glColor4f(247.0/255.0 ,145.0/255.0 ,38.0/255.0 ,1.0);
-	}else{
-		glColor4f(23.0/255.0 ,192.0/255.0 ,233.0/255.0 ,1.0);
-	}
-	
-	
-	
 
-	
+	if CHECK_BIT(frame,2)	glColor4f(247.0/255.0 ,145.0/255.0 ,38.0/255.0 ,1.0);
+	else					glColor4f(23.0/255.0 ,192.0/255.0 ,233.0/255.0 ,1.0);
 	
 	float alpha = .5;
 	float relative_acceleration[2];
@@ -437,7 +425,7 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	
 	//iris speed
 	if( blank_fader < 0 ){
-		blank_fader = blank_fader - .2*blank_fader ;
+		blank_fader = blank_fader - .18*blank_fader ;
 		if( blank_fader > 0 ){
 			blank_fader = 0;
 		}
@@ -449,21 +437,12 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	texCoords[8] =  texCoords[9] =  texCoords[11] =  texCoords[12] = (blank_fader);
 	texCoords[10] =  texCoords[13] =  texCoords[14] =  texCoords[15] = (1.0 - blank_fader);
 	
-	glScalef(1.55,1.15,1);
+	glScalef(2.08,1.17,1);
 	glRotatef(portal_spin, 0, 0, 1);
 	glDrawArrays(GL_TRIANGLE_STRIP, 4, 4);
 
 	glPopMatrix();
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	glColor4f(0,0,0,1);	  
 	
 	GLfloat rgba4[4] = {1.0,1.0,1.0,1.0};

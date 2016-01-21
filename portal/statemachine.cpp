@@ -1,5 +1,7 @@
 #include "portal.h"
 
+int cycles_in_state5 =0;
+
 void local_state_engine(int button, this_gun_struct *this_gun, other_gun_struct *other_gun){
 	
 	//button event transitions
@@ -19,7 +21,7 @@ void local_state_engine(int button, this_gun_struct *this_gun, other_gun_struct 
 		}else if(this_gun->shared_state == 4){
 			this_gun->shared_state = 5;
 		}else if(this_gun->shared_state == 5){
-			this_gun->shared_state = 4;
+			this_gun->shared_state = 4;  
 		}else if(this_gun->shared_state == -4){ //swap places
 			this_gun->shared_state = 4;
 		}else if(this_gun->shared_state == 2 && this_gun->initiator == false){  //answer an incoming call immediately and open portal on button press
@@ -95,6 +97,9 @@ void local_state_engine(int button, this_gun_struct *this_gun, other_gun_struct 
 			this_gun->shared_state = -4;
 			this_gun->initiator = false;
 		}
+		
+		
+		
 	}else{
 		//code to pull out of self state
 		if ((other_gun->state_previous != other_gun->state)&& (other_gun->state <= -2)){

@@ -137,49 +137,49 @@ int main(int argc, char *argv[]) {
 			switch (requested_state){
 				//the basics
 			case GST_BLANK: new_cmd = blank; break;
-			case VIDEOTESTSRC:	new_cmd = videotestsrc;	break;
-			case VIDEOTESTSRC_CUBED: new_cmd = videotestsrc_cubed; break;
-			case RPICAMSRC: new_cmd = rpicamsrc; break;
-			case NORMAL: new_cmd = normal; break; 	
+			case GST_VIDEOTESTSRC:	new_cmd = videotestsrc;	break;
+			case GST_VIDEOTESTSRC_CUBED: new_cmd = videotestsrc_cubed; break;
+			case GST_RPICAMSRC: new_cmd = rpicamsrc; break;
+			case GST_NORMAL: new_cmd = normal; break; 	
 				
 				//libvisual 10 - 18
-			case LIBVISUAL_JESS: new_cmd = libvisual_jess; break;	  //good
-			case LIBVISUAL_INFINITE: new_cmd = libvisual_infinite; break;	//good
-			case LIBVISUAL_JACKDAW: new_cmd = libvisual_jakdaw; break;	//good
-			case LIBVISUAL_OINKSIE: new_cmd = libvisual_oinksie; break;	//good		
+			case GST_LIBVISUAL_JESS: new_cmd = libvisual_jess; break;	  //good
+			case GST_LIBVISUAL_INFINITE: new_cmd = libvisual_infinite; break;	//good
+			case GST_LIBVISUAL_JACKDAW: new_cmd = libvisual_jakdaw; break;	//good
+			case GST_LIBVISUAL_OINKSIE: new_cmd = libvisual_oinksie; break;	//good		
 				//tv effects	
-			case REVTV: new_cmd = revtv; break;//good
-			case AGINGTV: new_cmd = agingtv; break;//steampunk
-			case DICETV: new_cmd = dicetv; break;//works
-			case WARPTV: new_cmd = warptv; break;//works
-			case SHAGADELICTV: new_cmd = shagadelictv; break;//works			
-			case VERTIGOTV: new_cmd = vertigotv; break;//works
-			case KALEIDOSCOPE: new_cmd = kaleidoscope; break;//
-			case MARBLE: new_cmd = marble; break;//
-			case RIPPLETV: new_cmd = rippletv; break;//works
-			case EDGETV: new_cmd = edgetv; break;//works					
+			case GST_REVTV: new_cmd = revtv; break;//good
+			case GST_AGINGTV: new_cmd = agingtv; break;//steampunk
+			case GST_DICETV: new_cmd = dicetv; break;//works
+			case GST_WARPTV: new_cmd = warptv; break;//works
+			case GST_SHAGADELICTV: new_cmd = shagadelictv; break;//works			
+			case GST_VERTIGOTV: new_cmd = vertigotv; break;//works
+			case GST_KALEIDOSCOPE: new_cmd = kaleidoscope; break;//
+			case GST_MARBLE: new_cmd = marble; break;//
+			case GST_RIPPLETV: new_cmd = rippletv; break;//works
+			case GST_EDGETV: new_cmd = edgetv; break;//works					
 				//gl effects	
-			case GLCUBE: new_cmd = glfiltercube; break;
-			case GLMIRROR: new_cmd = gleffects_mirror; break;
-			case GLSQUEEZE: new_cmd = gleffects_squeeze; break;
-			case GLSTRETCH: new_cmd = gleffects_stretch; break;
-			case GLTUNNEL: new_cmd = gleffects_tunnel; break;	//really good O	
-			case GLTWIRL: new_cmd = gleffects_twirl; break; //creepy as fuck
-			case GLBULDGE: new_cmd = gleffects_bulge; break;	
-			case GLHEAT: new_cmd = gleffects_heat; break;
+			case GST_GLCUBE: new_cmd = glfiltercube; break;
+			case GST_GLMIRROR: new_cmd = gleffects_mirror; break;
+			case GST_GLSQUEEZE: new_cmd = gleffects_squeeze; break;
+			case GST_GLSTRETCH: new_cmd = gleffects_stretch; break;
+			case GST_GLTUNNEL: new_cmd = gleffects_tunnel; break;	//really good O	
+			case GST_GLTWIRL: new_cmd = gleffects_twirl; break; //creepy as fuck
+			case GST_GLBULDGE: new_cmd = gleffects_bulge; break;	
+			case GST_GLHEAT: new_cmd = gleffects_heat; break;
 
-			case MOVIE1: new_cmd = movie1; break;	
-			case MOVIE2: new_cmd = movie2; break;	
-			case MOVIE3: new_cmd = movie3; break;	
-			case MOVIE4: new_cmd = movie4; break;	
-			case MOVIE5: new_cmd = movie5; break;	
-			case MOVIE6: new_cmd = movie6; break;	
-			case MOVIE7: new_cmd = movie7; break;	
-			case MOVIE8: new_cmd = movie8; break;	
-			case MOVIE9: new_cmd = movie9; break;	
-			case MOVIE10: new_cmd = movie10; break;	
-			case MOVIE11: new_cmd = movie11; break;	
-			case MOVIE12: new_cmd = movie12; break;	
+			case GST_MOVIE1: new_cmd = movie1; break;	
+			case GST_MOVIE2: new_cmd = movie2; break;	
+			case GST_MOVIE3: new_cmd = movie3; break;	
+			case GST_MOVIE4: new_cmd = movie4; break;	
+			case GST_MOVIE5: new_cmd = movie5; break;	
+			case GST_MOVIE6: new_cmd = movie6; break;	
+			case GST_MOVIE7: new_cmd = movie7; break;	
+			case GST_MOVIE8: new_cmd = movie8; break;	
+			case GST_MOVIE9: new_cmd = movie9; break;	
+			case GST_MOVIE10: new_cmd = movie10; break;	
+			case GST_MOVIE11: new_cmd = movie11; break;	
+			case GST_MOVIE12: new_cmd = movie12; break;	
 				
 			default:
 				//skip bad requests by claiming we already did it!

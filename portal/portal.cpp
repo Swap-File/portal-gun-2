@@ -20,23 +20,20 @@ void INThandler(int dummy) {
 }
 
 int main(void){
-	
 	const uint32_t video_length[12] = {24467,16767,12067,82000,30434,22900,19067,70000,94000,53167,184000,140000} ;
 	uint32_t video_start_time =0 ;
 	uint32_t active_video_lentgh = 0;
 
-	//reset playlists on close? (make option?)
+	//reset playlists on close
 	int private_playlist[10]={10,50,13,51,14,51,15,-1};
 	int private_playlist_index = 0;
 
-	int shared_playlist[10]={4,20,29,-1};
+	int shared_playlist[10]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_KALEIDOSCOPE,GST_EDGETV,-1};
 	int shared_playlist_index = 0;
 
 	struct other_gun_struct other_gun;
 	struct this_gun_struct this_gun;
-
-	int ip = get_ip();
-
+	
 	//catch broken pipes to respawn threads if they crash
 	signal(SIGPIPE, SIG_IGN);
 	//catch ctrl+c when exiting
@@ -49,13 +46,13 @@ int main(void){
 	int fps = 0;
 	uint32_t udp_send_time = 0;
 	
+	int ip = udpcontrol_setup();
 	pipecontrol_setup(ip);
 	ledcontrol_setup();
-	udpcontrol_setup(ip);
 	wiicontrol_setup();
 	
 	int gst_backend = 0;
-	int next_effect = 50;
+	int next_effect = 0;
 	bool freq_division = true; //toggles every other cycle
 	
 	while(1){
@@ -91,6 +88,12 @@ int main(void){
 			}
 		}
 
+		//reset playlists on reset
+		if (button_event == BUTTON_BLUE_LONG || button_event == BUTTON_ORANGE_LONG){
+			shared_playlist_index = 0;
+			private_playlist_index = 0;			
+		}
+		
 		//read other gun's data, only if no button events are happening this cycle
 		while (button_event == BUTTON_NONE){
 			int result = udp_receive_state(&other_gun.state,&other_gun.clock);
@@ -120,24 +123,28 @@ int main(void){
 		//shared state stuff
 		
 		//start camera (preload in state 3, shutter is closed)
-		if(this_gun.shared_state <= -3) gst_backend = RPICAMSRC;
+		if(this_gun.shared_state <= -2) gst_backend = GST_RPICAMSRC;
 		
-		//start live feed playback (preload in state 3, shutter is closed)
-		if(this_gun.shared_state >= 3) gst_backend = NORMAL;
+		if(this_gun.shared_state >= 2) gst_backend = shared_playlist[shared_playlist_index];
 		
+		//preload live projector feed in state 3, shutter is closed, also change to next effect in state 5 entry
+		if (this_gun.shared_state == 5 && this_gun.shared_state_previous == 4){    
+				if (shared_playlist[++shared_playlist_index] < 0) shared_playlist_index = 0;
+			}
+	
 		
 		//private state stuff
 		
 		//preload next effect and start in background if its video
 		if ((this_gun.private_state_previous != -3 && this_gun.private_state == -3) || (this_gun.private_state_previous != 3  && this_gun.private_state == 3) ){
 			//movies
-			if (gst_backend >= MOVIE_FIRST && gst_backend <= MOVIE_LAST){
+			if (gst_backend >= GST_MOVIE_FIRST && gst_backend <= GST_MOVIE_LAST){
 				gst_backend = GST_BLANK;
 			}
 			next_effect = private_playlist[private_playlist_index++];
 			if (private_playlist[private_playlist_index] < 0) private_playlist_index = 0;
 			
-			if (next_effect >= LIBVISUAL_FIRST && next_effect < LIBVISUAL_LAST){
+			if (next_effect >= GST_LIBVISUAL_FIRST && next_effect < GST_LIBVISUAL_LAST){
 				gst_backend = next_effect;
 				printf("\n\nPreloading vis\n");
 			}else{
@@ -154,9 +161,9 @@ int main(void){
 			
 			printf("\n\n Starting Video or viz\n");
 			gst_backend = next_effect; //run video
-			if (gst_backend >= MOVIE_FIRST && gst_backend <= MOVIE_LAST){
+			if (gst_backend >= GST_MOVIE_FIRST && gst_backend <= GST_MOVIE_LAST){
 				video_start_time = this_gun.clock;
-				active_video_lentgh = video_length[gst_backend - MOVIE_FIRST];			
+				active_video_lentgh = video_length[gst_backend - GST_MOVIE_FIRST];			
 			}
 		}
 		
@@ -175,34 +182,33 @@ int main(void){
 			this_gun.private_state < 3 && this_gun.private_state > -3) gst_backend = GST_BLANK;
 		
 		//ahrs effects
-		int ahrs_number = 9; 
+		int ahrs_number = AHRS_CLOSED; 
 		// for networked modes
 		if (this_gun.private_state == 0){
-			if (this_gun.shared_state ==3) 	ahrs_number = 7;
-			else if (this_gun.shared_state >= 4) ahrs_number = 6;		
+			if (this_gun.shared_state == 3) ahrs_number = AHRS_CLOSED_ORANGE;
+			else if (this_gun.shared_state == 4) ahrs_number = AHRS_OPEN_ORANGE;		
+			else if (this_gun.shared_state == 5) ahrs_number = AHRS_CLOSED_ORANGE; //blink shut on effect change
 		}
 		// for self modes
 		if (this_gun.shared_state == 0){
-			if (this_gun.private_state == 3 || this_gun.private_state == 4)	ahrs_number = 7;
-			else if (this_gun.private_state == -3 || this_gun.private_state == -4)	ahrs_number =  1;
-			else if (this_gun.private_state < -4) ahrs_number = 0;
-			else if (this_gun.private_state > 4) ahrs_number = 6;	
+			if (this_gun.private_state == 3 || this_gun.private_state == 4)	ahrs_number = AHRS_CLOSED_ORANGE;
+			else if (this_gun.private_state == -3 || this_gun.private_state == -4) ahrs_number = AHRS_CLOSED_BLUE;
+			else if (this_gun.private_state < -4) ahrs_number = AHRS_OPEN_BLUE;
+			else if (this_gun.private_state > 4) ahrs_number = AHRS_OPEN_ORANGE;
 		}
-		
-		//calulate sfx down here
-		
-		audio_effects(&this_gun);
 		
 		ahrs_command(2,2,2,ahrs_number);
 		
+		audio_effects(&this_gun);
+				
 		gst_command(gst_backend);	
 		
-		//this keeps the subprocesses running at 50hz since main thread is 100hz	
+		//hic svnt dracones
 		if(freq_division) led_update(&this_gun,&other_gun);
 		
 		//send data to other gun
 		if (this_gun.clock - udp_send_time > 100){
-			udp_send_state(&this_gun.shared_state,&this_gun.clock);
+			udp_send_state(this_gun.shared_state,this_gun.clock);
 			udp_send_time = this_gun.clock;
 			web_output(gst_backend,this_gun.shared_state);
 		}

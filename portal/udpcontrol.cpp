@@ -15,7 +15,6 @@
 
 char my_ip[20];
 char dest_ip[20];
-
 char buf[BUFLEN];
 struct sockaddr_in sender_addr;
 int sender_sockfd;
@@ -45,7 +44,8 @@ int get_ip(void){
 	return 0;
 }
 
-void udpcontrol_setup(int ip){
+int udpcontrol_setup(){
+	int ip = get_ip();
 	
 	if (ip == 22){
 		strcpy(my_ip, "192.168.1.22");
@@ -109,10 +109,12 @@ void udpcontrol_setup(int ip){
 	}
 	else
 	printf("UDP_Control : bind() successful\n");
+
+	return ip;
 }
 
-int udp_send_state(int *state, uint32_t * offset){
-	int n = sprintf (buf, "%d %d", *state, *offset);
+int udp_send_state(int state, uint32_t offset){
+	int n = sprintf (buf, "%d %d", state, offset);
 	//n + 1 to include null terminator!
 	return sendto(sender_sockfd, buf, n + 1, MSG_DONTWAIT, (struct sockaddr*)&sender_addr, srlen);
 }
