@@ -1,6 +1,5 @@
 #include "portal.h"
 
-int cycles_in_state5 =0;
 
 void local_state_engine(int button, this_gun_struct *this_gun, other_gun_struct *other_gun){
 	

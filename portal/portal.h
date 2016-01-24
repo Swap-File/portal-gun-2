@@ -40,8 +40,6 @@ struct other_gun_struct {
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-int get_ip(void);
 void INThandler(int dummy);
-void local_state_engine(int button, this_gun_struct *this_gun, other_gun_struct *other_gun);
 
 #endif

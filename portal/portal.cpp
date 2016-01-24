@@ -3,7 +3,7 @@
 #include "ledcontrol.h"
 #include "udpcontrol.h"
 #include "pipecontrol.h"
-#include "wiicontrol.h"
+#include "arduino.h"
 #include "statemachine.h"
 #include <stdio.h>
 #include <stdint.h>
@@ -28,7 +28,7 @@ int main(void){
 	int private_playlist[10]={10,50,13,51,14,51,15,-1};
 	int private_playlist_index = 0;
 
-	int shared_playlist[10]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_KALEIDOSCOPE,GST_EDGETV,-1};
+	int shared_playlist[10]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_GLHEAT,GST_EDGETV,-1};
 	int shared_playlist_index = 0;
 
 	struct other_gun_struct other_gun;
@@ -49,7 +49,7 @@ int main(void){
 	int ip = udpcontrol_setup();
 	pipecontrol_setup(ip);
 	ledcontrol_setup();
-	wiicontrol_setup();
+	arduino_setup();
 	
 	int gst_backend = 0;
 	int next_effect = 0;
@@ -71,7 +71,7 @@ int main(void){
 		this_gun.private_state_previous = this_gun.private_state;
 		other_gun.state_previous = other_gun.state;
 		
-		wiicontrol_update();
+		arduino_update();
 		
 		int button_event = BUTTON_NONE;
 		int result = read_web_pipe();

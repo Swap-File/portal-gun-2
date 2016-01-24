@@ -25,11 +25,9 @@ portal:	$(OBJs)
 clean:
 	@rm -fv portal $(OBJs) $(DEPs) *.o
 	$(MAKE) -C gstvideo clean
-	$(MAKE) -C wii clean
 	$(MAKE) -C ahrs-visualizer clean
 	
 .PHONY: subprocesses
 subprocesses:
 	$(MAKE) -C gstvideo
-	$(MAKE) -C wii
 	$(MAKE) -C ahrs-visualizer

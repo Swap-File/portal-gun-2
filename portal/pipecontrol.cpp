@@ -30,7 +30,6 @@ void pipecontrol_cleanup(void){
 	system("pkill mjpeg");
 	system("pkill raspivid");
 	system("pkill ahrs");
-	system("pkill popen");
 }
 
 void pipecontrol_setup(int new_ip){
