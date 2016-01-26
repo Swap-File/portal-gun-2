@@ -9,13 +9,13 @@ CPPFLAGS += --std=c++0x
 CPPFLAGS += -Wall 
 
 # Fix http://gcc.gnu.org/bugzilla/show_bug.cgi?id=42748
-CPPFLAGS += -Wno-psabi 
+#CPPFLAGS += -Wno-psabi 
 
 # Generate .d files with dependency info
 CPPFLAGS += -MD -MP
 
-# Debuggable and optimized.
-CPPFLAGS += -g -O2 
+# optimized.
+CPPFLAGS += -O2 
 
 # Weird stuff needed to do OpenGL ES 2 on a Raspberry Pi
 CPPFLAGS += -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux

@@ -2,10 +2,10 @@
 #define _NUNCHUK_H
 #include <stdint.h>
 void arduino_setup(void);
-void arduino_update(void);
-uint8_t crc8(const uint8_t *addr, uint8_t len);
-void SerialUpdate(int fd);
-void onPacket(const uint8_t* buffer, uint8_t size);
+int arduino_update(uint8_t brightness, bool connected,uint8_t ir_pwm);
+uint8_t crc8(const uint8_t* addr, uint8_t len);
+int SerialUpdate(int fd);
+int onPacket(const uint8_t* buffer, uint8_t size);
 
 static const uint8_t dscrc_table[] = {
       0, 94,188,226, 97, 63,221,131,194,156,126, 32,163,253, 31, 65,

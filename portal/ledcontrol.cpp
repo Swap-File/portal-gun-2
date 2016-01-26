@@ -53,40 +53,40 @@ int ticks_since_overlay_enable = 128; //disabled overlay on bootup
 int width_speed_last_update = 0;
 uint8_t brightnesslookup[128][EFFECT_RESOLUTION];
 
-void led_update( this_gun_struct *this_gun, other_gun_struct *other_gun){
+uint8_t led_update(const this_gun_struct& this_gun,const other_gun_struct& other_gun){
 	
 	int color1 = -1;  //default color of white for shutdown state
 	//set color from state data		
-	if (this_gun->shared_state > 0 || this_gun->private_state > 0)		color1 = 20;
-	else if(this_gun->shared_state < 0 || this_gun->private_state < 0)	color1 = 240;
+	if (this_gun.shared_state > 0 || this_gun.private_state > 0)		color1 = 20;
+	else if(this_gun.shared_state < 0 || this_gun.private_state < 0)	color1 = 240;
 	
 	int width_request = 20;
 	//set width
-	if(this_gun->shared_state == 1 || this_gun->private_state == -1 || this_gun->private_state == 1 || this_gun->shared_state == -3 ){
+	if(this_gun.shared_state == 1 || this_gun.private_state == -1 || this_gun.private_state == 1 || this_gun.shared_state == -3 ){
 		width_request = 10;
-	}else if(this_gun->shared_state == -1)	width_request = 1;	
-	else if(this_gun->shared_state == -2)	width_request = 5;	
+	}else if(this_gun.shared_state == -1)	width_request = 1;	
+	else if(this_gun.shared_state == -2)	width_request = 5;	
 	
 	int width_speed = 200;
 	//set width speed
-	if (this_gun->shared_state <= -4 || this_gun->shared_state >= 4 || this_gun->private_state <= -4 || this_gun->private_state>= 4 ){
+	if (this_gun.shared_state <= -4 || this_gun.shared_state >= 4 || this_gun.private_state <= -4 || this_gun.private_state>= 4 ){
 		width_speed = 0;
 	}
 	
 	int shutdown_effect = 0;
 	//shutdown_effect
-	if (this_gun->shared_state == 0 && this_gun->private_state == 0) shutdown_effect = 1;
+	if (this_gun.shared_state == 0 && this_gun.private_state == 0) shutdown_effect = 1;
 	
 
 	int total_time_offset;
-	if (other_gun->connected) {
-		total_time_offset = (this_gun->clock >> 1) + (other_gun->clock >> 1);  //average the two values
+	if (other_gun.connected) {
+		total_time_offset = (this_gun.clock >> 1) + (other_gun.clock >> 1);  //average the two values
 	}else{
-		total_time_offset = this_gun->clock;
+		total_time_offset = this_gun.clock;
 	}
 	total_time_offset = int((float)(total_time_offset % BREATHING_RATE) * ((float)EFFECT_RESOLUTION)/((float)BREATHING_RATE));
 	
-	this_gun->brightness = ledcontrol_update(color1,width_request,width_speed,shutdown_effect,total_time_offset);
+	return 255 * ledcontrol_update(color1,width_request,width_speed,shutdown_effect,total_time_offset);
 }
 
 //red and blue swapped

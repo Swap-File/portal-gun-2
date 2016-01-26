@@ -5,14 +5,14 @@
 
 //#define TESTING
 
-
 //pins!
 //13 internal LED
 //2 dmp interrupt
 //4 and 7 button 1 and 2
 //5 and 6 pwm 1 and 2
-//A0 battery level
-
+//A2 battery level
+//A0 temp
+//3 is PWM3
 
 // Arduino Wire library is required if I2Cdev I2CDEV_ARDUINO_WIRE implementation
 // is used in I2Cdev.h
@@ -47,6 +47,11 @@ float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 uint8_t gloveid; 
+uint8_t packet_counter = 0;
+uint8_t pin4_1_bucket = 0;
+uint8_t pin4_0_bucket = 0;
+uint8_t pin7_1_bucket = 0;
+uint8_t pin7_0_bucket = 0;
 
 //serial com data
 #define INCOMING_BUFFER_SIZE 128
@@ -54,7 +59,6 @@ uint8_t incoming_raw_buffer[INCOMING_BUFFER_SIZE];
 uint8_t incoming_index = 0;
 uint8_t incoming_decoded_buffer[INCOMING_BUFFER_SIZE];
 
-uint8_t fingers = 0x00;
 uint8_t crc_error = 0;
 uint8_t framing_error = 0;
 uint16_t temperature = 0;
@@ -84,6 +88,7 @@ void dmpDataReady() {
 void setup() {
 
 	pinMode(LED_PIN, OUTPUT);  //indiator LED, onboard yellow
+	pinMode(3, OUTPUT);
 	pinMode(4, INPUT_PULLUP);
 	pinMode(7, INPUT_PULLUP);
 	pinMode(5, OUTPUT);
@@ -190,7 +195,6 @@ void loop() {
 	// if programming failed, don't try to do anything
 	if (!dmpReady) return;
 
-	fingers = 0x00; //reset each loop
 
 	long int idle_start_timer = 0;
 
@@ -209,16 +213,17 @@ void loop() {
 			fps_time = micros();
 		}
 
+		//because we are running at 100hz, these buckets can't overflow
+		//if running slower use bigger buckets or saturating add
+		if (digitalRead(4)) pin4_1_bucket++;
+		else				pin4_0_bucket++;
+		
+		if (digitalRead(7)) pin7_1_bucket++;
+		else				pin7_0_bucket++;
+		
+		temperature = (temperature >> 1) +  (analogRead(A0) >> 1);
+		battery_level = (battery_level >> 1) + (analogRead(A2) >> 1);
 
-		if (digitalRead(4)){
-			bitSet(fingers, 0);
-		}
-		if (digitalRead(7)){
-			bitSet(fingers, 1);
-		}
-
-		temperature  = analogRead(A0);
-		battery_level = analogRead(A2);
 		SerialUpdate();
 
 		//dont count first cycle, its not idle time, its required
@@ -263,8 +268,6 @@ void loop() {
 		mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
 		mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
 
-
-
 #ifdef TESTING
 		Serial.print("ypr\t");
 		Serial.print(ypr[0] * 180 / M_PI);
@@ -296,6 +299,17 @@ void loop() {
 
 #endif
 
+		uint8_t inputs = gloveid << 7;
+		if (pin4_1_bucket > pin4_0_bucket) {
+			bitSet(inputs, 0);
+		}
+		if (pin7_1_bucket > pin7_0_bucket) {
+			bitSet(inputs, 1);
+		}
+		pin4_1_bucket = 0;
+		pin4_0_bucket = 0;
+		pin7_1_bucket = 0;
+		pin7_0_bucket = 0;
 
 		byte raw_buffer[22];
 
@@ -320,8 +334,7 @@ void loop() {
 		raw_buffer[16] = ((aaWorld.z >> 8) & 0xff);
 		raw_buffer[17] = ((aaWorld.z >> 0) & 0xff);
 	
-		raw_buffer[18] = (int8_t)(fingers | (gloveid << 7));
-
+		raw_buffer[18] = inputs;
 
 		raw_buffer[19] = cpu_usage;
 
@@ -338,24 +351,20 @@ void loop() {
 		raw_buffer[26] = ((battery_level >> 8) & 0xff);
 		raw_buffer[27] = ((battery_level >> 0) & 0xff);
 
-		raw_buffer[28] = OneWire::crc8(raw_buffer, 28);
+		raw_buffer[28] = packet_counter++;
+		raw_buffer[29] = OneWire::crc8(raw_buffer, 29);
 
 		//prep buffer completely
-		uint8_t encoded_buffer[30];  //one extra to hold cobs data
-		uint8_t encoded_size = COBSencode(raw_buffer, 29, encoded_buffer);
+		uint8_t encoded_buffer[31];  //one extra to hold cobs data
+		uint8_t encoded_size = COBSencode(raw_buffer, 30, encoded_buffer);
 		//send out data from last cycle
 		Serial.write(encoded_buffer, encoded_size);
 		Serial.write(0x00);
 
-		if (packets_out_counter < 255){
-			packets_out_counter++;
-		}
+		//will overflow if not reset once a second....
+		packets_out_counter++;
 		
-
 		SerialUpdate();
-		//do temp calculation last, give it as much time as possible to settle
-
-
 	}
 }
 
@@ -363,10 +372,10 @@ void onPacket(const uint8_t* buffer, size_t size)
 {
 
 	//format of packet is
-	//PWM1 PWM2 CRC
+	//PWM1 PWM2 PWM3 CRC
 
 	//check for framing errors
-	if (size != 3 ){
+	if (size != 4 ){
 		framing_error++;
 	}
 	else{
@@ -385,8 +394,10 @@ void onPacket(const uint8_t* buffer, size_t size)
 				blinkState++;
 				digitalWrite(LED_PIN, bitRead(blinkState, 2));
 
+				//output pwm data
 				analogWrite(5, buffer[0]);
 				analogWrite(6, buffer[1]);
+				analogWrite(3, buffer[2]);
 		}
 	}
 }
@@ -404,10 +415,7 @@ void SerialUpdate(void){
 			uint8_t decoded_length = COBSdecode(incoming_raw_buffer, incoming_index, incoming_decoded_buffer);
 
 			//check length of decoded data (cleans up a series of 0x00 bytes)
-			if (decoded_length > 0){
-
-				onPacket(incoming_decoded_buffer, decoded_length);
-			}
+			if (decoded_length > 0)	onPacket(incoming_decoded_buffer, decoded_length);
 
 			//reset index
 			incoming_index = 0;

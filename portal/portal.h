@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 struct this_gun_struct {
-	float brightness = 0.0;
+	uint8_t brightness = 0;
 	int shared_state = 0;  //state reported to other gun
 	int shared_state_previous = 0;
 	int private_state = 0; //internal state for single player modes
@@ -22,6 +22,8 @@ struct other_gun_struct {
 };  
 
 #define GUN_EXPIRE 1000 //expire a gun in 1 second
+#define LONG_PRESS_TIME  500
+#define BUTTON_ACK_BLINK 100
 
 #define BUTTON_BOTH_LONG_BLUE 0
 #define BUTTON_BOTH_LONG_ORANGE 1

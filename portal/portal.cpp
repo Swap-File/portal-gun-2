@@ -71,20 +71,21 @@ int main(void){
 		this_gun.private_state_previous = this_gun.private_state;
 		other_gun.state_previous = other_gun.state;
 		
-		arduino_update();
+		int button_event = arduino_update(this_gun.brightness,other_gun.connected,0);
 		
-		int button_event = BUTTON_NONE;
-		int result = read_web_pipe();
-		if (result != -1){
-			printf("PIPE INCOMING! %d",result);
-			switch (result){
-			case WEB_ORANGE_WIFI:	button_event = BUTTON_ORANGE_SHORT;  	break;
-			case WEB_BLUE_WIFI:		button_event = BUTTON_BLUE_SHORT;    	break;
-			case WEB_BLUE_SELF:		button_event = BUTTON_BOTH_LONG_BLUE; 	break; 
-			case WEB_ORANGE_SELF: 	button_event = BUTTON_BOTH_LONG_ORANGE; break; 
-			case WEB_CLOSE: 		button_event = BUTTON_BLUE_LONG; 		break; 
-			default: 
-				gst_backend = result;
+		if (button_event == BUTTON_NONE){
+			int result = read_web_pipe();
+			if (result != -1){
+				printf("PIPE INCOMING! %d\n",result);
+				switch (result){
+				case WEB_ORANGE_WIFI:	button_event = BUTTON_ORANGE_SHORT;  	break;
+				case WEB_BLUE_WIFI:		button_event = BUTTON_BLUE_SHORT;    	break;
+				case WEB_BLUE_SELF:		button_event = BUTTON_BOTH_LONG_BLUE; 	break; 
+				case WEB_ORANGE_SELF: 	button_event = BUTTON_BOTH_LONG_ORANGE; break; 
+				case WEB_CLOSE: 		button_event = BUTTON_BLUE_LONG; 		break; 
+				default: 
+					gst_backend = result;
+				}
 			}
 		}
 
@@ -118,7 +119,7 @@ int main(void){
 		}
 		
 		//process state changes
-		local_state_engine(button_event,&this_gun,&other_gun);
+		local_state_engine(button_event,this_gun,other_gun);
 		
 		//shared state stuff
 		
@@ -199,12 +200,12 @@ int main(void){
 		
 		ahrs_command(2,2,2,ahrs_number);
 		
-		audio_effects(&this_gun);
+		audio_effects(this_gun);
 				
 		gst_command(gst_backend);	
 		
 		//hic svnt dracones
-		if(freq_division) led_update(&this_gun,&other_gun);
+		if(freq_division) this_gun.brightness = led_update(this_gun,other_gun);
 		
 		//send data to other gun
 		if (this_gun.clock - udp_send_time > 100){

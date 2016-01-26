@@ -158,86 +158,86 @@ int read_web_pipe(void){
 }
 
 
-void audio_effects(this_gun_struct *this_gun){
+void audio_effects(const this_gun_struct& this_gun){
 	
 	//LOCAL STATES
-	if ((this_gun->shared_state_previous != 0 || this_gun->private_state_previous != 0) && (this_gun->shared_state == 0 && this_gun->private_state == 0)){
+	if ((this_gun.shared_state_previous != 0 || this_gun.private_state_previous != 0) && (this_gun.shared_state == 0 && this_gun.private_state == 0)){
 		aplay("/home/pi/portalgun/portal_close1.wav");
 	}
 	//on entering state 1
-	if ((this_gun->shared_state_previous != this_gun->shared_state) && (this_gun->shared_state == 1)){
+	if ((this_gun.shared_state_previous != this_gun.shared_state) && (this_gun.shared_state == 1)){
 		aplay("/home/pi/physcannon/physcannon_charge1.wav");
 	}
 	//on entering state -1
-	if ((this_gun->shared_state_previous != -1)&& (this_gun->shared_state == -1)){
+	if ((this_gun.shared_state_previous != -1)&& (this_gun.shared_state == -1)){
 		aplay("/home/pi/physcannon/physcannon_charge1.wav");			
 	}
 	//on entering state 2
-	if ((this_gun->shared_state_previous !=2 ) &&  (this_gun->shared_state == 2)){
+	if ((this_gun.shared_state_previous !=2 ) &&  (this_gun.shared_state == 2)){
 		aplay("/home/pi/physcannon/physcannon_charge2.wav");		
 	}
 	//on entering state -2 from -1
-	if ((this_gun->shared_state_previous !=-2 ) &&  (this_gun->shared_state == -2)){
+	if ((this_gun.shared_state_previous !=-2 ) &&  (this_gun.shared_state == -2)){
 		aplay("/home/pi/physcannon/physcannon_charge2.wav");
 	}	
-	if ((this_gun->shared_state_previous !=-3 ) &&  (this_gun->shared_state == -3)){
+	if ((this_gun.shared_state_previous !=-3 ) &&  (this_gun.shared_state == -3)){
 		aplay("/home/pi/physcannon/physcannon_charge3.wav");
 	}	
 	//on entering state 3 from 2
-	if ((this_gun->shared_state_previous == 2 ) && ( this_gun->shared_state ==3)){	
+	if ((this_gun.shared_state_previous == 2 ) && ( this_gun.shared_state ==3)){	
 		aplay("/home/pi/portalgun/portalgun_shoot_blue1.wav");
 	}
 	//on quick swap to rec
-	if ((this_gun->shared_state_previous < 4 )&& (this_gun->shared_state == 4)){
+	if ((this_gun.shared_state_previous < 4 )&& (this_gun.shared_state == 4)){
 		aplay("/home/pi/portalgun/portal_open2.wav");
 	}
 	//on quick swap to transmit
-	if ((this_gun->shared_state_previous >= 4 )&& (this_gun->shared_state <= -4)){
+	if ((this_gun.shared_state_previous >= 4 )&& (this_gun.shared_state <= -4)){
 		aplay("/home/pi/portalgun/portal_fizzle2.wav");
 	}	
 
 	//shared effect change close portal end sfx
-	if (this_gun->shared_state_previous == 4 && this_gun->shared_state == 5){
+	if (this_gun.shared_state_previous == 4 && this_gun.shared_state == 5){
 		aplay("/home/pi/portalgun/portal_close1.wav");
 	}	
 	//shared effect change open portal end sfx
-	if (this_gun->shared_state_previous == 5 && this_gun->shared_state == 4){
+	if (this_gun.shared_state_previous == 5 && this_gun.shared_state == 4){
 		aplay("/home/pi/portalgun/portal_open1.wav");
 	}	
 	
 	//SELF STATES
-	if ((this_gun->private_state_previous != this_gun->private_state) && (this_gun->private_state == 1 || this_gun->private_state == -1)){
+	if ((this_gun.private_state_previous != this_gun.private_state) && (this_gun.private_state == 1 || this_gun.private_state == -1)){
 		aplay("/home/pi/physcannon/physcannon_charge1.wav");
 	}
 	//on entering state 2 or -2
-	if ((this_gun->private_state_previous != this_gun->private_state) && (this_gun->private_state == 2 || this_gun->private_state == -2)){
+	if ((this_gun.private_state_previous != this_gun.private_state) && (this_gun.private_state == 2 || this_gun.private_state == -2)){
 		aplay("/home/pi/physcannon/physcannon_charge2.wav");				
 	}
 	
 	//on entering state 3 or -3 from 0
-	if ((this_gun->private_state_previous < 3 && this_gun->private_state_previous > -3  ) && (this_gun->private_state == 3 || this_gun->private_state == -3)){
+	if ((this_gun.private_state_previous < 3 && this_gun.private_state_previous > -3  ) && (this_gun.private_state == 3 || this_gun.private_state == -3)){
 		aplay("/home/pi/portalgun/portalgun_shoot_blue1.wav");
 	}
 
 
 	
 	//on quick swap 
-	if (( this_gun->private_state_previous >= 3 && this_gun->private_state == -3) || (this_gun->private_state_previous <= -3 && this_gun->private_state == 3)){
+	if (( this_gun.private_state_previous >= 3 && this_gun.private_state == -3) || (this_gun.private_state_previous <= -3 && this_gun.private_state == 3)){
 		aplay("/home/pi/portalgun/portal_open2.wav");		
 	}
 	
 	//private end sfx
-	if ((this_gun->private_state_previous > 3 && this_gun->private_state == 3) || (this_gun->private_state_previous < -3 && this_gun->private_state == -3)){
+	if ((this_gun.private_state_previous > 3 && this_gun.private_state == 3) || (this_gun.private_state_previous < -3 && this_gun.private_state == -3)){
 		aplay("/home/pi/portalgun/portal_close1.wav");
 	}
 	
 	//private start sfx
-	if ((this_gun->private_state_previous != -5 && this_gun->private_state == -5) || (this_gun->private_state_previous != 5 && this_gun->private_state == 5)){
+	if ((this_gun.private_state_previous != -5 && this_gun.private_state == -5) || (this_gun.private_state_previous != 5 && this_gun.private_state == 5)){
 		aplay("/home/pi/portalgun/portal_open1.wav");
 	}
 		
 	//rip from private to shared mode sfx
-	if ((this_gun->private_state_previous <= -3 || this_gun->private_state_previous>=3) && this_gun->shared_state == 4){
+	if ((this_gun.private_state_previous <= -3 || this_gun.private_state_previous>=3) && this_gun.shared_state == 4){
 		aplay("/home/pi/portalgun/portal_open2.wav");		
 	}
 	
