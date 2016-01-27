@@ -25,7 +25,7 @@ int timearray[LED_STRIP_LENGTH];
 
 int color1 = 0; 
 int color2 = -1; 
-int previous_color1 = color1;
+int previous_color1 = 0;
 uint8_t overlay = 0x80;
 bool overlay_primer = true;
 bool overlay_enabled = false;
@@ -34,10 +34,6 @@ int overlay_timer;
 int timeoffset=0;
 int offset_target_time = 0 ;
 
-//leading edge mode
-bool leading_edge_request = true;
-bool leading_edge_active = true;
-
 int led_index = 0;
 int led_width_actual = 0;
 int led_width_requested = 0	;
@@ -45,7 +41,7 @@ int color_update_index = 0;
 
 int total_offset_previous = 0;
 int width_speed = 200; //.2 seconds
-int cooldown_time= 0; 
+int cooldown_time = 0; 
 
 float effect_array[EFFECT_RESOLUTION];
 int ticks_since_overlay_enable = 128; //disabled overlay on bootup
@@ -77,8 +73,7 @@ uint8_t led_update(const this_gun_struct& this_gun,const other_gun_struct& other
 	//shutdown_effect
 	if (this_gun.shared_state == 0 && this_gun.private_state == 0) shutdown_effect = 1;
 	
-
-	int total_time_offset;
+	uint32_t total_time_offset;
 	if (other_gun.connected) {
 		total_time_offset = (this_gun.clock >> 1) + (other_gun.clock >> 1);  //average the two values
 	}else{

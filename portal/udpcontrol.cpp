@@ -130,7 +130,6 @@ int udp_receive_state(int * state, uint32_t * offset){
 			//sscanf( inet_ntoa(incoming_addr.sin_addr), "%3u.%3u.%3u.%3u", &ipbytes[3], &ipbytes[2], &ipbytes[1], &ipbytes[0]);
 			//printf("%d %d %d %d\n", ipbytes[0] , ipbytes[1] , ipbytes[2], ipbytes[3]);
 			sscanf( buf, "%d %d",state,offset);
-			
 		}
 	}
 	return n;

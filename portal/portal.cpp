@@ -102,7 +102,7 @@ int main(void){
 			else other_gun.last_seen = this_gun.clock;  //update time data was seen
 			if (millis() - this_gun.clock > 5) break; //flood protect
 		}
-		
+
 		//check for expiration of other gun
 		if (this_gun.clock - other_gun.last_seen > GUN_EXPIRE) {
 			if (other_gun.connected != false){
@@ -205,8 +205,8 @@ int main(void){
 		gst_command(gst_backend);	
 		
 		//hic svnt dracones
-		if(freq_division) this_gun.brightness = led_update(this_gun,other_gun);
-		
+		if(freq_division ) this_gun.brightness = led_update(this_gun,other_gun);
+				
 		//send data to other gun
 		if (this_gun.clock - udp_send_time > 100){
 			udp_send_state(this_gun.shared_state,this_gun.clock);
