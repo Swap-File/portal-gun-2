@@ -11,12 +11,14 @@ struct this_gun_struct {
 	int private_state_previous = 0;
 	bool initiator = false; //Did this gun start the connection request?
 	uint32_t clock = 0;
+	uint8_t ir_pwm = 0;
+	bool connected = false; 
 };  
 
 struct other_gun_struct {
 	int state = 0; //state read from other gun
 	int state_previous = 0;
-	bool connected = false; 
+	
 	uint32_t last_seen = 0;
 	uint32_t clock = 0;
 };  

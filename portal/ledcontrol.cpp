@@ -74,7 +74,7 @@ uint8_t led_update(const this_gun_struct& this_gun,const other_gun_struct& other
 	if (this_gun.shared_state == 0 && this_gun.private_state == 0) shutdown_effect = 1;
 	
 	uint32_t total_time_offset;
-	if (other_gun.connected) {
+	if (this_gun.connected) {
 		total_time_offset = (this_gun.clock >> 1) + (other_gun.clock >> 1);  //average the two values
 	}else{
 		total_time_offset = this_gun.clock;

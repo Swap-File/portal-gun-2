@@ -95,6 +95,8 @@ void setup() {
 	pinMode(6, OUTPUT);
 	pinMode(A0, INPUT);
 	pinMode(A2, INPUT);
+
+	reset_output();
 	//Serial.println(F("Joining I2C Bus..."));
 	// join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
@@ -201,12 +203,12 @@ void loop() {
 	// wait for MPU interrupt or extra packet(s) available
 	while (!mpuInterrupt && fifoCount < packetSize) {
 
-
 		// other program behavior stuff here
 		if (micros() - fps_time > 1000000){
 			cpu_usage = 100 - (idle_microseconds / 10000);
 			packets_in_per_second = packets_in_counter;
 			packets_out_per_second = packets_out_counter;
+			if (packets_in_counter == 0) reset_output();
 			idle_microseconds = 0;
 			packets_in_counter = 0;
 			packets_out_counter = 0;
@@ -300,12 +302,9 @@ void loop() {
 #endif
 
 		uint8_t inputs = gloveid << 7;
-		if (pin4_1_bucket > pin4_0_bucket) {
-			bitSet(inputs, 0);
-		}
-		if (pin7_1_bucket > pin7_0_bucket) {
-			bitSet(inputs, 1);
-		}
+		if (pin4_1_bucket > pin4_0_bucket) bitSet(inputs, 0);
+		if (pin7_1_bucket > pin7_0_bucket) 	bitSet(inputs, 1);
+
 		pin4_1_bucket = 0;
 		pin4_0_bucket = 0;
 		pin7_1_bucket = 0;
@@ -427,4 +426,14 @@ void SerialUpdate(void){
 				
 		}
 	}
+}
+
+void reset_output(void) {
+	blinkState = 0;
+	digitalWrite(LED_PIN, bitRead(blinkState, 2));
+
+	//output pwm data
+	analogWrite(5, 0);
+	analogWrite(6, 0);
+	analogWrite(3, 0);
 }

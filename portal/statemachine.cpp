@@ -1,7 +1,7 @@
 #include "portal.h"
 
 
-void local_state_engine(int button, this_gun_struct& this_gun, other_gun_struct& other_gun){
+void local_state_engine(int button, this_gun_struct& this_gun,const struct other_gun_struct& other_gun){
 	
 	//button event transitions
 	if( button == BUTTON_ORANGE_LONG || button == BUTTON_BLUE_LONG){

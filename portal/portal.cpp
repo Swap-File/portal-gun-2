@@ -71,7 +71,7 @@ int main(void){
 		this_gun.private_state_previous = this_gun.private_state;
 		other_gun.state_previous = other_gun.state;
 		
-		int button_event = arduino_update(this_gun.brightness,other_gun.connected,0);
+		int button_event = arduino_update(this_gun);
 		
 		if (button_event == BUTTON_NONE){
 			int result = read_web_pipe();
@@ -105,15 +105,15 @@ int main(void){
 
 		//check for expiration of other gun
 		if (this_gun.clock - other_gun.last_seen > GUN_EXPIRE) {
-			if (other_gun.connected != false){
-				other_gun.connected = false;
+			if (this_gun.connected != false){
+				this_gun.connected = false;
 				printf("\nGun Expired\n");	
 			}
 			other_gun.state = 0;
 		}
 		else {
-			if(other_gun.connected == false){
-				other_gun.connected = true;
+			if(this_gun.connected == false){
+				this_gun.connected = true;
 				printf("\nGun Connected\n");
 			}
 		}
@@ -205,8 +205,8 @@ int main(void){
 		gst_command(gst_backend);	
 		
 		//hic svnt dracones
-		if(freq_division ) this_gun.brightness = led_update(this_gun,other_gun);
-				
+		if(freq_division) this_gun.brightness = led_update(this_gun,other_gun);
+
 		//send data to other gun
 		if (this_gun.clock - udp_send_time > 100){
 			udp_send_state(this_gun.shared_state,this_gun.clock);

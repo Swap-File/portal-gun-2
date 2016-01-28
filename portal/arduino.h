@@ -2,7 +2,7 @@
 #define _NUNCHUK_H
 #include <stdint.h>
 void arduino_setup(void);
-int arduino_update(uint8_t brightness, bool connected,uint8_t ir_pwm);
+int arduino_update(const struct this_gun_struct& this_gun);
 uint8_t crc8(const uint8_t* addr, uint8_t len);
 int SerialUpdate(int fd);
 int onPacket(const uint8_t* buffer, uint8_t size);

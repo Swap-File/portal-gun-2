@@ -8,7 +8,8 @@
 #include <wiringSerial.h>
 #include <wiringPi.h>
 #include "arduino.h"
-
+#include <math.h>
+	
 struct arduino_struct {
 	
 	int16_t yaw = 0;
@@ -38,9 +39,14 @@ struct arduino_struct {
 	
 	uint8_t cpuload = 0;
 	
-	float temp = 0.0;
-	float battery = 0.0;
+	uint16_t temp = 0;
 
+
+	uint16_t battery[256] ;
+	uint8_t battery_index = 0; //this rolls over
+	uint32_t battery_total = 0;
+	uint16_t battery_level = 0;
+	float pretty_battery_level = 0;
 	uint8_t packets_in_per_second = 0;
 	uint8_t packets_out_per_second = 0;
 	uint8_t framing_error = 0;
@@ -63,12 +69,28 @@ int crc_error =0;
 
 int fd;
 
+float temperature_reading(int input){
+	float R =  10000.0 / (1023.0/((float)input) - 1.0);
+	printf("%f\n",R);
+    #define B 3428.0 //# Thermistor constant from thermistor datasheet
+    #define R0 10000.0 //# Resistance of the thermistor being used
+    #define t0 273.15 //# 0 deg C in K
+    #define t25 298.15 //t25 = t0 + 25.0; //# 25 deg C in K
+    //# Steinhart-Hart equation
+    float inv_T = 1/t25 + 1/B * log(R/R0);
+    float T = (1/inv_T - t0) * 1; //adjust 1 here
+    return T * 9.0 / 5.0 + 32.0; //# Convert C to F
+}
 
-int arduino_update(uint8_t brightness, bool connected,uint8_t ir_pwm){
+int arduino_update(const struct this_gun_struct& this_gun){
 	
 	//default lights
-	uint8_t orange_pwm = (connected) ? brightness : 127;
-	uint8_t blue_pwm = (connected) ? brightness : 127;
+	uint8_t orange_pwm = (this_gun.connected) ? this_gun.brightness : 127;
+	uint8_t blue_pwm = (this_gun.connected) ? this_gun.brightness : 127;
+	
+	//blank alt button if in a mode that lights the LEDs
+	if (this_gun.shared_state > 0 ||  this_gun.private_state > 0)  blue_pwm = 0;
+	if (this_gun.shared_state < 0 ||  this_gun.private_state < 0)  orange_pwm = 0;
 	
 	//blink orange momentarily if pressed
 	if (arduino.orange_button){
@@ -89,16 +111,16 @@ int arduino_update(uint8_t brightness, bool connected,uint8_t ir_pwm){
 	//don't blink second button for double presses
 	if (arduino.blue_button && arduino.orange_button){
 		if (arduino.BluePressTime < arduino.OrangePressTime){
-			orange_pwm = (connected) ? brightness : 127;
+			orange_pwm = (this_gun.connected) ? this_gun.brightness : 127;
 		}else{
-			blue_pwm = (connected) ? brightness : 127;
+			blue_pwm = (this_gun.connected) ? this_gun.brightness : 127;
 		}
 	}
 	
 	uint8_t raw_buffer[4];
 	raw_buffer[0] = blue_pwm;
 	raw_buffer[1] = orange_pwm;
-	raw_buffer[2] = ir_pwm;
+	raw_buffer[2] = this_gun.ir_pwm;
 	raw_buffer[3] = crc8(raw_buffer, 3);
 
 	uint8_t encoded_buffer[6];
@@ -156,11 +178,17 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 			
 			arduino.cpuload = buffer[19];
 			
-			int16_t temp_temp = buffer[20] << 8 | buffer[21]; 
+			uint16_t temp_temp = buffer[20] << 8 | buffer[21]; 
 			arduino.temp = temp_temp;
 			
-			int16_t temp_battery = buffer[26] << 8 | buffer[27]; 
-			arduino.battery = temp_battery;
+			arduino.battery_total -= arduino.battery[arduino.battery_index];
+			arduino.battery[arduino.battery_index] = buffer[26] << 8 | buffer[27]; 
+			arduino.battery_total += arduino.battery[arduino.battery_index];
+			arduino.battery_index++;
+
+			arduino.battery_level = (arduino.battery_level) *.8 + .2*(arduino.battery_total >> 8);
+			
+			arduino.pretty_battery_level = (((float)arduino.battery_level)/1024.0 ) * 19.2;
 			
 			arduino.packets_in_per_second = buffer[22];
 			arduino.packets_out_per_second = buffer[23];
@@ -173,7 +201,7 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 			
 			//printf("aaWorld %d, %d, %d\n", aaWorldx,aaWorldy,aaWorldz);
 			
-			//printf("Temp: %d  Load: %d  Fingers: %d battery: %d\n",temp ,cpuload ,inputs,battery);
+			printf("Temp: %f  %2.2f\n",temperature_reading(arduino.temp) , arduino.pretty_battery_level);
 			
 			//printf("PPSIN: %d  PPSOUT: %d  FRAMING: %d CRC: %d\n",packets_in_per_second ,packets_out_per_second,framing_error ,crc_error);
 			
@@ -210,6 +238,10 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 }
 
 void arduino_setup(void){	
+
+	for ( int i = 0; i < 256; i++ ) arduino.battery[i] = 1024;
+	arduino.battery_total = 256* 1024;
+
 	char device[] = "/dev/ttyAMA0";
 	fd = serialOpen(device,115200);
 	if (fd < 0) {
