@@ -141,12 +141,12 @@ void setup() {
 	else{
 		gloveid = 1;
 		// supply your own gyro offsets here, scaled for min sensitivity
-		mpu.setXGyroOffset(98);
-		mpu.setYGyroOffset(-6);
-		mpu.setZGyroOffset(12);
-		//mpu.setXAccelOffset(-1490); // 1688 factory default for my test chip
-		//mpu.setYAccelOffset(-360); // 1688 factory default for my test chip
-		mpu.setZAccelOffset(1400); // 1688 factory default for my test chip
+		mpu.setXGyroOffset(26);
+		mpu.setYGyroOffset(-61);
+		mpu.setZGyroOffset(-1);
+		mpu.setXAccelOffset(-2967); // 1688 factory default for my test chip
+		mpu.setYAccelOffset(-1571); // 1688 factory default for my test chip
+		mpu.setZAccelOffset(1820); // 1688 factory default for my test chip
 	}
 
 

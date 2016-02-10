@@ -20,17 +20,11 @@ void INThandler(int dummy) {
 }
 
 int main(void){
+	//magic numbers of the video lengths in milliseconds
 	const uint32_t video_length[12] = {24467,16767,12067,82000,30434,22900,19067,70000,94000,53167,184000,140000} ;
 	uint32_t video_start_time =0 ;
 	uint32_t active_video_lentgh = 0;
-
-	//reset playlists on close
-	int private_playlist[10]={10,50,13,51,14,51,15,-1};
-	int private_playlist_index = 0;
-
-	int shared_playlist[10]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_GLHEAT,GST_EDGETV,-1};
-	int shared_playlist_index = 0;
-
+int gst_backend = 0;
 	struct other_gun_struct other_gun;
 	struct this_gun_struct this_gun;
 	
@@ -51,7 +45,7 @@ int main(void){
 	ledcontrol_setup();
 	arduino_setup();
 	
-	int gst_backend = 0;
+
 	int next_effect = 0;
 	bool freq_division = true; //toggles every other cycle
 	
@@ -72,27 +66,16 @@ int main(void){
 		other_gun.state_previous = other_gun.state;
 		
 		int button_event = arduino_update(this_gun);
+		button_event = BUTTON_NONE;
 		
 		if (button_event == BUTTON_NONE){
-			int result = read_web_pipe();
-			if (result != -1){
-				printf("PIPE INCOMING! %d\n",result);
-				switch (result){
-				case WEB_ORANGE_WIFI:	button_event = BUTTON_ORANGE_SHORT;  	break;
-				case WEB_BLUE_WIFI:		button_event = BUTTON_BLUE_SHORT;    	break;
-				case WEB_BLUE_SELF:		button_event = BUTTON_BOTH_LONG_BLUE; 	break; 
-				case WEB_ORANGE_SELF: 	button_event = BUTTON_BOTH_LONG_ORANGE; break; 
-				case WEB_CLOSE: 		button_event = BUTTON_BLUE_LONG; 		break; 
-				default: 
-					gst_backend = result;
-				}
-			}
+			button_event = read_web_pipe(this_gun);
 		}
 
 		//reset playlists on reset
 		if (button_event == BUTTON_BLUE_LONG || button_event == BUTTON_ORANGE_LONG){
-			shared_playlist_index = 0;
-			private_playlist_index = 0;			
+			this_gun.shared_playlist_index = 0;
+			this_gun.private_playlist_index = 0;			
 		}
 		
 		//read other gun's data, only if no button events are happening this cycle
@@ -123,17 +106,21 @@ int main(void){
 		
 		//shared state stuff
 		
+		//figure out when to optimally increment indexes
+		
 		//start camera (preload in state 3, shutter is closed)
 		if(this_gun.shared_state <= -2) gst_backend = GST_RPICAMSRC;
 		
-		if(this_gun.shared_state >= 2) gst_backend = shared_playlist[shared_playlist_index];
-		
-		//preload live projector feed in state 3, shutter is closed, also change to next effect in state 5 entry
-		if (this_gun.shared_state == 5 && this_gun.shared_state_previous == 4){    
-				if (shared_playlist[++shared_playlist_index] < 0) shared_playlist_index = 0;
-			}
+		//cache next effect
+		if(this_gun.shared_state == 2 && this_gun.shared_state_previous == 1) next_effect = this_gun.shared_playlist[this_gun.shared_playlist_index];
 	
+		//preload live projector feed in state 3, shutter is closed, also change to next effect in state 5 entry
+		if(this_gun.shared_state >= 2) gst_backend = next_effect;
 		
+		if (this_gun.shared_state == 5 && this_gun.shared_state_previous == 4){    
+			if (this_gun.shared_playlist[++this_gun.shared_playlist_index] < 0) this_gun.shared_playlist_index = 0;
+		}
+					
 		//private state stuff
 		
 		//preload next effect and start in background if its video
@@ -142,8 +129,8 @@ int main(void){
 			if (gst_backend >= GST_MOVIE_FIRST && gst_backend <= GST_MOVIE_LAST){
 				gst_backend = GST_BLANK;
 			}
-			next_effect = private_playlist[private_playlist_index++];
-			if (private_playlist[private_playlist_index] < 0) private_playlist_index = 0;
+			next_effect = this_gun.private_playlist[this_gun.private_playlist_index++];
+			if (this_gun.private_playlist[this_gun.private_playlist_index] < 0) this_gun.private_playlist_index = 0;
 			
 			if (next_effect >= GST_LIBVISUAL_FIRST && next_effect < GST_LIBVISUAL_LAST){
 				gst_backend = next_effect;
@@ -211,7 +198,7 @@ int main(void){
 		if (this_gun.clock - udp_send_time > 100){
 			udp_send_state(this_gun.shared_state,this_gun.clock);
 			udp_send_time = this_gun.clock;
-			web_output(gst_backend,this_gun.shared_state);
+			web_output(this_gun);
 		}
 		
 		//fps counter code

@@ -1,0 +1,50 @@
+/* std button */
+body {
+	background-color: black;
+	color: white;	
+}
+
+.orangebutton {
+	background-color: orange;
+	color: black;
+}
+.bluebutton {
+	background-color: blue;
+	color: white;
+}
+.bluebutton,.orangebutton {
+	width: 65px;
+	height: 25px;
+	text-align: center;
+	font-size: 12px;
+}
+
+.imageWrapper {
+	position: relative;
+}
+
+.overlayImage1,.overlayImage2  {
+	position: absolute;
+	top: 200;
+	left:0;
+	right:0;
+	margin-left:auto;
+	margin-right:auto;
+}
+.overlayImage1 {
+	z-index: 98;
+}
+.overlayImage2 {
+	z-index: 99;
+}
+.overlayText {
+	position: absolute;
+	top: 395;
+	left:0;
+	right:0;
+	margin-left:auto;
+	margin-right:auto;
+	text-align: center;
+	color: white;
+	z-index: 100;
+}

@@ -12,6 +12,8 @@
 	
 struct arduino_struct {
 	
+	bool first_cycle = true; //if true, preload the filters with data
+	
 	int16_t yaw = 0;
 	int16_t pitch = 0;
 	int16_t roll = 0;
@@ -19,7 +21,6 @@ struct arduino_struct {
 	int16_t aaRealx = 0; 
 	int16_t aaRealy = 0; 
 	int16_t aaRealz = 0; 
-	
 	
 	int16_t aaWorldx = 0; 
 	int16_t aaWorldy = 0; 
@@ -37,16 +38,17 @@ struct arduino_struct {
 	uint32_t OrangePressTime = 0;
 	uint32_t BluePressTime = 0;
 	
-	uint8_t cpuload = 0;
+	uint8_t cpuload = 0; //0 to 100
 	
 	uint16_t temp = 0;
+	float temperature_pretty = 0;
 
-
-	uint16_t battery[256] ;
+	uint16_t battery[256]; //array of samples
 	uint8_t battery_index = 0; //this rolls over
-	uint32_t battery_total = 0;
-	uint16_t battery_level = 0;
-	float pretty_battery_level = 0;
+	uint32_t battery_total = 0; //sum of the entire battery array
+	uint16_t battery_level = 0; //the last calculated average level in ADC format
+	float battery_level_pretty = 0; //battery level in volts
+	
 	uint8_t packets_in_per_second = 0;
 	uint8_t packets_out_per_second = 0;
 	uint8_t framing_error = 0;
@@ -59,7 +61,7 @@ struct arduino_struct {
 
 struct arduino_struct arduino;
 //serial com data
-#define INCOMING_BUFFER_SIZE 128
+#define INCOMING_BUFFER_SIZE 64
 uint8_t incoming_buffer[INCOMING_BUFFER_SIZE];
 uint8_t incoming_index = 0;
 uint8_t incoming_decoded_buffer[INCOMING_BUFFER_SIZE];
@@ -71,7 +73,6 @@ int fd;
 
 float temperature_reading(int input){
 	float R =  10000.0 / (1023.0/((float)input) - 1.0);
-	printf("%f\n",R);
     #define B 3428.0 //# Thermistor constant from thermistor datasheet
     #define R0 10000.0 //# Resistance of the thermistor being used
     #define t0 273.15 //# 0 deg C in K
@@ -118,9 +119,12 @@ int arduino_update(const struct this_gun_struct& this_gun){
 	}
 	
 	uint8_t raw_buffer[4];
+	
 	raw_buffer[0] = blue_pwm;
 	raw_buffer[1] = orange_pwm;
-	raw_buffer[2] = this_gun.ir_pwm;
+	//only turn on IR when the camera is on
+	raw_buffer[2] = (this_gun.shared_state <= -2) ? this_gun.ir_pwm : 0;
+	
 	raw_buffer[3] = crc8(raw_buffer, 3);
 
 	uint8_t encoded_buffer[6];
@@ -128,8 +132,7 @@ int arduino_update(const struct this_gun_struct& this_gun){
 	
 	encoded_buffer[encoded_size]=0x00;
 	write(fd,encoded_buffer,encoded_size+1);
-	
-	
+		
 	return SerialUpdate(fd);
 }
 
@@ -178,9 +181,19 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 			
 			arduino.cpuload = buffer[19];
 			
-			uint16_t temp_temp = buffer[20] << 8 | buffer[21]; 
-			arduino.temp = temp_temp;
 			
+			uint16_t temp_temp = buffer[20] << 8 | buffer[21]; 
+			arduino.temperature_pretty = temperature_reading(temp_temp);
+			
+			if (arduino.first_cycle){
+				//preload filters with data if empty
+				uint16_t batt_fill = buffer[26] << 8 | buffer[27];
+				for ( int i = 0; i < 256; i++ ) arduino.battery[i] = batt_fill;
+				arduino.battery_total = 256*batt_fill;
+				arduino.battery_level = batt_fill;
+				arduino.first_cycle = false;
+			}
+	
 			arduino.battery_total -= arduino.battery[arduino.battery_index];
 			arduino.battery[arduino.battery_index] = buffer[26] << 8 | buffer[27]; 
 			arduino.battery_total += arduino.battery[arduino.battery_index];
@@ -188,21 +201,18 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 
 			arduino.battery_level = (arduino.battery_level) *.8 + .2*(arduino.battery_total >> 8);
 			
-			arduino.pretty_battery_level = (((float)arduino.battery_level)/1024.0 ) * 19.2;
+			arduino.battery_level_pretty = (((float)arduino.battery_level)/1024.0 ) * 19.2;
 			
 			arduino.packets_in_per_second = buffer[22];
 			arduino.packets_out_per_second = buffer[23];
 			arduino.framing_error = buffer[24];
 			arduino.crc_error = buffer[25];
 			arduino.packet_counter = buffer[29];
+			
 			//printf("ypr %d, %d, %d\n", yaw,pitch,roll);	
-			
 			//printf("areal %d, %d, %d\n", aaRealx,aaRealy,aaRealz);
-			
 			//printf("aaWorld %d, %d, %d\n", aaWorldx,aaWorldy,aaWorldz);
-			
-			printf("Temp: %f  %2.2f\n",temperature_reading(arduino.temp) , arduino.pretty_battery_level);
-			
+			//printf("Temp: %2.2f  %2.2f \n",arduino.temperature_pretty, arduino.battery_level_pretty);
 			//printf("PPSIN: %d  PPSOUT: %d  FRAMING: %d CRC: %d\n",packets_in_per_second ,packets_out_per_second,framing_error ,crc_error);
 			
 			
@@ -238,9 +248,6 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 }
 
 void arduino_setup(void){	
-
-	for ( int i = 0; i < 256; i++ ) arduino.battery[i] = 1024;
-	arduino.battery_total = 256* 1024;
 
 	char device[] = "/dev/ttyAMA0";
 	fd = serialOpen(device,115200);

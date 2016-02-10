@@ -10,12 +10,12 @@
 void pipecontrol_setup(int ip);
 void pipecontrol_cleanup(void);
 void aplay(const char *filename);
-void web_output(int mode1, int mode2);
+void web_output(const this_gun_struct& this_gun);
 void ahrs_command(int x, int y, int z, int number);
 void gst_command(int number);
 void launch_gst_control(void);
 void launch_ahrs_control(void);
 void audio_effects(const this_gun_struct& this_gun);
-int read_web_pipe(void);
+int read_web_pipe(this_gun_struct& this_gun);
 
 #endif

@@ -128,14 +128,14 @@ void aplay(const char *filename){
 	fflush(bash_fp);
 }
 
-void web_output(int mode1, int mode2){
-	//printf("aplay %d\n",filename);
-	fprintf(bash_fp, "echo '%d %d' > /var/www/html/tmp/portal.txt &\n",mode1,mode2);
+void web_output(const this_gun_struct& this_gun){
+	fprintf(bash_fp, "echo '%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d' > /var/www/html/tmp/portal.txt &\n",this_gun.private_state,this_gun.shared_state,this_gun.connected ,this_gun.ir_pwm,this_gun.private_playlist[0],this_gun.private_playlist[1],this_gun.private_playlist[2],this_gun.private_playlist[3],this_gun.private_playlist[4],this_gun.private_playlist[5],this_gun.private_playlist[6],this_gun.private_playlist[7],this_gun.private_playlist[8],this_gun.private_playlist[9],this_gun.private_playlist_index,this_gun.shared_playlist[0],this_gun.shared_playlist[1],this_gun.shared_playlist[2],this_gun.shared_playlist[3],this_gun.shared_playlist[4],this_gun.shared_playlist[5],this_gun.shared_playlist[6],this_gun.shared_playlist[7],this_gun.shared_playlist[8],this_gun.shared_playlist[9],this_gun.shared_playlist_index);
 	fflush(bash_fp);
 }
 
-int read_web_pipe(void){
-	int temp = -1;
+
+int read_web_pipe(this_gun_struct& this_gun){
+	int web_button = BUTTON_NONE;
 	int count = 1;
 	char buffer[100];
 	//stdin is line buffered so we can cheat a little bit
@@ -144,17 +144,47 @@ int read_web_pipe(void){
 		if (count > 1){ //ignore blank lines
 			buffer[count-1] = '\0';
 			//keep most recent line
-			int temp_state = 0;
-			int result = sscanf(buffer,"%d", &temp_state);
-			if (result != 1){
-				fprintf(stderr, "WEB_PIPE: Unrecognized input with %d items.\n", result);
-			}else{
-				temp = temp_state;
+			int tv[11];
+			printf(" \n'%s'\n",buffer);
+			int results = sscanf(buffer,"%d %d %d %d %d %d %d %d %d %d %d", &tv[0],&tv[1],&tv[2],&tv[3],&tv[4],&tv[5],&tv[6],&tv[7],&tv[8],&tv[9],&tv[10]);
+			//button stuff
+			if (tv[0] == 1 && results == 2) {
+				switch (tv[1]){
+				case WEB_ORANGE_WIFI:	web_button = BUTTON_ORANGE_SHORT;  		break;
+				case WEB_BLUE_WIFI:		web_button = BUTTON_BLUE_SHORT;    		break;
+				case WEB_BLUE_SELF:		web_button = BUTTON_BOTH_LONG_BLUE; 	break; 
+				case WEB_ORANGE_SELF: 	web_button = BUTTON_BOTH_LONG_ORANGE; 	break; 
+				case WEB_CLOSE: 		web_button = BUTTON_BLUE_LONG; 			break; 
+				default: 				web_button = BUTTON_NONE;
+				}
 			}
+			//ir stuff
+			if (tv[0] == 2 && results == 2) {
+				if (tv[1] >= 0 && tv[1] <= 255) this_gun.ir_pwm = tv[1];
+			}
+			//self playlist setting
+			if (tv[0] == 3 && results == 11) {
+				for (int i = 0; i < 10; i++) this_gun.private_playlist[i] = tv[i+1];
+				this_gun.private_playlist_index = 0;
+			}
+			//shared playlist setting
+			if (tv[0] == 4 && results == 11) {
+				for (int i = 0; i < 10; i++) this_gun.shared_playlist[i] = tv[i+1];
+				this_gun.shared_playlist_index = 0;
+			}
+			//playlist index change self
+			if (tv[0] == 5 && results == 2) {
+				this_gun.private_playlist_index = tv[1];
+			}
+			//playlist index change self
+			if (tv[0] == 6 && results == 2) {
+				this_gun.shared_playlist_index = tv[1];
+			}
+			
 		}
 	}
 
-	return temp;
+	return web_button;
 }
 
 
@@ -235,7 +265,7 @@ void audio_effects(const this_gun_struct& this_gun){
 	if ((this_gun.private_state_previous != -5 && this_gun.private_state == -5) || (this_gun.private_state_previous != 5 && this_gun.private_state == 5)){
 		aplay("/home/pi/portalgun/portal_open1.wav");
 	}
-		
+	
 	//rip from private to shared mode sfx
 	if ((this_gun.private_state_previous <= -3 || this_gun.private_state_previous>=3) && this_gun.shared_state == 4){
 		aplay("/home/pi/portalgun/portal_open2.wav");		

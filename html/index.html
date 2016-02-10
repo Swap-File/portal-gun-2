@@ -1,64 +1,240 @@
+<html>
+
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Portal Gun 2.0</title>
+<link rel="stylesheet" type="text/css" href="portalstyle.css">
+</head>
+
+<body id="index-page">
+
+<br>
+self things
+<input type="button" id="libvisual" onclick="submit(this)" value="vis"/>
+<input type="button" id="movieclip" onclick="submit(this)" value="clips"/>
+<input type="button" id="moviemusic" onclick="submit(this)" value="music"/>
+<br>
+
+<input type="button" class="orangebutton" id="orangewifi" value="0" onclick="submit(this)"/>
+<input type="button" class="orangebutton" id="orangeself" value="0" onclick="submit(this)"/>
+<input type="button" id="close" onclick="submit(this)" value="Close"/>
+<input type="button" class="bluebutton" id="blueself" value="0" onclick="submit(this)"/>
+<input type="button" class="bluebutton" id="bluewifi" value="0" onclick="submit(this)"/>
 
 <br><br>
 
-<input type="text" id="changeto"><br>
-    <button type="button" id="force" onclick="submit(this)" >force</button><br><br>
-<br>
-  <button type="button" id="orangeself" onclick="submit(this)" >Orange Self</button>
-	  <button type="button" id="orangewifi" onclick="submit(this)" >Orange Wifi</button>
-	    <button type="button" id="close" onclick="submit(this)" >Close</button>
-		  <button type="button" id="blueself" onclick="submit(this)" >Blue Self</button>
-		    <button type="button" id="bluewifi" onclick="submit(this)" >Blue Wifi</button>
-<br>
-<img id="streamimage"  src="loading.jpg">
+<button type="button" id="ir0" onclick="submit(this)">IR OFF</button>
+<button type="button" id="ir127" onclick="submit(this)">IR HALF</button>
+<button type="button" id="ir255" onclick="submit(this)">IR ON</button>
+
+<br><br>
+
 <div id="latestData">Suit Buffering...</div>
+
+
+
+<div id="imageWrapper"> 
+
+<img class="overlayImage1" id="portal_background" src="black.png">
+<img class="overlayImage2" id="portal_foreground" src="black.png">
+<div class="overlayText" id="portal_text">Disconnected</div>
+
+
+</div>
+
+
+
 <script src="jquery-2.2.0.min.js"></script>
 
-
+</body>
 <script>
-   function submit(button) {
-   
-		if (button.id == 'force'){
-			  var changeto = $('#changeto').val();
-		}
-		
-			if (button.id == 'orangewifi'){
-			 var changeto = 100;
-		}
-		
-			if (button.id == 'orangeself'){
-			var changeto = 101;
-		}
-		
-			if (button.id == 'close'){
-			var changeto = 102;
-		}
-		
-			if (button.id == 'blueself'){
-			var changeto = 103;
-		}
-		
-			if (button.id == 'bluewifi'){
-			var changeto = '104';
-		}
-		console.log(changeto);
-		
-        $.post('index_post.php', {
-            changeto:  changeto
-        });
-		}
-	
-   $(document).ready(function () {
-   
 
-	$('#streamimage').attr("src", 'http://' + location.host + ':8080/?action=stream');
- 
-  
-    setInterval(function() {
-        $.get("/tmp/portal.txt", function (result) {
-            $('#latestData').html(result);
-        });
-    }, 100);
+var connected_last = -1;
+var shared_state_last = -1;
+var private_state_last = -1;
+
+function submit(button) {
+
+	if (button.id == 'libvisual'){
+		var mode = 3;
+		var changeto = "10 13 14 15 -1 -1 -1 -1 -1 -1";
+	}
+	if (button.id == 'movieclip'){
+		var mode = 3;
+		var changeto = "50 51 52 53 54 55 56 57 58 59";
+	}
+	if (button.id == 'moviemusic'){
+		var mode = 3;
+		var changeto = "60 61 -1 -1 -1 -1 -1 -1 -1 -1";
+	}		
+	if (button.id == 'ir0'){
+		var mode = 2;
+		var changeto = 0;
+	}
+	if (button.id == 'ir127'){
+		var mode = 2;
+		var changeto = 127;
+	}
+	if (button.id == 'ir255'){
+		var mode = 2;
+		var changeto = 255;
+	}
+	if (button.id == 'orangewifi'){
+		var mode = 1;
+		var changeto = 100;
+	}
+	if (button.id == 'orangeself'){
+		var mode = 1;
+		var changeto = 101;
+	}
+	
+	if (button.id == 'close'){
+		var mode = 1;
+		var changeto = 102;
+	}
+	if (button.id == 'blueself'){
+		var mode = 1;
+		var changeto = 103;
+	}
+	if (button.id == 'bluewifi'){
+		var mode = 1;
+		var changeto = 104;
+	}
+	
+	$.post('index_post.php', {
+mode: mode,
+changeto: changeto
+	});
+}
+
+$(document).ready(function () {
+
+	//$('#streamimage').attr("src", 'http://' + location.host + ':8080/?action=stream');
+	
+	function effect_name(a) {
+		switch(a) {
+		case 0:		return "BLANK";
+		case 1:		return "VIDEOTESTSRC";
+		case 2:		return "VIDEOTESTSRC_CUBED";	
+		case 3:		return "RPICAMSRC";	
+		case 4:		return "NORMAL";
+		case 10:	return "LIBVISUAL_JESS";
+		case 13:	return "LIBVISUAL_INFINITE";
+		case 14:	return "LIBVISUAL_JACKDAW";
+		case 15:	return "LIBVISUAL_OINKSIE";
+		case 20:	return "REVTV";
+		case 21:	return "AGINGTV";
+		case 22:	return "DICETV";
+		case 23:	return "WARPTV";
+		case 24:	return "SHAGADELICTV";
+		case 25:	return "VERTIGOTV";
+		case 26:	return "KALEIDOSCOPE";
+		case 27:	return "MARBLE";		
+		case 28:	return "RIPPLETV";
+		case 29:	return "EDGETV";	
+		case 30:	return "GLCUBE";
+		case 31:	return "GLMIRROR";
+		case 32:	return "GLSQUEEZE";
+		case 33:	return "GLSTRETCH";
+		case 34:	return "GLTUNNEL";
+		case 35:	return "GLTWIRL";
+		case 36:	return "GLBULDGE";
+		case 37:	return "GLHEAT";		
+		case 50:	return "MOVIE1";
+		case 51:	return "MOVIE2";
+		case 52:	return "MOVIE3";
+		case 53:	return "MOVIE4";
+		case 54:	return "MOVIE5";
+		case 55:	return "MOVIE6";
+		case 56:	return "MOVIE7";
+		case 57:	return "MOVIE8";		
+		case 58:	return "MOVIE9";
+		case 59:	return "MOVIE10";
+		case 60:	return "MOVIE11";
+		case 61:	return "MOVIE12";	
+		default:	return "UKNOWN";
+		}
+	}
+
+	setInterval(function() {
+		$.get("/tmp/portal.txt", function (result) {
+			var res = result.split(" ");
+			
+			var private_state = parseInt(res[0]);
+			var shared_state = parseInt(res[1]);
+			var connected = parseInt(res[2]);
+			var ir_pwm = parseInt(res[3]);
+			var private_playlist = [];
+			var shared_playlist = [];
+			for (i = 0; i < 10; i++) { 
+				private_playlist.push(parseInt(res[4+i]));
+				shared_playlist.push(res[15+i]);
+			}
+			var private_playlist_index = parseInt(res[14]);
+			var shared_playlist_index = parseInt(res[25]);
+			
+			if(private_state != private_state_last){
+				if (private_state == 0){
+					orangeself.value = 0;
+					blueself.value = 0;
+				}
+				if (private_state > 0){
+					orangeself.value = private_state;
+					blueself.value = 0;
+				}
+				if (private_state < 0){
+					orangeself.value = 0;
+					blueself.value = private_state * -1;
+				}
+			}
+			
+			if(shared_state != shared_state_last){
+				if (shared_state == 0){
+					orangewifi.value = 0;
+					bluewifi.value = 0;
+				}
+				if (shared_state > 0){
+					orangewifi.value = shared_state;
+					bluewifi.value = 0;
+				}
+				if (shared_state < 0){
+					orangewifi.value = 0;
+					bluewifi.value = shared_state * -1;
+				}
+			}
+			
+			
+			if (shared_state == 0 && private_state == 0){
+				if (connected != connected_last){
+					if (connected == 1 ){
+						document.getElementById("portal_text").innerHTML = "Connected";
+					}else{
+						document.getElementById("portal_text").innerHTML = "Disconnected";
+					}
+				}
+				portal_background.src = "black.png";
+				portal_foreground.src = "black.png";
+			}
+			
+			if (shared_state > 0 || private_state > 0){
+				portal_background.src = "orange_0.jpg";
+				portal_foreground.src = "orange_portal.png";
+			}
+			if (shared_state < 0 || private_state < 0){
+				portal_background.src = "blue_0.jpg";
+				portal_foreground.src = "blue_portal.png";
+			}
+			
+
+			connected_last = connected;
+			shared_state_last = shared_state;
+			private_state_last = private_state;
+			
+			$('#latestData').html(result);
+		});
+	}, 100);
 });
-  
+
 </script>

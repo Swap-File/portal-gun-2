@@ -2,6 +2,7 @@
 #define _PORTAL_H
 
 #include <stdint.h>
+#include "gstvideo/gstvideo.h"
 
 struct this_gun_struct {
 	uint8_t brightness = 0;
@@ -13,6 +14,13 @@ struct this_gun_struct {
 	uint32_t clock = 0;
 	uint8_t ir_pwm = 0;
 	bool connected = false; 
+	
+	int private_playlist[10]={10,50,13,51,14,51,15,-1};
+	int private_playlist_index = 0;
+
+	int shared_playlist[10]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_GLHEAT,GST_EDGETV,-1};
+	int shared_playlist_index = 0;
+		
 };  
 
 struct other_gun_struct {
