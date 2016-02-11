@@ -24,9 +24,12 @@ int main(void){
 	const uint32_t video_length[12] = {24467,16767,12067,82000,30434,22900,19067,70000,94000,53167,184000,140000} ;
 	uint32_t video_start_time =0 ;
 	uint32_t active_video_lentgh = 0;
-int gst_backend = 0;
+	int gst_backend = 0;
+	
 	struct other_gun_struct other_gun;
 	struct this_gun_struct this_gun;
+	
+	struct arduino_struct arduino;
 	
 	//catch broken pipes to respawn threads if they crash
 	signal(SIGPIPE, SIG_IGN);
@@ -43,7 +46,7 @@ int gst_backend = 0;
 	int ip = udpcontrol_setup();
 	pipecontrol_setup(ip);
 	ledcontrol_setup();
-	arduino_setup();
+	arduino_setup(&arduino);
 	
 
 	int next_effect = 0;
@@ -198,7 +201,7 @@ int gst_backend = 0;
 		if (this_gun.clock - udp_send_time > 100){
 			udp_send_state(this_gun.shared_state,this_gun.clock);
 			udp_send_time = this_gun.clock;
-			web_output(this_gun);
+			web_output(this_gun,arduino,gst_backend);
 		}
 		
 		//fps counter code

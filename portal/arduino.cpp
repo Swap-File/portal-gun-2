@@ -10,56 +10,7 @@
 #include "arduino.h"
 #include <math.h>
 	
-struct arduino_struct {
-	
-	bool first_cycle = true; //if true, preload the filters with data
-	
-	int16_t yaw = 0;
-	int16_t pitch = 0;
-	int16_t roll = 0;
-	
-	int16_t aaRealx = 0; 
-	int16_t aaRealy = 0; 
-	int16_t aaRealz = 0; 
-	
-	int16_t aaWorldx = 0; 
-	int16_t aaWorldy = 0; 
-	int16_t aaWorldz = 0; 
-	
-	uint32_t connected_last = 0;
-	uint32_t connected = 0;
-	
-	bool orange_button_previous = false;
-	bool blue_button_previous = false;
-	
-	bool orange_button = false;
-	bool blue_button = false;
-	
-	uint32_t OrangePressTime = 0;
-	uint32_t BluePressTime = 0;
-	
-	uint8_t cpuload = 0; //0 to 100
-	
-	uint16_t temp = 0;
-	float temperature_pretty = 0;
 
-	uint16_t battery[256]; //array of samples
-	uint8_t battery_index = 0; //this rolls over
-	uint32_t battery_total = 0; //sum of the entire battery array
-	uint16_t battery_level = 0; //the last calculated average level in ADC format
-	float battery_level_pretty = 0; //battery level in volts
-	
-	uint8_t packets_in_per_second = 0;
-	uint8_t packets_out_per_second = 0;
-	uint8_t framing_error = 0;
-	uint8_t crc_error = 0;
-	uint8_t packet_counter = 0;
-	
-	bool supress_blue = false;
-	bool supress_orange = false;
-};  
-
-struct arduino_struct arduino;
 //serial com data
 #define INCOMING_BUFFER_SIZE 64
 uint8_t incoming_buffer[INCOMING_BUFFER_SIZE];
@@ -68,6 +19,8 @@ uint8_t incoming_decoded_buffer[INCOMING_BUFFER_SIZE];
 
 int framing_error = 0;
 int crc_error =0;
+
+struct arduino_struct *arduino;
 
 int fd;
 
@@ -83,7 +36,7 @@ float temperature_reading(int input){
     return T * 9.0 / 5.0 + 32.0; //# Convert C to F
 }
 
-int arduino_update(const struct this_gun_struct& this_gun){
+int arduino_update(const struct this_gun_struct& this_gun ){
 	
 	//default lights
 	uint8_t orange_pwm = (this_gun.connected) ? this_gun.brightness : 127;
@@ -94,24 +47,24 @@ int arduino_update(const struct this_gun_struct& this_gun){
 	if (this_gun.shared_state < 0 ||  this_gun.private_state < 0)  orange_pwm = 0;
 	
 	//blink orange momentarily if pressed
-	if (arduino.orange_button){
-		if ((millis() - arduino.OrangePressTime < BUTTON_ACK_BLINK) || ((millis() - arduino.OrangePressTime < (BUTTON_ACK_BLINK + LONG_PRESS_TIME)) && (millis() - arduino.OrangePressTime > LONG_PRESS_TIME))){
+	if (arduino->orange_button){
+		if ((millis() - arduino->OrangePressTime < BUTTON_ACK_BLINK) || ((millis() - arduino->OrangePressTime < (BUTTON_ACK_BLINK + LONG_PRESS_TIME)) && (millis() - arduino->OrangePressTime > LONG_PRESS_TIME))){
 			orange_pwm = 0; 
 		}
 		blue_pwm = 0;
 	}
 	
 	//blink blue momentarily if pressed
-	if (arduino.blue_button){
-		if ((millis() - arduino.BluePressTime < BUTTON_ACK_BLINK) || ((millis() - arduino.BluePressTime < (BUTTON_ACK_BLINK + LONG_PRESS_TIME)) && (millis() - arduino.BluePressTime > LONG_PRESS_TIME))){
+	if (arduino->blue_button){
+		if ((millis() - arduino->BluePressTime < BUTTON_ACK_BLINK) || ((millis() - arduino->BluePressTime < (BUTTON_ACK_BLINK + LONG_PRESS_TIME)) && (millis() - arduino->BluePressTime > LONG_PRESS_TIME))){
 			blue_pwm = 0; 
 		}		
 		orange_pwm = 0;
 	}
 	
 	//don't blink second button for double presses
-	if (arduino.blue_button && arduino.orange_button){
-		if (arduino.BluePressTime < arduino.OrangePressTime){
+	if (arduino->blue_button && arduino->orange_button){
+		if (arduino->BluePressTime < arduino->OrangePressTime){
 			orange_pwm = (this_gun.connected) ? this_gun.brightness : 127;
 		}else{
 			blue_pwm = (this_gun.connected) ? this_gun.brightness : 127;
@@ -149,95 +102,95 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 			crc_error++;
 		}
 		else{
-			arduino.orange_button_previous = arduino.orange_button;
-			arduino.blue_button_previous = arduino.blue_button;
+			arduino->orange_button_previous = arduino->orange_button;
+			arduino->blue_button_previous = arduino->blue_button;
 			
-			arduino.yaw = buffer[0] << 8 | buffer[1];
-			arduino.pitch = buffer[2] << 8 | buffer[3];
-			arduino.roll = buffer[4] << 8 | buffer[5];
+			arduino->yaw = buffer[0] << 8 | buffer[1];
+			arduino->pitch = buffer[2] << 8 | buffer[3];
+			arduino->roll = buffer[4] << 8 | buffer[5];
 			
-			arduino.aaRealx = buffer[6] << 8 | buffer[7]; 
-			arduino.aaRealy = buffer[8] << 8 | buffer[9]; 
-			arduino.aaRealz = buffer[10] << 8 | buffer[11]; 
+			arduino->aaRealx = buffer[6] << 8 | buffer[7]; 
+			arduino->aaRealy = buffer[8] << 8 | buffer[9]; 
+			arduino->aaRealz = buffer[10] << 8 | buffer[11]; 
 			
 			
-			arduino.aaWorldx = buffer[12] << 8 | buffer[13]; 
-			arduino.aaWorldy = buffer[14] << 8 | buffer[15]; 
-			arduino.aaWorldz = buffer[16] << 8 | buffer[17]; 
+			arduino->aaWorldx = buffer[12] << 8 | buffer[13]; 
+			arduino->aaWorldy = buffer[14] << 8 | buffer[15]; 
+			arduino->aaWorldz = buffer[16] << 8 | buffer[17]; 
 			
 
-			if ((buffer[18] & 0x01) == 0x01) arduino.blue_button = false;
+			if ((buffer[18] & 0x01) == 0x01) arduino->blue_button = false;
 			else {
-				arduino.blue_button = true;	
-				if (!arduino.blue_button_previous) arduino.BluePressTime = millis();
+				arduino->blue_button = true;	
+				if (!arduino->blue_button_previous) arduino->BluePressTime = millis();
 			} 
 			
-			if ((buffer[18] & 0x02) == 0x02) arduino.orange_button = false;
+			if ((buffer[18] & 0x02) == 0x02) arduino->orange_button = false;
 			else{
-				arduino.orange_button = true;
-				if (!arduino.orange_button_previous) arduino.OrangePressTime = millis();					
+				arduino->orange_button = true;
+				if (!arduino->orange_button_previous) arduino->OrangePressTime = millis();					
 			}
 			
 			
-			arduino.cpuload = buffer[19];
+			arduino->cpuload = buffer[19];
 			
 			
 			uint16_t temp_temp = buffer[20] << 8 | buffer[21]; 
-			arduino.temperature_pretty = temperature_reading(temp_temp);
+			arduino->temperature_pretty = temperature_reading(temp_temp);
 			
-			if (arduino.first_cycle){
+			if (arduino->first_cycle){
 				//preload filters with data if empty
 				uint16_t batt_fill = buffer[26] << 8 | buffer[27];
-				for ( int i = 0; i < 256; i++ ) arduino.battery[i] = batt_fill;
-				arduino.battery_total = 256*batt_fill;
-				arduino.battery_level = batt_fill;
-				arduino.first_cycle = false;
+				for ( int i = 0; i < 256; i++ ) arduino->battery[i] = batt_fill;
+				arduino->battery_total = 256*batt_fill;
+				arduino->battery_level = batt_fill;
+				arduino->first_cycle = false;
 			}
 	
-			arduino.battery_total -= arduino.battery[arduino.battery_index];
-			arduino.battery[arduino.battery_index] = buffer[26] << 8 | buffer[27]; 
-			arduino.battery_total += arduino.battery[arduino.battery_index];
-			arduino.battery_index++;
+			arduino->battery_total -= arduino->battery[arduino->battery_index];
+			arduino->battery[arduino->battery_index] = buffer[26] << 8 | buffer[27]; 
+			arduino->battery_total += arduino->battery[arduino->battery_index];
+			arduino->battery_index++;
 
-			arduino.battery_level = (arduino.battery_level) *.8 + .2*(arduino.battery_total >> 8);
+			arduino->battery_level = (arduino->battery_level) *.8 + .2*(arduino->battery_total >> 8);
 			
-			arduino.battery_level_pretty = (((float)arduino.battery_level)/1024.0 ) * 19.2;
+			arduino->battery_level_pretty = (((float)arduino->battery_level)/1024.0 ) * 19.2;
 			
-			arduino.packets_in_per_second = buffer[22];
-			arduino.packets_out_per_second = buffer[23];
-			arduino.framing_error = buffer[24];
-			arduino.crc_error = buffer[25];
-			arduino.packet_counter = buffer[29];
+			arduino->packets_in_per_second = buffer[22];
+			arduino->packets_out_per_second = buffer[23];
+			arduino->framing_error = buffer[24];
+			arduino->crc_error = buffer[25];
+			arduino->packet_counter = buffer[29];
 			
 			//printf("ypr %d, %d, %d\n", yaw,pitch,roll);	
 			//printf("areal %d, %d, %d\n", aaRealx,aaRealy,aaRealz);
 			//printf("aaWorld %d, %d, %d\n", aaWorldx,aaWorldy,aaWorldz);
-			//printf("Temp: %2.2f  %2.2f \n",arduino.temperature_pretty, arduino.battery_level_pretty);
+			//printf("Temp: %2.2f  %2.2f \n",arduino->temperature_pretty, arduino->battery_level_pretty);
 			//printf("PPSIN: %d  PPSOUT: %d  FRAMING: %d CRC: %d\n",packets_in_per_second ,packets_out_per_second,framing_error ,crc_error);
 			
 			
 			//scan for button presses
 			
-			if (!arduino.blue_button && arduino.blue_button_previous){
-				if (arduino.supress_blue) arduino.supress_blue = false;
+			if (!arduino->blue_button && arduino->blue_button_previous){
+				if (arduino->supress_blue) arduino->supress_blue = false;
 				else {
-					if (!arduino.blue_button && arduino.blue_button_previous && arduino.orange_button){
-						arduino.supress_orange = true;
+					if (!arduino->blue_button && arduino->blue_button_previous && arduino->orange_button){
+						arduino->supress_orange = true;
 						return BUTTON_BOTH_LONG_ORANGE;
 					}
-					if (millis() - arduino.BluePressTime < LONG_PRESS_TIME)	return BUTTON_BLUE_SHORT;
+					if (millis() - arduino->BluePressTime < LONG_PRESS_TIME)	return BUTTON_BLUE_SHORT;
 					else return BUTTON_BLUE_LONG;
 				}
 			}
 			
-			if (!arduino.orange_button && arduino.orange_button_previous){
-				if (arduino.supress_orange) arduino.supress_orange = false;
+			if (!arduino->orange_button && arduino->orange_button_previous){
+				if (arduino->supress_orange) arduino->supress_orange = false;
 				else {
-					if (arduino.blue_button){
-						arduino.supress_blue = true;
+					if (arduino->blue_button){
+						arduino->supress_blue = true;
 						return BUTTON_BOTH_LONG_BLUE;
 					}
-					if (millis() - arduino.OrangePressTime < LONG_PRESS_TIME) return BUTTON_ORANGE_SHORT;
+					if (millis() - arduino->OrangePressTime < LONG_PRESS_TIME) return BUTTON_ORANGE_SHORT;
 					else return BUTTON_ORANGE_LONG;
 				}
 			}
@@ -247,8 +200,8 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 	return BUTTON_NONE;
 }
 
-void arduino_setup(void){	
-
+void arduino_setup(struct arduino_struct *ptr){	
+	arduino = ptr;
 	char device[] = "/dev/ttyAMA0";
 	fd = serialOpen(device,115200);
 	if (fd < 0) {

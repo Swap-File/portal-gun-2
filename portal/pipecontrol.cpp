@@ -1,5 +1,6 @@
 #include "portal.h"
 #include "pipecontrol.h"
+#include "arduino.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -128,8 +129,16 @@ void aplay(const char *filename){
 	fflush(bash_fp);
 }
 
-void web_output(const this_gun_struct& this_gun){
-	fprintf(bash_fp, "echo '%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d' > /var/www/html/tmp/portal.txt &\n",this_gun.private_state,this_gun.shared_state,this_gun.connected ,this_gun.ir_pwm,this_gun.private_playlist[0],this_gun.private_playlist[1],this_gun.private_playlist[2],this_gun.private_playlist[3],this_gun.private_playlist[4],this_gun.private_playlist[5],this_gun.private_playlist[6],this_gun.private_playlist[7],this_gun.private_playlist[8],this_gun.private_playlist[9],this_gun.private_playlist_index,this_gun.shared_playlist[0],this_gun.shared_playlist[1],this_gun.shared_playlist[2],this_gun.shared_playlist[3],this_gun.shared_playlist[4],this_gun.shared_playlist[5],this_gun.shared_playlist[6],this_gun.shared_playlist[7],this_gun.shared_playlist[8],this_gun.shared_playlist[9],this_gun.shared_playlist_index);
+void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino, int gst_backend ){
+	fprintf(bash_fp, "echo '%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %d %d %d %d %d' > /var/www/html/tmp/portal.txt &\n" ,\
+	this_gun.private_state,this_gun.shared_state,this_gun.connected ,this_gun.ir_pwm,this_gun.private_playlist[0],\
+	this_gun.private_playlist[1],this_gun.private_playlist[2],this_gun.private_playlist[3],this_gun.private_playlist[4],\
+	this_gun.private_playlist[5],this_gun.private_playlist[6],this_gun.private_playlist[7],this_gun.private_playlist[8],\
+	this_gun.private_playlist[9],this_gun.private_playlist_index,this_gun.shared_playlist[0],this_gun.shared_playlist[1],\
+	this_gun.shared_playlist[2],this_gun.shared_playlist[3],this_gun.shared_playlist[4],this_gun.shared_playlist[5],\
+	this_gun.shared_playlist[6],this_gun.shared_playlist[7],this_gun.shared_playlist[8],this_gun.shared_playlist[9],\
+	this_gun.shared_playlist_index,gst_backend,arduino.battery_level_pretty,arduino.temperature_pretty,\
+	arduino.packets_in_per_second,arduino.packets_out_per_second,arduino.framing_error,arduino.crc_error,arduino.cpuload);
 	fflush(bash_fp);
 }
 

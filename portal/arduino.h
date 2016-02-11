@@ -1,7 +1,7 @@
 #ifndef _NUNCHUK_H
 #define _NUNCHUK_H
 #include <stdint.h>
-void arduino_setup(void);
+void arduino_setup(struct arduino_struct *arduino);
 int arduino_update(const struct this_gun_struct& this_gun);
 uint8_t crc8(const uint8_t* addr, uint8_t len);
 int SerialUpdate(int fd);
@@ -24,5 +24,56 @@ static const uint8_t dscrc_table[] = {
      87,  9,235,181, 54,104,138,212,149,203, 41,119,244,170, 72, 22,
     233,183, 85, 11,136,214, 52,106, 43,117,151,201, 74, 20,246,168,
     116, 42,200,150, 21, 75,169,247,182,232, 10, 84,215,137,107, 53};
+
+
+
+struct arduino_struct {
+	
+	bool first_cycle = true; //if true, preload the filters with data
+	
+	int16_t yaw = 0;
+	int16_t pitch = 0;
+	int16_t roll = 0;
+	
+	int16_t aaRealx = 0; 
+	int16_t aaRealy = 0; 
+	int16_t aaRealz = 0; 
+	
+	int16_t aaWorldx = 0; 
+	int16_t aaWorldy = 0; 
+	int16_t aaWorldz = 0; 
+	
+	uint32_t connected_last = 0;
+	uint32_t connected = 0;
+	
+	bool orange_button_previous = false;
+	bool blue_button_previous = false;
+	
+	bool orange_button = false;
+	bool blue_button = false;
+	
+	uint32_t OrangePressTime = 0;
+	uint32_t BluePressTime = 0;
+	
+	uint8_t cpuload = 0; //0 to 100
+	
+	uint16_t temp = 0;
+	float temperature_pretty = 0;
+
+	uint16_t battery[256]; //array of samples
+	uint8_t battery_index = 0; //this rolls over
+	uint32_t battery_total = 0; //sum of the entire battery array
+	uint16_t battery_level = 0; //the last calculated average level in ADC format
+	float battery_level_pretty = 0; //battery level in volts
+	
+	uint8_t packets_in_per_second = 0;
+	uint8_t packets_out_per_second = 0;
+	uint8_t framing_error = 0;
+	uint8_t crc_error = 0;
+	uint8_t packet_counter = 0;
+	
+	bool supress_blue = false;
+	bool supress_orange = false;
+};  
 
 #endif
