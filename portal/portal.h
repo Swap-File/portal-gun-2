@@ -4,23 +4,26 @@
 #include <stdint.h>
 #include "gstvideo/gstvideo.h"
 
+#define SHARED_PLAYLIST_SIZE 10
+#define PRIVATE_PLAYLIST_SIZE 10
 struct this_gun_struct {
 	uint8_t brightness = 0;
-	int shared_state = 0;  //state reported to other gun
-	int shared_state_previous = 0;
-	int private_state = 0; //internal state for single player modes
-	int private_state_previous = 0;
+	int8_t shared_state = 0;  //state reported to other gun
+	int8_t shared_state_previous = 0;
+	int8_t private_state = 0; //internal state for single player modes
+	int8_t private_state_previous = 0;
 	bool initiator = false; //Did this gun start the connection request?
 	uint32_t clock = 0;
 	uint8_t ir_pwm = 0;
 	bool connected = false; 
 	
-	int private_playlist[10]={10,50,13,51,14,51,15,-1};
-	int private_playlist_index = 0;
+	int private_playlist[PRIVATE_PLAYLIST_SIZE]={GST_GOOM,GST_LIBVISUAL_JESS,GST_GOOM2K1,GST_MOVIE2,GST_LIBVISUAL_JACKDAW,GST_MOVIE3,GST_LIBVISUAL_OINKSIE,-1};
+	int private_playlist_index = 1;
+	int private_effect = GST_GOOM;
 
-	int shared_playlist[10]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_GLHEAT,GST_EDGETV,-1};
-	int shared_playlist_index = 0;
-		
+	int shared_playlist[SHARED_PLAYLIST_SIZE]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_GLHEAT,GST_EDGETV,-1};
+	int shared_playlist_index = 1;
+	int shared_effect = GST_NORMAL;
 };  
 
 struct other_gun_struct {
@@ -51,7 +54,5 @@ struct other_gun_struct {
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
-
-void INThandler(int dummy);
 
 #endif

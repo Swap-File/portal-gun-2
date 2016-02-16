@@ -77,7 +77,6 @@ int arduino_update(const struct this_gun_struct& this_gun ){
 	raw_buffer[1] = orange_pwm;
 	//only turn on IR when the camera is on
 	raw_buffer[2] = (this_gun.shared_state <= -2) ? this_gun.ir_pwm : 0;
-	
 	raw_buffer[3] = crc8(raw_buffer, 3);
 
 	uint8_t encoded_buffer[6];
@@ -136,7 +135,8 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 			
 			
 			uint16_t temp_temp = buffer[20] << 8 | buffer[21]; 
-			arduino->temperature_pretty = temperature_reading(temp_temp);
+			arduino->temp = arduino->temp * .5 + temp_temp * .5;
+			arduino->temperature_pretty = temperature_reading(arduino->temp);
 			
 			if (arduino->first_cycle){
 				//preload filters with data if empty

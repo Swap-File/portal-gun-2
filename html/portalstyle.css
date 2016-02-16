@@ -4,15 +4,7 @@ body {
 	color: white;	
 }
 
-.orangebutton {
-	background-color: orange;
-	color: black;
-}
-.bluebutton {
-	background-color: blue;
-	color: white;
-}
-.bluebutton,.orangebutton {
+.button {
 	width: 65px;
 	height: 25px;
 	text-align: center;

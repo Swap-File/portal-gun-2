@@ -17,11 +17,11 @@ self things
 <input type="button" id="moviemusic" onclick="submit(this)" value="music"/>
 <br>
 
-<input type="button" class="orangebutton" id="orangewifi" value="0" onclick="submit(this)"/>
-<input type="button" class="orangebutton" id="orangeself" value="0" onclick="submit(this)"/>
-<input type="button" id="close" onclick="submit(this)" value="Close"/>
-<input type="button" class="bluebutton" id="blueself" value="0" onclick="submit(this)"/>
-<input type="button" class="bluebutton" id="bluewifi" value="0" onclick="submit(this)"/>
+<input type="button" class="button" id="orangewifi" value="0" onclick="submit(this)"/>
+<input type="button" class="button" id="orangeself" value="0" onclick="submit(this)"/>
+<input type="button" class="button" id="close" onclick="submit(this)" value="Close"/>
+<input type="button" class="button" id="blueself" value="0" onclick="submit(this)"/>
+<input type="button" class="button" id="bluewifi" value="0" onclick="submit(this)"/>
 
 <br><br>
 
@@ -121,9 +121,11 @@ $(document).ready(function () {
 		case 3:		return "RPICAMSRC";	
 		case 4:		return "NORMAL";
 		case 10:	return "LIBVISUAL_JESS";
-		case 13:	return "LIBVISUAL_INFINITE";
-		case 14:	return "LIBVISUAL_JACKDAW";
-		case 15:	return "LIBVISUAL_OINKSIE";
+		case 11:	return "LIBVISUAL_INFINITE";
+		case 12:	return "LIBVISUAL_JACKDAW";
+		case 13:	return "LIBVISUAL_OINKSIE";
+		case 14:	return "GOOM";
+		case 15:	return "GOOM2K1";
 		case 20:	return "REVTV";
 		case 21:	return "AGINGTV";
 		case 22:	return "DICETV";
@@ -170,38 +172,81 @@ $(document).ready(function () {
 			var shared_playlist = [];
 			for (i = 0; i < 10; i++) { 
 				private_playlist.push(parseInt(res[4+i]));
-				shared_playlist.push(res[15+i]);
+				shared_playlist.push(res[16+i]);
 			}
-			var private_playlist_index = parseInt(res[14]);
-			var shared_playlist_index = parseInt(res[25]);
 			
-			if(private_state != private_state_last){
-				if (private_state == 0){
-					orangeself.value = 0;
-					blueself.value = 0;
+			var private_effect = parseInt(res[14]);
+			var private_playlist_index = parseInt(res[15]);
+		
+			var shared_effect = parseInt(res[26]);
+			var shared_playlist_index = parseInt(res[27]);
+			
+			var arduino_battery_level = parseFloat(res[28]);
+			var arduino_temp = parseFloat(res[29]);
+			var arduino_in_pps = parseInt(res[30]);
+			var arduino_out_pps = parseInt(res[31]);
+			var arduino_framing_error = parseInt(res[32]);
+			var arduino_crc_error = parseInt(res[33]);
+			var arduino_cpu_load = parseInt(res[34]);
+			
+			if(private_state != private_state_last || shared_state != shared_state_last){
+				if (private_state == 0 && shared_state == 0){
+					orangewifi.style.backgroundColor = "orange";
+					orangewifi.style.color = "black";
+					bluewifi.style.backgroundColor = "blue";
+					bluewifi.style.color = "white";
+					orangeself.style.backgroundColor = "orange";
+					orangeself.style.color = "black";
+					blueself.style.backgroundColor = "blue";
+					blueself.style.color = "white";
+					blueself.value = "Self";
+					orangeself.value = "Self";
+					bluewifi.value = "Wifi";
+					orangewifi.value = "Wifi";
 				}
-				if (private_state > 0){
+				else if (private_state > 0){
+					orangewifi.style.backgroundColor = "orange";
+					orangewifi.style.color = "transparent";
+					bluewifi.style.backgroundColor = "";
+					bluewifi.style.color = "transparent";
+					blueself.style.backgroundColor = "";
+					blueself.style.color = "transparent";
+					orangeself.style.backgroundColor = "orange";
 					orangeself.value = private_state;
-					blueself.value = 0;
+					orangeself.style.color = "black";
 				}
-				if (private_state < 0){
-					orangeself.value = 0;
+				else if (private_state < 0){
+					orangewifi.style.backgroundColor = "";
+					orangewifi.style.color = "transparent";
+					bluewifi.style.backgroundColor = "blue";
+					bluewifi.style.color = "transparent";
+					orangeself.style.backgroundColor = "";
+					orangeself.style.color = "transparent";
+					blueself.style.backgroundColor = "blue";
 					blueself.value = private_state * -1;
+					blueself.style.color = "white";
 				}
-			}
-			
-			if(shared_state != shared_state_last){
-				if (shared_state == 0){
-					orangewifi.value = 0;
-					bluewifi.value = 0;
-				}
-				if (shared_state > 0){
+				else if (shared_state > 0){
+					bluewifi.style.backgroundColor = "";
+					bluewifi.style.color = "transparent";
+					orangeself.style.backgroundColor = "orange";
+					orangeself.style.color = "transparent";
+					blueself.style.backgroundColor = "";
+					blueself.style.color = "transparent";
+					orangewifi.style.backgroundColor = "orange";
 					orangewifi.value = shared_state;
-					bluewifi.value = 0;
+					orangewifi.style.color = "black";
 				}
-				if (shared_state < 0){
-					orangewifi.value = 0;
+				else if (shared_state < 0){
+					orangewifi.style.backgroundColor = "";
+					orangewifi.style.color = "transparent";
+					orangeself.style.backgroundColor = "";
+					orangeself.style.color = "transparent";
+					blueself.style.backgroundColor = "blue";
+					blueself.style.color = "transparent";
+					bluewifi.style.backgroundColor = "blue";
 					bluewifi.value = shared_state * -1;
+					bluewifi.style.color = "white";
 				}
 			}
 			

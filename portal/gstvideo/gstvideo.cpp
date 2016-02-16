@@ -9,7 +9,6 @@
 #include <fcntl.h>
 #include <wiringPi.h>
 
-
 int main(int argc, char *argv[]) {
 	//gstreamer launch codes
 	char rpicamsrc22[] = "rpicamsrc keyframe-interval=10 preview=0 ! video/x-h264,width=400,height=240,framerate=30/1,profile=baseline  ! tee name=t ! queue max-size-time=50000000 leaky=upstream ! rtph264pay config-interval=1 pt=96 ! udpsink host=192.168.1.22 port=9000 t. ! queue  max-size-time=50000000 leaky=upstream ! avdec_h264 ! videorate ! video/x-raw,framerate=10/1 ! videoflip method=1 ! jpegenc ! multifilesink location=/var/www/html/tmp/snapshot.jpg";
@@ -18,10 +17,12 @@ int main(int argc, char *argv[]) {
 	char videotestsrc[] = "videotestsrc ! queue ! eglglessink";
 	char videotestsrc_cubed[] = "videotestsrc ! queue ! glupload ! glfiltercube ! gldownload ! eglglessink";
 	char normal[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! queue ! eglglessink";
-	char libvisual_jess[] = "alsasrc device=hw:1 buffer-time=20000 ! queue ! libvisual_jess ! eglglessink";
-	char libvisual_infinite[] = "alsasrc device=hw:1 buffer-time=20000 ! queue ! libvisual_infinite ! eglglessink";
-	char libvisual_jakdaw[] = "alsasrc device=hw:1 buffer-time=20000 ! queue ! libvisual_jakdaw ! eglglessink";
-	char libvisual_oinksie[] = "alsasrc device=hw:1 buffer-time=20000 ! queue ! libvisual_oinksie ! eglglessink";
+	char libvisual_jess[] = "alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_jess ! eglglessink";
+	char libvisual_infinite[] = "alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_infinite ! eglglessink";
+	char libvisual_jakdaw[] = "alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_jakdaw ! eglglessink";
+	char libvisual_oinksie[] = "alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_oinksie ! eglglessink";
+	char goom[] = "alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! goom ! video/x-raw,width=320,height=240 ! capssetter caps=video/x-raw,height=200 ! eglglessink";
+	char goom2k1[] = "alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! goom2k1 ! eglglessink";
 	char glfiltercube[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! glupload ! glfiltercube ! gldownload ! eglglessink";
 	char gleffects_mirror[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! glupload ! gleffects_mirror ! gldownload ! eglglessink";
 	char gleffects_squeeze[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! glupload ! gleffects_squeeze ! gldownload ! eglglessink";
@@ -147,6 +148,8 @@ int main(int argc, char *argv[]) {
 			case GST_LIBVISUAL_INFINITE: new_cmd = libvisual_infinite; break;	//good
 			case GST_LIBVISUAL_JACKDAW: new_cmd = libvisual_jakdaw; break;	//good
 			case GST_LIBVISUAL_OINKSIE: new_cmd = libvisual_oinksie; break;	//good		
+			case GST_GOOM: new_cmd = goom; break;	//good		
+			case GST_GOOM2K1: new_cmd = goom2k1; break;	//good		
 				//tv effects	
 			case GST_REVTV: new_cmd = revtv; break;//good
 			case GST_AGINGTV: new_cmd = agingtv; break;//steampunk
