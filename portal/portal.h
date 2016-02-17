@@ -17,13 +17,13 @@ struct this_gun_struct {
 	uint8_t ir_pwm = 0;
 	bool connected = false; 
 	
-	int private_playlist[PRIVATE_PLAYLIST_SIZE]={GST_GOOM,GST_LIBVISUAL_JESS,GST_GOOM2K1,GST_MOVIE2,GST_LIBVISUAL_JACKDAW,GST_MOVIE3,GST_LIBVISUAL_OINKSIE,-1};
-	int private_playlist_index = 1;
-	int private_effect = GST_GOOM;
+	int8_t private_playlist[PRIVATE_PLAYLIST_SIZE]={GST_GOOM,GST_LIBVISUAL_JESS,GST_GOOM2K1,GST_MOVIE2,GST_LIBVISUAL_JACKDAW,GST_MOVIE3,GST_LIBVISUAL_OINKSIE,-1};
+	int8_t private_playlist_index = 1;
+	int8_t private_effect = GST_GOOM;
 
-	int shared_playlist[SHARED_PLAYLIST_SIZE]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_GLHEAT,GST_EDGETV,-1};
-	int shared_playlist_index = 1;
-	int shared_effect = GST_NORMAL;
+	int8_t shared_playlist[SHARED_PLAYLIST_SIZE]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_GLHEAT,GST_EDGETV,-1};
+	int8_t shared_playlist_index = 1;
+	int8_t shared_effect = GST_NORMAL;
 };  
 
 struct other_gun_struct {

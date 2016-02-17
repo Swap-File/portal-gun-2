@@ -25,8 +25,6 @@ static const uint8_t dscrc_table[] = {
     233,183, 85, 11,136,214, 52,106, 43,117,151,201, 74, 20,246,168,
     116, 42,200,150, 21, 75,169,247,182,232, 10, 84,215,137,107, 53};
 
-
-
 struct arduino_struct {
 	
 	bool first_cycle = true; //if true, preload the filters with data
