@@ -1,7 +1,12 @@
-/* std button */
 body {
 	background-color: black;
 	color: white;	
+	text-align: center;
+}
+
+.wrap_div {
+    margin: 0 auto;
+    display: inline-block;
 }
 
 .button {
@@ -11,6 +16,11 @@ body {
 	font-size: 12px;
 }
 
+.hidden_div {
+	display: none;
+	  margin: 0 auto;
+  
+}
 .imageWrapper {
 	position: relative;
 }

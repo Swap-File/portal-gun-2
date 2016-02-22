@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
 	char gleffects_twirl[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! glupload ! gleffects_twirl ! gldownload ! eglglessink";
 	char gleffects_bulge[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! glupload ! gleffects_bulge ! gldownload ! eglglessink";
 	char gleffects_heat[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! glupload ! gleffects_heat ! gldownload ! eglglessink";
+	char radioactv[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! videoscale ! video/x-raw,width=320,height=240  ! radioactv !  capssetter caps=video/x-raw,height=200 !  eglglessink";
 	char revtv[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! revtv ! eglglessink";
 	char agingtv[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! agingtv ! eglglessink";
 	char dicetv[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue ! dicetv ! eglglessink";
@@ -151,6 +152,7 @@ int main(int argc, char *argv[]) {
 			case GST_GOOM: new_cmd = goom; break;	//good		
 			case GST_GOOM2K1: new_cmd = goom2k1; break;	//good		
 				//tv effects	
+			case GST_RADIOACTV: new_cmd = radioactv; break;//fixed
 			case GST_REVTV: new_cmd = revtv; break;//good
 			case GST_AGINGTV: new_cmd = agingtv; break;//steampunk
 			case GST_DICETV: new_cmd = dicetv; break;//works

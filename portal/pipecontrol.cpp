@@ -130,7 +130,7 @@ void aplay(const char *filename){
 }
 
 void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
-	fprintf(bash_fp, "echo '%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %d %d %d %d %d' > /var/www/html/tmp/portal.txt &\n" ,\
+	fprintf(bash_fp, "echo '%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %d %d %d %d %d %d' > /var/www/html/tmp/portal.txt &\n" ,\
 	this_gun.private_state,this_gun.shared_state,this_gun.connected ,this_gun.ir_pwm,this_gun.private_playlist[0],\
 	this_gun.private_playlist[1],this_gun.private_playlist[2],this_gun.private_playlist[3],this_gun.private_playlist[4],\
 	this_gun.private_playlist[5],this_gun.private_playlist[6],this_gun.private_playlist[7],this_gun.private_playlist[8],\
@@ -139,7 +139,7 @@ void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
 	this_gun.shared_playlist[5],this_gun.shared_playlist[6],this_gun.shared_playlist[7],this_gun.shared_playlist[8],\
 	this_gun.shared_playlist[9],this_gun.shared_effect,this_gun.shared_playlist_index,arduino.battery_level_pretty,\
 	arduino.temperature_pretty,arduino.packets_in_per_second,arduino.packets_out_per_second,arduino.framing_error,\
-	arduino.crc_error,arduino.cpuload);
+	arduino.crc_error,arduino.cpuload,arduino.packet_counter);
 	fflush(bash_fp);
 }
 

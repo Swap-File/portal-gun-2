@@ -14,7 +14,7 @@ struct this_gun_struct {
 	int8_t private_state_previous = 0;
 	bool initiator = false; //Did this gun start the connection request?
 	uint32_t clock = 0;
-	uint8_t ir_pwm = 0;
+	uint8_t ir_pwm = 255;
 	bool connected = false; 
 	
 	int8_t private_playlist[PRIVATE_PLAYLIST_SIZE]={GST_GOOM,GST_LIBVISUAL_JESS,GST_GOOM2K1,GST_MOVIE2,GST_LIBVISUAL_JACKDAW,GST_MOVIE3,GST_LIBVISUAL_OINKSIE,-1};
