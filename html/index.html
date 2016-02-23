@@ -8,7 +8,8 @@
 </head>
 <body id="index-page">
 <div class="wrap_div">
-<table>
+
+<table class="table_c">
 <tr>
 <td><div id="gun_name_div"></div></td>
 <td>
@@ -73,12 +74,13 @@ Live Preview:
 <tr>
 <td align="center" valign="top"><div>
 <u><b>WIFI PLAYLISTS</u></b><br>
-<input type="button" class="button_text" id="libvisual" onclick="submit(this)" value="vis"/><br>
-<input type="button" class="button_text" id="movieclip" onclick="submit(this)" value="clips"/><br>
+<input type="button" class="button_text" id="libvisual" onclick="submit(this)" value="Audio Vis."/><br>
 </div></td>
 <td align="center" valign="top"><div>
 <u><b>SELF PLAYLISTS</u></b><br>
-<input type="button" class="button_text" id="moviemusic" onclick="submit(this)" value="music"/><br>
+<input type="button" class="button_text" onclick="post_stuff('mode=3 60 61 -1 -1 -1 -1 -1 -1 -1 -1')" value="Music"/><br>
+<input type="button" class="button_text" onclick="post_stuff('mode=3 50 51 52 53 54 55 56 57 58 59')" value="Clips"/><br>
+<input type="button" class="button_text" onclick="post_stuff('mode=3 10 13 14 15 -1 -1 -1 -1 -1 -1')" value="Audio Vis."/><br>
 </div></td>
 </tr>
 </table>
@@ -212,7 +214,6 @@ Select Item to Edit...<br><br>
 </div>
 </body>
 </html>
-<script src="jquery-2.2.0.min.js"></script>
 <script>
 
 var last_packet_counter = -1;
@@ -240,6 +241,23 @@ var arduino_temp_last = -1;
 
 var edit_num = -11;
 var custom_mode = -11;
+var edit_obj;
+
+//populate playlist options
+for(var i=0; i < playlist_self.length; i++){
+	playlist_self.options[i].text = effect_name(parseInt(playlist_self.options[i].value));
+}
+for(var i=0; i < playlist_wifi.length; i++){
+	playlist_wifi.options[i].text = effect_name(parseInt(playlist_wifi.options[i].value));
+}
+
+menuselecter.value = "preview";
+
+if (location.host == "192.168.1.22"){gun_name_div.innerHTML = "Gordon";}
+else if (location.host == "192.168.1.23"){gun_name_div.innerHTML = "Chell";}
+
+update_data();
+
 
 function update_edit(thing){
 	if (thing.value >= 50){
@@ -309,39 +327,37 @@ function menu(sel){
 }
 
 function edit_change(inputnum){
-	if (custom_mode == 1){
-		var new_index = playlist_wifi.selectedIndex + inputnum;
-		if (new_index < 0){ new_index = playlist_wifi.length-1;}
-		if (new_index >=  playlist_wifi.length){ new_index = 0;}
-		playlist_wifi.selectedIndex = new_index;
-		update_edit(playlist_wifi);
-	}else if (custom_mode == 0){
-		var new_index = playlist_self.selectedIndex + inputnum;
-		if (new_index < 0){ new_index = playlist_self.length-1;}
-		if (new_index >=  playlist_self.length){ new_index = 0;}
-		playlist_self.selectedIndex = new_index;
-		update_edit(playlist_self);
-	}
+	var obj = custom_mode ? playlist_wifi : playlist_self;
+	var new_index = obj.selectedIndex + inputnum;
+	if (new_index < 0){new_index = obj.length - 1;}
+	if (new_index >=  obj.length){ new_index = 0;}
+	obj.selectedIndex = new_index;
+	update_edit(obj);
 }
 
 function edit_playlist( effect_num, mode ){
+
 	playlist_self_div.style.display  = 'none';  
 	playlist_wifi_div.style.display  = 'none';  
-	if (mode == 0){
-		$('#playlist_self').val(private_playlist[effect_num]).change();
-		playlist_self_div.style.display  = 'inline'; 
-	}else if (mode == 1){
-		$('#playlist_wifi').val(shared_playlist[effect_num]).change();
+	
+	if (mode == 1){
+		playlist_wifi.value = shared_playlist[effect_num].toString();
 		playlist_wifi_div.style.display  = 'inline'; 
+		update_edit(playlist_wifi);
+	}else if (mode == 0){
+		playlist_self.value = private_playlist[effect_num].toString();
+		playlist_self_div.style.display  = 'inline'; 
+		update_edit(playlist_self);
 	}
+
 	menu('edit');
 	edit_num = effect_num;
 	custom_mode = mode;
 }
 
 function save_playlist(){
-	output = "";
 	if (custom_mode == 1){
+		output = "mode=4 ";
 		for(var i=0; i <10; i++){
 			if (edit_num == i){
 				output += playlist_wifi.options[playlist_wifi.selectedIndex].value
@@ -350,9 +366,10 @@ function save_playlist(){
 			}			
 			output += " ";
 		}
-		$.post('index_post.php', {mode: 4, changeto: output});
+		post_stuff(output);
 	}
 	else if (custom_mode == 0){
+		output = "mode=3 ";
 		for(var i=0; i <10; i++){
 			if (edit_num == i){
 				output += playlist_self.options[playlist_self.selectedIndex].value
@@ -361,7 +378,7 @@ function save_playlist(){
 			}			
 			output += " ";
 		}
-		$.post('index_post.php', {mode: 3, changeto: output});
+		post_stuff(output);
 	}
 	menu('custom');
 }
@@ -422,32 +439,22 @@ function submitb(button) {
 		changetoval = 104;
 		break;
 	} 
-	$.post('index_post.php', {mode: 1,changeto: changetoval});
+	
+	post_stuff("mode=1 " + changetoval);
+}
+
+function post_stuff(stuff){
+	var request = new XMLHttpRequest();
+	request.open('POST', 'index_post.php', true);
+	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	request.send(stuff);
 }
 
 function irselect_func(thing){
 	var number = parseInt(thing.value);
 	if (number >= 0 && number <= 255){
-		$.post('index_post.php', {mode: 2,changeto: number});
+		post_stuff("mode=2 " + number);
 	}	
-}
-
-function submit(button) {
-
-	if (button.id == 'libvisual'){
-		var mode = 3;
-		var changeto = "10 13 14 15 -1 -1 -1 -1 -1 -1";
-	}
-	else if (button.id == 'movieclip'){
-		var mode = 3;
-		var changeto = "50 51 52 53 54 55 56 57 58 59";
-	}
-	else if (button.id == 'moviemusic'){
-		var mode = 3;
-		var changeto = "60 61 -1 -1 -1 -1 -1 -1 -1 -1";
-	}		
-	
-	$.post('index_post.php', {mode: mode,changeto: changeto	});
 }
 
 function effect_name(a) {
@@ -460,7 +467,7 @@ function effect_name(a) {
 	case 4:		return "NORMAL";
 	case 10:	return "JESS";
 	case 11:	return "INFINITE";
-	case 12:	return "JACKDAW";
+	case 12:	return "JAKDAW";
 	case 13:	return "OINKSIE";
 	case 14:	return "GOOM";
 	case 15:	return "GOOM2K1";
@@ -481,7 +488,7 @@ function effect_name(a) {
 	case 33:	return "GL_STRETCH";
 	case 34:	return "GL_TUNNEL";
 	case 35:	return "GL_TWIRL";
-	case 36:	return "GL_BULDGE";
+	case 36:	return "GL_BULGE";
 	case 37:	return "GLHEAT";		
 	case 50:	return "MOVIE1";
 	case 51:	return "MOVIE2";
@@ -499,224 +506,212 @@ function effect_name(a) {
 	}
 }
 
-$(document).ready(function () {
-
-	//populate playlist options
-	for(var i=0; i < playlist_self.length; i++){
-		playlist_self.options[i].text = effect_name(parseInt(playlist_self.options[i].value));
-	}
-	for(var i=0; i < playlist_wifi.length; i++){
-		playlist_wifi.options[i].text = effect_name(parseInt(playlist_wifi.options[i].value));
-	}
-	
-	menuselecter.value = "preview";
-	
-	if (location.host == "192.168.1.22"){gun_name_div.innerHTML = "Gordon";}
-	else if (location.host == "192.168.1.23"){gun_name_div.innerHTML = "Chell";}
-	
-	//$('#streamimage').attr("src", 'http://' + location.host + ':8080/?action=stream');
-	
-	setInterval(update_data, 200);
-});
+//$('#streamimage').attr("src", 'http://' + location.host + ':8080/?action=stream');
 
 function update_data() {
-	$.get("/tmp/portal.txt", function (result) {
-		var res = result.split(" ");
-		if (missed_packets > 2){reinit_all();}
-		var packet_counter = parseInt(res[35]);
-		if (isNaN(packet_counter) == true){
-			missed_packets++;
-		}else{
-			last_packet_counter = packet_counter;
-			missed_packets = 0;
-			
-			private_state = parseInt(res[0]);
-			shared_state = parseInt(res[1]);
-			
-			var ir_pwm = parseInt(res[3]);
-			if (ir_pwm_last != ir_pwm){
-				//top option is current setting
-				irselect.options[0].text = ir_pwm;
-				irselect.value = "256";
-				ir_pwm_last= ir_pwm;
+	var request = new XMLHttpRequest();
+	request.onload = function() {
+		if (this.status >= 200 && this.status < 400) {
+			var res = this.response.split(" ");
+			if (missed_packets > 2){
+				reinit_all();
 			}
+			var packet_counter = parseInt(res[35]);
+			if (isNaN(packet_counter) == true){
+				missed_packets++;
+			}else{
 			
-			var connected = parseInt(res[2]);
-			if (connected != connected_last){
-				if (connected == 1 ){
-					connected_div.innerHTML = "Guns are Connected";
-				}else{
-					connected_div.innerHTML = "Other Gun is Disconnected";
+				last_packet_counter = packet_counter;
+				missed_packets = 0;
+				
+				private_state = parseInt(res[0]);
+				shared_state = parseInt(res[1]);
+				
+				var ir_pwm = parseInt(res[3]);
+				if (ir_pwm_last != ir_pwm){
+					//top option is current setting
+					irselect.options[0].text = ir_pwm;
+					irselect.value = "256";
+					ir_pwm_last= ir_pwm;
 				}
-				connected_last = connected;
-			}
-			
-			var changes = 0;
-			for (i = 0; i < 10; i++) { 
-				var num = parseInt(res[4+i]);
-				if (private_playlist[i] != num){
-					private_playlist[i] = num;
-					changes++;
+				
+				var connected = parseInt(res[2]);
+				if (connected != connected_last){
+					if (connected == 1 ){
+						connected_div.innerHTML = "Guns are Connected";
+					}else{
+						connected_div.innerHTML = "Other Gun is Disconnected";
+					}
+					connected_last = connected;
 				}
-			}
-			if (changes > 0){
-				var tempstring = "<u><b>SELF PLAYLIST</u></b><br>";
-				for (i = 0; i < 10; i++){
-					if (private_playlist[i] >= 0){
+				
+				var changes = 0;
+				for (i = 0; i < 10; i++) { 
+					var num = parseInt(res[4+i]);
+					if (private_playlist[i] != num){
+						private_playlist[i] = num;
+						changes++;
+					}
+				}
+				if (changes > 0){
+					var tempstring = "<u><b>SELF PLAYLIST</u></b><br>";
+					for (i = 0; i < 10; i++){
+						if (private_playlist[i] == -1){ break; }
 						tempstring += effect_name(private_playlist[i]) + "<br>"
 					}
+					selfplaylist.innerHTML = tempstring;
 				}
-				selfplaylist.innerHTML = tempstring;
-			}
-			
-			var changes2 = 0;
-			for (i = 0; i < 10; i++) { 
-				var num = parseInt(res[16+i]);
-				if (shared_playlist[i] != num){
-					shared_playlist[i] = num;
-					changes2++;
+				
+				var changes2 = 0;
+				for (i = 0; i < 10; i++) { 
+					var num = parseInt(res[16+i]);
+					if (shared_playlist[i] != num){
+						shared_playlist[i] = num;
+						changes2++;
+					}
 				}
-			}
-			if (changes2 > 0){
-				var tempstring = "<u><b>WIFI PLAYLIST</u></b><br>";
-				for (i = 0; i < 10; i++){
-					if (shared_playlist[i] >= 0){
+				if (changes2 > 0){
+					var tempstring = "<u><b>WIFI PLAYLIST</u></b><br>";
+					for (i = 0; i < 10; i++){
+						if (shared_playlist[i] == -1){ break; }
 						tempstring += effect_name(shared_playlist[i]) + "<br>"
 					}
+					sharedplaylist.innerHTML = tempstring;
 				}
-				sharedplaylist.innerHTML = tempstring;
-			}
-			
-			//dont bother updating buttons if we are not displaying them
-			if ((changes != 0 || changes2 != 0) && requested_mode == "custom" ){
-				update_custom_buttons();
-			}
-			
-			var private_effect = parseInt(res[14]);
-			var private_playlist_index = parseInt(res[15]);
-			var shared_effect = parseInt(res[26]);
-			var shared_playlist_index = parseInt(res[27]);
-			
-			if (private_effect != private_effect_last || private_playlist_index != private_playlist_index_last){
-				private_effect_text = effect_name(private_effect) + "<br>" + effect_name(private_playlist[private_playlist_index]);
-				private_effect_last = private_effect;
-				private_playlist_index_last = private_playlist_index;
-			}
-			if (shared_effect != shared_effect_last || shared_playlist_index != shared_playlist_index_last){
-				shared_effect_text = effect_name(shared_effect) + "<br>" + effect_name(shared_playlist[shared_playlist_index]);
-				shared_effect_last = shared_effect;
-				shared_playlist_index_last = shared_playlist_index;
-			}
-			
+				
+				//dont bother updating buttons if we are not displaying them
+				if ((changes != 0 || changes2 != 0) && requested_mode == "custom" ){
+					update_custom_buttons();
+				}
+				
+				var private_effect = parseInt(res[14]);
+				var private_playlist_index = parseInt(res[15]);
+				var shared_effect = parseInt(res[26]);
+				var shared_playlist_index = parseInt(res[27]);
+				
+				if (private_effect != private_effect_last || private_playlist_index != private_playlist_index_last){
+					private_effect_text = effect_name(private_effect) + "<br>" + effect_name(private_playlist[private_playlist_index]);
+					private_effect_last = private_effect;
+					private_playlist_index_last = private_playlist_index;
+				}
+				if (shared_effect != shared_effect_last || shared_playlist_index != shared_playlist_index_last){
+					shared_effect_text = effect_name(shared_effect) + "<br>" + effect_name(shared_playlist[shared_playlist_index]);
+					shared_effect_last = shared_effect;
+					shared_playlist_index_last = shared_playlist_index;
+				}
+				
 
-			var arduino_battery_level = parseFloat(res[28]);
-			var arduino_temp = parseFloat(res[29]);
-			
-			if ((arduino_battery_level != arduino_battery_level_last) || (arduino_temp != arduino_temp_last)){
-				temp_batt_div.innerText = arduino_battery_level + " V  " + arduino_temp + " F";
-				arduino_battery_level_last = arduino_battery_level;
-				arduino_temp_last = arduino_temp;
-			}
-			//crap I dont need
-			//var arduino_in_pps = parseInt(res[30]);
-			//var arduino_out_pps = parseInt(res[31]);
-			//var arduino_framing_error = parseInt(res[32]);
-			//var arduino_crc_error = parseInt(res[33]);
-			//var arduino_cpu_load = parseInt(res[34]);
-			
-			if(private_state != private_state_last || shared_state != shared_state_last){
-				if (private_state == 0 && shared_state == 0){
-					portal_text.innerHTML = "";
-					portal_background.src = "blank.png";
-					portal_foreground.src = "blank.png";
-					
-					orangewifi.style.backgroundColor = "orange";
-					orangewifi.style.color = "black";
-					bluewifi.style.backgroundColor = "blue";
-					bluewifi.style.color = "white";
-					orangeself.style.backgroundColor = "orange";
-					orangeself.style.color = "black";
-					blueself.style.backgroundColor = "blue";
-					blueself.style.color = "white";
-					blueself.value = "Self";
-					orangeself.value = "Self";
-					bluewifi.value = "Wifi";
-					orangewifi.value = "Wifi";
+				var arduino_battery_level = parseFloat(res[28]);
+				var arduino_temp = parseFloat(res[29]);
+				
+				if ((arduino_battery_level != arduino_battery_level_last) || (arduino_temp != arduino_temp_last)){
+					temp_batt_div.innerHTML = arduino_battery_level + " V  " + arduino_temp + " F";
+					arduino_battery_level_last = arduino_battery_level;
+					arduino_temp_last = arduino_temp;
 				}
-				else if (private_state > 0){
-					portal_background.src = "orange_0.jpg";
-					portal_foreground.src = "orange_portal.png";
-					orangewifi.style.backgroundColor = "orange";
-					orangewifi.style.color = "transparent";
-					bluewifi.style.backgroundColor = "";
-					bluewifi.style.color = "transparent";
-					if (private_state >= 3){
+				//crap I dont need
+				//var arduino_in_pps = parseInt(res[30]);
+				//var arduino_out_pps = parseInt(res[31]);
+				//var arduino_framing_error = parseInt(res[32]);
+				//var arduino_crc_error = parseInt(res[33]);
+				//var arduino_cpu_load = parseInt(res[34]);
+				
+				if(private_state != private_state_last || shared_state != shared_state_last){
+					if (private_state == 0 && shared_state == 0){
+						portal_text.innerHTML = "";
+						portal_background.src = "blank.png";
+						portal_foreground.src = "blank.png";
+						
+						orangewifi.style.backgroundColor = "orange";
+						orangewifi.style.color = "black";
+						bluewifi.style.backgroundColor = "blue";
+						bluewifi.style.color = "white";
+						orangeself.style.backgroundColor = "orange";
+						orangeself.style.color = "black";
 						blueself.style.backgroundColor = "blue";
-						blueself.style.color = "transparent";
-					}else{
-						blueself.style.backgroundColor = "";
-						blueself.style.color = "transparent";
+						blueself.style.color = "white";
+						blueself.value = "Self";
+						orangeself.value = "Self";
+						bluewifi.value = "Wifi";
+						orangewifi.value = "Wifi";
 					}
-					
-					orangeself.style.backgroundColor = "orange";
-					orangeself.value = private_state;
-					orangeself.style.color = "black";
-				}
-				else if (private_state < 0){
-					portal_background.src = "blue_0.jpg";
-					portal_foreground.src = "blue_portal.png";
-					orangewifi.style.backgroundColor = "";
-					orangewifi.style.color = "transparent";
-					bluewifi.style.backgroundColor = "blue";
-					bluewifi.style.color = "transparent";
-					if (private_state <= -3){
+					else if (private_state > 0){
+						portal_background.src = "orange_0.jpg";
+						portal_foreground.src = "orange_portal.png";
+						orangewifi.style.backgroundColor = "orange";
+						orangewifi.style.color = "transparent";
+						bluewifi.style.backgroundColor = "";
+						bluewifi.style.color = "transparent";
+						if (private_state >= 3){
+							blueself.style.backgroundColor = "blue";
+							blueself.style.color = "transparent";
+						}else{
+							blueself.style.backgroundColor = "";
+							blueself.style.color = "transparent";
+						}
+						
+						orangeself.style.backgroundColor = "orange";
+						orangeself.value = private_state;
+						orangeself.style.color = "black";
+					}
+					else if (private_state < 0){
+						portal_background.src = "blue_0.jpg";
+						portal_foreground.src = "blue_portal.png";
+						orangewifi.style.backgroundColor = "";
+						orangewifi.style.color = "transparent";
+						bluewifi.style.backgroundColor = "blue";
+						bluewifi.style.color = "transparent";
+						if (private_state <= -3){
+							orangeself.style.backgroundColor = "orange";
+							orangeself.style.color = "transparent";
+							
+						}else{
+							orangeself.style.backgroundColor = "";
+							orangeself.style.color = "transparent";
+						}
+						blueself.style.backgroundColor = "blue";
+						blueself.value = private_state * -1;
+						blueself.style.color = "white";
+					}
+					else if (shared_state > 0){
+						portal_background.src = "orange_0.jpg";
+						portal_foreground.src = "orange_portal.png";
+						
+						bluewifi.style.backgroundColor = "";
+						bluewifi.style.color = "transparent";
 						orangeself.style.backgroundColor = "orange";
 						orangeself.style.color = "transparent";
 						
-					}else{
+						blueself.style.backgroundColor = "";
+						blueself.style.color = "transparent";
+						
+						orangewifi.style.backgroundColor = "orange";
+						orangewifi.value = shared_state;
+						orangewifi.style.color = "black";
+					}
+					else if (shared_state < 0){
+						portal_background.src = "http://" + location.host + ":8080/?action=stream";
+						portal_foreground.src = "blue_portal.png";
+						orangewifi.style.backgroundColor = "";
+						orangewifi.style.color = "transparent";
 						orangeself.style.backgroundColor = "";
 						orangeself.style.color = "transparent";
+						blueself.style.backgroundColor = "blue";
+						blueself.style.color = "transparent";
+						bluewifi.style.backgroundColor = "blue";
+						bluewifi.value = shared_state * -1;
+						bluewifi.style.color = "white";
 					}
-					blueself.style.backgroundColor = "blue";
-					blueself.value = private_state * -1;
-					blueself.style.color = "white";
+					mode_set();
+					shared_state_last = shared_state;
+					private_state_last = private_state;
 				}
-				else if (shared_state > 0){
-					portal_background.src = "orange_0.jpg";
-					portal_foreground.src = "orange_portal.png";
-					
-					bluewifi.style.backgroundColor = "";
-					bluewifi.style.color = "transparent";
-					orangeself.style.backgroundColor = "orange";
-					orangeself.style.color = "transparent";
-					
-					blueself.style.backgroundColor = "";
-					blueself.style.color = "transparent";
-					
-					orangewifi.style.backgroundColor = "orange";
-					orangewifi.value = shared_state;
-					orangewifi.style.color = "black";
-				}
-				else if (shared_state < 0){
-					portal_background.src = "http://" + location.host + ":8080/?action=stream";
-					portal_foreground.src = "blue_portal.png";
-					orangewifi.style.backgroundColor = "";
-					orangewifi.style.color = "transparent";
-					orangeself.style.backgroundColor = "";
-					orangeself.style.color = "transparent";
-					blueself.style.backgroundColor = "blue";
-					blueself.style.color = "transparent";
-					bluewifi.style.backgroundColor = "blue";
-					bluewifi.value = shared_state * -1;
-					bluewifi.style.color = "white";
-				}
-				mode_set();
-				shared_state_last = shared_state;
-				private_state_last = private_state;
 			}
-			
-			
 		}		
-	});
+		setTimeout(update_data,200);
+	}
+	request.open("GET", "/tmp/portal.txt", true);
+	request.send(null);
 }
+
 </script>

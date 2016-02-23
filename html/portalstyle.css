@@ -9,6 +9,10 @@ body {
     display: inline-block;
 }
 
+.table_c {
+    margin: 0 auto;
+}
+
 .button {
 	width: 55px;
 	height: 30px;
@@ -25,7 +29,7 @@ body {
 
 .hidden_div {
 	display: none;
-	  margin: 0 auto;
+	margin: 0 auto;
   
 }
 .imageWrapper {
