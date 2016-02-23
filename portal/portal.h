@@ -17,7 +17,7 @@ struct this_gun_struct {
 	uint8_t ir_pwm = 255;
 	bool connected = false; 
 	
-	int8_t private_playlist[PRIVATE_PLAYLIST_SIZE]={GST_GOOM,GST_LIBVISUAL_JESS,GST_GOOM2K1,GST_MOVIE2,GST_LIBVISUAL_JACKDAW,GST_MOVIE3,GST_LIBVISUAL_OINKSIE,-1};
+	int8_t private_playlist[PRIVATE_PLAYLIST_SIZE]={GST_GOOM,GST_LIBVISUAL_JESS,GST_GOOM2K1,GST_MOVIE2,GST_LIBVISUAL_JAKDAW,GST_MOVIE3,GST_LIBVISUAL_OINKSIE,-1};
 	int8_t private_playlist_index = 1;
 	int8_t private_effect = GST_GOOM;
 

@@ -16,6 +16,13 @@ body {
 	font-size: 12px;
 }
 
+.button_text {
+    width: 120px;
+	height: 30px;
+	text-align: center;
+	font-size: 12px;
+}
+
 .hidden_div {
 	display: none;
 	  margin: 0 auto;
@@ -27,7 +34,7 @@ body {
 
 .overlayImage1,.overlayImage2  {
 	position: absolute;
-	top: 160;
+	top: 130;
 	left:0;
 	right:0;
 	margin-left:auto;

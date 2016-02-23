@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
 				//libvisual 10 - 18
 			case GST_LIBVISUAL_JESS: new_cmd = libvisual_jess; break;	  //good
 			case GST_LIBVISUAL_INFINITE: new_cmd = libvisual_infinite; break;	//good
-			case GST_LIBVISUAL_JACKDAW: new_cmd = libvisual_jakdaw; break;	//good
+			case GST_LIBVISUAL_JAKDAW: new_cmd = libvisual_jakdaw; break;	//good
 			case GST_LIBVISUAL_OINKSIE: new_cmd = libvisual_oinksie; break;	//good		
 			case GST_GOOM: new_cmd = goom; break;	//good		
 			case GST_GOOM2K1: new_cmd = goom2k1; break;	//good		
@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
 			case GST_GLSTRETCH: new_cmd = gleffects_stretch; break;
 			case GST_GLTUNNEL: new_cmd = gleffects_tunnel; break;	//really good O	
 			case GST_GLTWIRL: new_cmd = gleffects_twirl; break; //creepy as fuck
-			case GST_GLBULDGE: new_cmd = gleffects_bulge; break;	
+			case GST_GLBULGE: new_cmd = gleffects_bulge; break;	
 			case GST_GLHEAT: new_cmd = gleffects_heat; break;
 
 			case GST_MOVIE1: new_cmd = movie1; break;	

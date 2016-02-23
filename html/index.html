@@ -1,5 +1,4 @@
 <html>
-
 <head>
 <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 <meta content="utf-8" http-equiv="encoding">
@@ -7,30 +6,24 @@
 <title>Portal Gun 2.0</title>
 <link rel="stylesheet" type="text/css" href="portalstyle.css">
 </head>
-
 <body id="index-page">
 <div class="wrap_div">
-
-
 <table>
 <tr>
 <td><div id="gun_name_div"></div></td>
-
 <td>
 <select id="menuselecter" onchange="menu(this.value)">
 <option value="preview">Home Screen</option>
-<option value="settings">View Settings</option>
 <option value="load">Load Playlist</option>
 <option value="custom">Custom Playlist</option>
+<option value="settings">View Settings</option>
 <option value="switch">Switch Guns</option>
 </select>
 </td>
-
 <td><div id="temp_batt_div"></div></td>
 </tr>
 </table>
 <br>
-
 <input type="button" class="button" id="orangewifi" value="0" onclick="submitb(this.id)"/>
 <input type="button" class="button" id="orangeself" value="0" onclick="submitb(this.id)"/>
 <input type="button" class="button" id="close" value="Close" onclick="submitb(this.id)"/>
@@ -38,15 +31,12 @@
 <input type="button" class="button" id="bluewifi" value="0" onclick="submitb(this.id)"/>
 <br>
 <br>
-
-
 <div class="hidden_div" id="imageWrapper"> 
 <br>
 <img class="overlayImage1" id="portal_background" src="black.png">
 <img class="overlayImage2" id="portal_foreground" src="black.png">
 <div class="overlayText" id="portal_text"></div>
 </div>
-
 <div class="hidden_div" id="playlist_div"> 
 <div id="connected_div"></div>
 <br>
@@ -57,10 +47,7 @@
 </tr>
 </table>
 </div>
-
 <div class="hidden_div" id="settings_div"> 
-Settings
-<br>
 <br>
 Nightvision Brightness:
 <select id="irselect" onchange="irselect_func(this)">
@@ -79,75 +66,62 @@ Live Preview:
 <option value="ON">ON</option>
 <option value="OFF">OFF</option>
 </select>
-<br><br>
-<input type="button" onclick="menu('preview')" value="Go Home"/><br>
 </div>
-
 <div  class="hidden_div"  id="load_div"> 
-Premade Playlists<br><br>
-<table>
-<tr>
-<td valign="top"><div>
-<u><b>WIFI PLAYLISTS</u></b><br>
-<input type="button" id="libvisual" onclick="submit(this)" value="vis"/><br>
-<input type="button" id="movieclip" onclick="submit(this)" value="clips"/><br>
-
-
-</div></td>
-<td valign="top"><div>
-<u><b>SELF PLAYLISTS</u></b><br>
-<input type="button" id="moviemusic" onclick="submit(this)" value="music"/><br>
-</div></td>
-</tr>
-</table>
 <br>
-<input type="button" onclick="menu('preview')" value="Go Home"/><br>
-
-
-</div>
-
-<div class="hidden_div"  id="custom_div"> 
-Custom Playlist Builder<br><br>
-
 <table>
 <tr>
-<td valign="top">
+<td align="center" valign="top"><div>
 <u><b>WIFI PLAYLISTS</u></b><br>
-<input type="button" id="wifi0" onclick="edit_playlist(0,1)" value=""/><br>
-<input type="button" id="wifi1" onclick="edit_playlist(1,1)" value=""/><br>
-<input type="button" id="wifi2" onclick="edit_playlist(2,1)" value=""/><br>
-<input type="button" id="wifi3" onclick="edit_playlist(3,1)" value=""/><br>
-<input type="button" id="wifi4" onclick="edit_playlist(4,1)" value=""/><br>
-<input type="button" id="wifi5" onclick="edit_playlist(5,1)" value=""/><br>
-<input type="button" id="wifi6" onclick="edit_playlist(6,1)" value=""/><br>
-<input type="button" id="wifi7" onclick="edit_playlist(7,1)" value=""/><br>
-<input type="button" id="wifi8" onclick="edit_playlist(8,1)" value=""/><br>
-<input type="button" id="wifi9" onclick="edit_playlist(9,1)" value=""/><br>
-</td>
-<td valign="top">
+<input type="button" class="button_text" id="libvisual" onclick="submit(this)" value="vis"/><br>
+<input type="button" class="button_text" id="movieclip" onclick="submit(this)" value="clips"/><br>
+</div></td>
+<td align="center" valign="top"><div>
 <u><b>SELF PLAYLISTS</u></b><br>
-<input type="button" id="self0" onclick="edit_playlist(0,0)" value=""/><br>
-<input type="button" id="self1" onclick="edit_playlist(1,0)" value=""/><br>
-<input type="button" id="self2" onclick="edit_playlist(2,0)" value=""/><br>
-<input type="button" id="self3" onclick="edit_playlist(3,0)" value=""/><br>
-<input type="button" id="self4" onclick="edit_playlist(4,0)" value=""/><br>
-<input type="button" id="self5" onclick="edit_playlist(5,0)" value=""/><br>
-<input type="button" id="self6" onclick="edit_playlist(6,0)" value=""/><br>
-<input type="button" id="self7" onclick="edit_playlist(7,0)" value=""/><br>
-<input type="button" id="self8" onclick="edit_playlist(8,0)" value=""/><br>
-<input type="button" id="self9" onclick="edit_playlist(9,0)" value=""/><br>
+<input type="button" class="button_text" id="moviemusic" onclick="submit(this)" value="music"/><br>
+</div></td>
+</tr>
+</table>
+</div>
+<div class="hidden_div"  id="custom_div"> 
+Select Item to Edit...<br><br>
+<table>
+<tr>
+<td align="center" valign="top">
+<u><b>WIFI PLAYLIST</u></b><br>
+<input type="button" class="button_text" id="wifi0" onclick="edit_playlist(0,1)" value=""/><br>
+<input type="button" class="button_text" id="wifi1" onclick="edit_playlist(1,1)" value=""/><br>
+<input type="button" class="button_text" id="wifi2" onclick="edit_playlist(2,1)" value=""/><br>
+<input type="button" class="button_text" id="wifi3" onclick="edit_playlist(3,1)" value=""/><br>
+<input type="button" class="button_text" id="wifi4" onclick="edit_playlist(4,1)" value=""/><br>
+<input type="button" class="button_text" id="wifi5" onclick="edit_playlist(5,1)" value=""/><br>
+<input type="button" class="button_text" id="wifi6" onclick="edit_playlist(6,1)" value=""/><br>
+<input type="button" class="button_text" id="wifi7" onclick="edit_playlist(7,1)" value=""/><br>
+<input type="button" class="button_text" id="wifi8" onclick="edit_playlist(8,1)" value=""/><br>
+<input type="button" class="button_text" id="wifi9" onclick="edit_playlist(9,1)" value=""/><br>
+</td>
+<td align="center" valign="top">
+<u><b>SELF PLAYLIST</u></b><br>
+<input type="button" class="button_text" id="self0" onclick="edit_playlist(0,0)" value=""/><br>
+<input type="button" class="button_text" id="self1" onclick="edit_playlist(1,0)" value=""/><br>
+<input type="button" class="button_text" id="self2" onclick="edit_playlist(2,0)" value=""/><br>
+<input type="button" class="button_text" id="self3" onclick="edit_playlist(3,0)" value=""/><br>
+<input type="button" class="button_text" id="self4" onclick="edit_playlist(4,0)" value=""/><br>
+<input type="button" class="button_text" id="self5" onclick="edit_playlist(5,0)" value=""/><br>
+<input type="button" class="button_text" id="self6" onclick="edit_playlist(6,0)" value=""/><br>
+<input type="button" class="button_text" id="self7" onclick="edit_playlist(7,0)" value=""/><br>
+<input type="button" class="button_text" id="self8" onclick="edit_playlist(8,0)" value=""/><br>
+<input type="button" class="button_text" id="self9" onclick="edit_playlist(9,0)" value=""/><br>
 </td>
 </tr>
 </table>
-<br><br>
-<input type="button" onclick="menu('preview')" value="Go Home"/><br>
 </div>
-
 <div class="hidden_div"  id="edit_div"> 
-custom <br><br>
-
-
-<select id="playlistitem" onchange="update_edit(this)">
+<input type="button" class="button_text" onclick="save_playlist()" value="Save Changes"/>
+<input type="button" class="button_text" onclick="menu('custom')" value="Discard Changes"/><br><br>
+<input type="button" onclick="edit_change(-1)" value="<-"/>
+<div id="playlist_wifi_div"> 
+<select id="playlist_wifi" onchange="update_edit(this)">
 <optgroup label="Effects">
 <option value="4">4</option>
 <option value="19">19</option>
@@ -179,10 +153,11 @@ custom <br><br>
 <option value="15">15</option>
 </optgroup> 
 <optgroup label="Test">
+<option value="-1">-1</option>
+<option value="0">0</option>
 <option value="1">1</option>
 <option value="2">2</option>
 </optgroup> 
-
 <optgroup label="Movies">
 <option value="50">50</option>
 <option value="51">51</option>
@@ -198,16 +173,43 @@ custom <br><br>
 <option value="61">61</option>
 </optgroup>
 </select>
+</div>
+<div id="playlist_self_div"> 
+<select id="playlist_self" onchange="update_edit(this)">
+<optgroup label="Audio">
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+</optgroup> 
+<optgroup label="Test">
+<option value="-1">-1</option>
+<option value="0">0</option>
+<option value="1">1</option>
+<option value="2">2</option>
+</optgroup> 
+<optgroup label="Movies">
+<option value="50">50</option>
+<option value="51">51</option>
+<option value="52">52</option>
+<option value="53">53</option>
+<option value="54">54</option>
+<option value="55">55</option>
+<option value="56">56</option>
+<option value="57">57</option>
+<option value="58">58</option>
+<option value="59">59</option>
+<option value="60">60</option>
+<option value="61">61</option>
+</optgroup>
+</select>
+</div>
+<input type="button" onclick="edit_change(1)" value="->"/>
 <br>
 <img id="custom_preview" src="">
-
-<br>
-<input type="button" onclick="save_playlist()" value="Save"/>
-<input type="button" onclick="menu('custom')" value="Discard"/><br>
-<input type="button" onclick="menu('preview')" value="Go Home"/><br>
 </div>
-
-
 </body>
 </html>
 <script src="jquery-2.2.0.min.js"></script>
@@ -236,43 +238,40 @@ var shared_effect_text = "";
 var arduino_battery_level_last = -1;
 var arduino_temp_last = -1;
 
-
-var custom_editing = -11;
+var edit_num = -11;
 var custom_mode = -11;
 
 function update_edit(thing){
- if (thing.value >= 50){
- custom_preview.src = "/assets/" + thing.value.toString() + ".png";
- }else{
-custom_preview.src = "/assets/" + thing.value.toString() + ".gif";
-}
+	if (thing.value >= 50){
+		custom_preview.src = "/assets/" + thing.value.toString() + ".png";
+	}else{
+		custom_preview.src = "/assets/" + thing.value.toString() + ".gif";
+	}
 }
 
 function update_custom_buttons(){
-
-wifi0.value = effect_name(shared_playlist[0]);
-wifi1.value = effect_name(shared_playlist[1]);
-wifi2.value = effect_name(shared_playlist[2]);
-wifi3.value = effect_name(shared_playlist[3]);
-wifi4.value = effect_name(shared_playlist[4]);
-wifi5.value = effect_name(shared_playlist[5]);
-wifi6.value = effect_name(shared_playlist[6]);
-wifi7.value = effect_name(shared_playlist[7]);
-wifi8.value = effect_name(shared_playlist[8]);
-wifi9.value = effect_name(shared_playlist[9]);
-
-self0.value = effect_name(private_playlist[0]);
-self1.value = effect_name(private_playlist[1]);
-self2.value = effect_name(private_playlist[2]);
-self3.value = effect_name(private_playlist[3]);
-self4.value = effect_name(private_playlist[4]);
-self5.value = effect_name(private_playlist[5]);
-self6.value = effect_name(private_playlist[6]);
-self7.value = effect_name(private_playlist[7]);
-self8.value = effect_name(private_playlist[8]);
-self9.value = effect_name(private_playlist[9]);
-
+	wifi0.value = effect_name(shared_playlist[0]);
+	wifi1.value = effect_name(shared_playlist[1]);
+	wifi2.value = effect_name(shared_playlist[2]);
+	wifi3.value = effect_name(shared_playlist[3]);
+	wifi4.value = effect_name(shared_playlist[4]);
+	wifi5.value = effect_name(shared_playlist[5]);
+	wifi6.value = effect_name(shared_playlist[6]);
+	wifi7.value = effect_name(shared_playlist[7]);
+	wifi8.value = effect_name(shared_playlist[8]);
+	wifi9.value = effect_name(shared_playlist[9]);
+	self0.value = effect_name(private_playlist[0]);
+	self1.value = effect_name(private_playlist[1]);
+	self2.value = effect_name(private_playlist[2]);
+	self3.value = effect_name(private_playlist[3]);
+	self4.value = effect_name(private_playlist[4]);
+	self5.value = effect_name(private_playlist[5]);
+	self6.value = effect_name(private_playlist[6]);
+	self7.value = effect_name(private_playlist[7]);
+	self8.value = effect_name(private_playlist[8]);
+	self9.value = effect_name(private_playlist[9]);
 }
+
 function reinit_all(){
 	
 	missed_packets = 0;
@@ -300,7 +299,6 @@ function reinit_all(){
 }
 
 function menu(sel){
-	
 	if (sel == "switch"){	
 		if (location.host == "192.168.1.23"){window.location.href = 'http://192.168.1.22';}
 		else if (location.host == "192.168.1.22"){window.location.href = 'http://192.168.1.23';}
@@ -310,31 +308,61 @@ function menu(sel){
 	}
 }
 
-function edit_playlist( effect_num, mode ){
-
-	if (mode == 0){
-		$('#playlistitem').val(private_playlist[effect_num]).change();
-	}else if (mode == 1){
-		$('#playlistitem').val(shared_playlist[effect_num]).change();
+function edit_change(inputnum){
+	if (custom_mode == 1){
+		var new_index = playlist_wifi.selectedIndex + inputnum;
+		if (new_index < 0){ new_index = playlist_wifi.length-1;}
+		if (new_index >=  playlist_wifi.length){ new_index = 0;}
+		playlist_wifi.selectedIndex = new_index;
+		update_edit(playlist_wifi);
+	}else if (custom_mode == 0){
+		var new_index = playlist_self.selectedIndex + inputnum;
+		if (new_index < 0){ new_index = playlist_self.length-1;}
+		if (new_index >=  playlist_self.length){ new_index = 0;}
+		playlist_self.selectedIndex = new_index;
+		update_edit(playlist_self);
 	}
-	
+}
+
+function edit_playlist( effect_num, mode ){
+	playlist_self_div.style.display  = 'none';  
+	playlist_wifi_div.style.display  = 'none';  
+	if (mode == 0){
+		$('#playlist_self').val(private_playlist[effect_num]).change();
+		playlist_self_div.style.display  = 'inline'; 
+	}else if (mode == 1){
+		$('#playlist_wifi').val(shared_playlist[effect_num]).change();
+		playlist_wifi_div.style.display  = 'inline'; 
+	}
 	menu('edit');
-	custom_editing = effect_num;
+	edit_num = effect_num;
 	custom_mode = mode;
 }
 
 function save_playlist(){
 	output = "";
-	for(var i=0; i <10; i++){
-		if (i == custom_editing){
-			output += playlistitem.options[playlistitem.selectedIndex].value + " ";
+	if (custom_mode == 1){
+		for(var i=0; i <10; i++){
+			if (edit_num == i){
+				output += playlist_wifi.options[playlist_wifi.selectedIndex].value
+			}else{
+				output += shared_playlist[i];
+			}			
+			output += " ";
 		}
-		else{	
-			if (custom_mode == 0){output += private_playlist[i] + " ";}
-			else if (custom_mode == 1){output += shared_playlist[i] + " ";}	
-		}
+		$.post('index_post.php', {mode: 4, changeto: output});
 	}
-	$.post('index_post.php', {mode: 3,changeto: output});
+	else if (custom_mode == 0){
+		for(var i=0; i <10; i++){
+			if (edit_num == i){
+				output += playlist_self.options[playlist_self.selectedIndex].value
+			}else{
+				output += private_playlist[i];
+			}			
+			output += " ";
+		}
+		$.post('index_post.php', {mode: 3, changeto: output});
+	}
 	menu('custom');
 }
 
@@ -367,24 +395,18 @@ function mode_set(){
 		load_div.style.display  = 'inline-block';  
 		break;
 	case "custom":	
-	update_custom_buttons();
+		update_custom_buttons();
 		custom_div.style.display  = 'inline-block';  
 		break;
 	case "edit":	
-		//load all names
 		edit_div.style.display  = 'inline-block';  
 		break;
 	}
-	
-	
-
 }
 
 function submitb(button) {
-
 	requested_mode = "preview";
 	mode_set();
-	
 	var changetoval = 102;//default close
 	switch(button) {
 	case "orangewifi":
@@ -406,10 +428,7 @@ function submitb(button) {
 function irselect_func(thing){
 	var number = parseInt(thing.value);
 	if (number >= 0 && number <= 255){
-		
-
 		$.post('index_post.php', {mode: 2,changeto: number});
-		
 	}	
 }
 
@@ -431,66 +450,6 @@ function submit(button) {
 	$.post('index_post.php', {mode: mode,changeto: changeto	});
 }
 
-
-function effect_next(a,b,c){
-	//a is currrent effect
-	//b is next or prev
-	//c is is wifi or self
-	var result = -1;
-	switch(a) {
-		
-		//CURRENT EFFECT   PREVIOUS    :  NEXT
-		
-		//wifi modes
-	case 4:		if (c == 0){	result = b < 1 ?  36 :  19;}
-		else {			result = b < 1 ?  36 :  19;} break;
-	case 19:	result = b < 1 ?  4 :  20; break;
-	case 20:	result = b < 1 ?  19 :  21; break;
-	case 21:	result = b < 1 ?  20 :  22; break;
-	case 22:	result = b < 1 ?  21 :  23; break;
-	case 23:	result = b < 1 ?  22 :  24; break;
-	case 24:	result = b < 1 ?  23 :  25; break;
-	case 25:	result = b < 1 ?  24 :  26; break;
-	case 26:	result = b < 1 ?  25 :  27; break;
-	case 27:	result = b < 1 ?  26 :  28; break;
-	case 28:	result = b < 1 ?  27 :  29; break;
-	case 29:	result = b < 1 ?  28 :  30; break;
-
-	case 30:	result = b < 1 ?  29 :  31; break;
-	case 31:	result = b < 1 ?  30 :  32; break;
-	case 32:	result = b < 1 ?  31 :  33; break;
-	case 33:	result = b < 1 ?  32 :  34; break;
-	case 34:	result = b < 1 ?  33 :  35; break;
-	case 35:	result = b < 1 ?  34 :  36; break;
-	case 36:	result = b < 1 ?  35 :  37; break;
-	case 37:	if (c == 0){	result = b < 1 ?  36 :  19;}
-		else {			result = b < 1 ?  36 :  19;} break;
-		//self modes
-	case 1:		result = b < 1 ?  61 :  2; break;
-	case 2:		result = b < 1 ?  1  :  10; break;
-
-	case 10:	result = b < 1 ?  2  :  11; break;
-	case 11:	result = b < 1 ?  10 :  12; break;
-	case 12:	result = b < 1 ?  11 :  13; break;
-	case 13:	result = b < 1 ?  12 :  14; break;
-	case 14:	result = b < 1 ?  13 :  15; break;
-	case 15:	result = b < 1 ?  14 :  50; break;
-
-	case 50:	result = b < 1 ?  15 :  51; break;
-	case 51:	result = b < 1 ?  50 :  52; break;
-	case 52:	result = b < 1 ?  51 :  53; break;
-	case 53:	result = b < 1 ?  52 :  54; break;
-	case 54:	result = b < 1 ?  53 :  55; break;
-	case 55:	result = b < 1 ?  54 :  56; break; 
-	case 56:	result = b < 1 ?  55 :  57; break;
-	case 57:	result = b < 1 ?  56 :  58; break; 
-	case 58:	result = b < 1 ?  57 :  59; break;
-	case 59:	result = b < 1 ?  58 :  60; break;
-	case 60:	result = b < 1 ?  59 :  61; break;
-	case 61:	result = b < 1 ?  60 :  1; break;
-	}
-	return result;
-}
 function effect_name(a) {
 	switch(a) {
 	case -1:	return "RESTART";
@@ -542,10 +501,12 @@ function effect_name(a) {
 
 $(document).ready(function () {
 
-
-	for(var i=0; i < playlistitem.length; i++)
-	{
-		playlistitem.options[i].text = effect_name(parseInt(playlistitem.options[i].value));
+	//populate playlist options
+	for(var i=0; i < playlist_self.length; i++){
+		playlist_self.options[i].text = effect_name(parseInt(playlist_self.options[i].value));
+	}
+	for(var i=0; i < playlist_wifi.length; i++){
+		playlist_wifi.options[i].text = effect_name(parseInt(playlist_wifi.options[i].value));
 	}
 	
 	menuselecter.value = "preview";
@@ -563,7 +524,7 @@ function update_data() {
 		var res = result.split(" ");
 		if (missed_packets > 2){reinit_all();}
 		var packet_counter = parseInt(res[35]);
-		if (isNaN(packet_counter) == true || last_packet_counter == packet_counter){
+		if (isNaN(packet_counter) == true){
 			missed_packets++;
 		}else{
 			last_packet_counter = packet_counter;
@@ -737,7 +698,7 @@ function update_data() {
 					orangewifi.style.color = "black";
 				}
 				else if (shared_state < 0){
-					portal_background.src = "blue_0.jpg";
+					portal_background.src = "http://" + location.host + ":8080/?action=stream";
 					portal_foreground.src = "blue_portal.png";
 					orangewifi.style.backgroundColor = "";
 					orangewifi.style.color = "transparent";

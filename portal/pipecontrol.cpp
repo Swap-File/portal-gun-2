@@ -173,22 +173,12 @@ int read_web_pipe(this_gun_struct& this_gun){
 				if (tv[1] >= 0 && tv[1] <= 255) this_gun.ir_pwm = tv[1];
 			}
 			//self playlist setting
-			if (tv[0] == 3 && results == 11) {
+			else if (tv[0] == 3 && results == 11) {
 				for (int i = 0; i < 10; i++) this_gun.private_playlist[i] = tv[i+1];
-				this_gun.private_playlist_index = 0;
 			}
 			//shared playlist setting
-			if (tv[0] == 4 && results == 11) {
+			else if (tv[0] == 4 && results == 11) {
 				for (int i = 0; i < 10; i++) this_gun.shared_playlist[i] = tv[i+1];
-				this_gun.shared_playlist_index = 0;
-			}
-			//playlist index change self
-			if (tv[0] == 5 && results == 2) {
-				this_gun.private_playlist_index = tv[1];
-			}
-			//playlist index change self
-			if (tv[0] == 6 && results == 2) {
-				this_gun.shared_playlist_index = tv[1];
 			}
 			
 		}
