@@ -46,18 +46,25 @@ body {
 }
 .overlayImage1 {
 	z-index: 98;
+	height: 400;
+	width: 240;
 }
+
+#custom_preview {
+	height: 400;
+	width: 240;
+}
+
 .overlayImage2 {
 	z-index: 99;
 }
 .overlayText {
 	position: absolute;
-	top: 395;
+	top: 300;
 	left:0;
 	right:0;
 	margin-left:auto;
 	margin-right:auto;
 	text-align: center;
-	color: white;
 	z-index: 100;
 }

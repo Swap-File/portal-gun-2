@@ -63,9 +63,18 @@ Nightvision Brightness:
 <br>
 <br>
 Live Preview:
-<select id="livepreview" onchange="livepreview(this)">
+<select id="livepreview" onchange="changelivepreview(this)">
 <option value="ON">ON</option>
 <option value="OFF">OFF</option>
+</select>
+<br>
+<br>
+Updates Per Minute:
+<select id="updatespers" onchange="changeupdatespers(this)">
+<option value="200">300</option>
+<option value="500">120</option>
+<option value="1000">60</option>
+<option value="5000">12</option>
 </select>
 </div>
 <div  class="hidden_div"  id="load_div"> 
@@ -74,13 +83,14 @@ Live Preview:
 <tr>
 <td align="center" valign="top"><div>
 <u><b>WIFI PLAYLISTS</u></b><br>
-<input type="button" class="button_text" id="libvisual" onclick="submit(this)" value="Audio Vis."/><br>
+<input type="button" class="button_text" onclick="playlist_load(5)" value="Empty Wifi"/><br>
 </div></td>
 <td align="center" valign="top"><div>
 <u><b>SELF PLAYLISTS</u></b><br>
-<input type="button" class="button_text" onclick="post_stuff('mode=3 60 61 -1 -1 -1 -1 -1 -1 -1 -1')" value="Music"/><br>
-<input type="button" class="button_text" onclick="post_stuff('mode=3 50 51 52 53 54 55 56 57 58 59')" value="Clips"/><br>
-<input type="button" class="button_text" onclick="post_stuff('mode=3 10 13 14 15 -1 -1 -1 -1 -1 -1')" value="Audio Vis."/><br>
+<input type="button" class="button_text" onclick="playlist_load(1)" value="Empty Self"/><br>
+<input type="button" class="button_text" onclick="playlist_load(2)" value="Music"/><br>
+<input type="button" class="button_text" onclick="playlist_load(3)" value="Clips"/><br>
+<input type="button" class="button_text" onclick="playlist_load(4)" value="Audio Vis."/><br>
 </div></td>
 </tr>
 </table>
@@ -216,6 +226,25 @@ Select Item to Edit...<br><br>
 </html>
 <script>
 
+var interval_obj;
+var live_preview = getCookie("preview");
+
+if (live_preview == ""){
+	setCookie("preview", "ON", 365);
+	live_preview = "ON";
+}
+livepreview.value = live_preview;
+
+var update_rate = getCookie("rate");
+
+if (update_rate == ""){
+	setCookie("preview", "200", 365);
+	update_rate = 200;
+}else{
+	update_rate= parseInt(update_rate);
+}
+updatespers.value = update_rate;
+
 var last_packet_counter = -1;
 var missed_packets = 0;
 var requested_mode = "preview";
@@ -225,9 +254,9 @@ var shared_state_last = -1;
 var private_state = -1;
 var private_state_last = -1;
 var ir_pwm_last = -1;
-var private_effect_last = -1;
+var private_effect_last = -22;
 var private_playlist_index_last = -1;
-var shared_effect_last = -1;
+var shared_effect_last = -22;
 var shared_playlist_index_last = -1;
 
 var private_playlist = [0,0,0,0,0,0,0,0,0,0];
@@ -258,6 +287,43 @@ else if (location.host == "192.168.1.23"){gun_name_div.innerHTML = "Chell";}
 
 update_data();
 
+function playlist_load(num){
+
+	switch(num) {
+	case 1:
+		post_stuff('mode=3 2 -1 -1 -1 -1 -1 -1 -1 -1 -1');
+		requested_mode = "custom";
+		break;
+	case 2:
+		post_stuff('mode=3 60 61 -1 -1 -1 -1 -1 -1 -1 -1');
+		requested_mode = "preview";
+		break;
+	case 3:	
+		post_stuff('mode=3 50 51 52 53 54 55 56 57 58 59');
+		requested_mode = "preview";
+		break;
+	case 4:	
+		post_stuff('mode=3 10 13 14 15 -1 -1 -1 -1 -1 -1');
+		requested_mode = "preview";
+		break;
+	case 5:	
+		post_stuff('mode=4 4 -1 -1 -1 -1 -1 -1 -1 -1 -1');
+		requested_mode = "custom";
+		break;
+	}
+
+	mode_set();
+}
+function changelivepreview(object){
+	live_preview = object.options[object.selectedIndex].value;
+	setCookie("preview", live_preview, 365);
+}
+function changeupdatespers(object){
+	update_rate = object.options[object.selectedIndex].value;
+	setCookie("rate", update_rate, 365);
+	clearTimeout(interval_obj);
+	interval_obj = setTimeout(update_data,update_rate);
+}
 
 function update_edit(thing){
 	if (thing.value >= 50){
@@ -310,7 +376,7 @@ function reinit_all(){
 
 	private_effect_text = "";
 	shared_effect_text = "";
-
+	
 	arduino_battery_level_last = -1;
 	arduino_temp_last = -1;
 	mode_set();
@@ -520,7 +586,7 @@ function update_data() {
 			if (isNaN(packet_counter) == true){
 				missed_packets++;
 			}else{
-			
+				
 				last_packet_counter = packet_counter;
 				missed_packets = 0;
 				
@@ -585,19 +651,16 @@ function update_data() {
 				}
 				
 				var private_effect = parseInt(res[14]);
-				var private_playlist_index = parseInt(res[15]);
 				var shared_effect = parseInt(res[26]);
-				var shared_playlist_index = parseInt(res[27]);
 				
-				if (private_effect != private_effect_last || private_playlist_index != private_playlist_index_last){
-					private_effect_text = effect_name(private_effect) + "<br>" + effect_name(private_playlist[private_playlist_index]);
+				if (private_effect != private_effect_last){
+					private_effect_text = effect_name(private_effect);
 					private_effect_last = private_effect;
-					private_playlist_index_last = private_playlist_index;
 				}
-				if (shared_effect != shared_effect_last || shared_playlist_index != shared_playlist_index_last){
-					shared_effect_text = effect_name(shared_effect) + "<br>" + effect_name(shared_playlist[shared_playlist_index]);
+				
+				if (shared_effect != shared_effect_last){
+					shared_effect_text = effect_name(shared_effect);
 					shared_effect_last = shared_effect;
-					shared_playlist_index_last = shared_playlist_index;
 				}
 				
 
@@ -609,19 +672,21 @@ function update_data() {
 					arduino_battery_level_last = arduino_battery_level;
 					arduino_temp_last = arduino_temp;
 				}
+				
 				//crap I dont need
 				//var arduino_in_pps = parseInt(res[30]);
 				//var arduino_out_pps = parseInt(res[31]);
 				//var arduino_framing_error = parseInt(res[32]);
 				//var arduino_crc_error = parseInt(res[33]);
 				//var arduino_cpu_load = parseInt(res[34]);
+				//var shared_playlist_index = parseInt(res[27]);
+				//var private_playlist_index = parseInt(res[15]);
 				
 				if(private_state != private_state_last || shared_state != shared_state_last){
 					if (private_state == 0 && shared_state == 0){
 						portal_text.innerHTML = "";
 						portal_background.src = "blank.png";
 						portal_foreground.src = "blank.png";
-						
 						orangewifi.style.backgroundColor = "orange";
 						orangewifi.style.color = "black";
 						bluewifi.style.backgroundColor = "blue";
@@ -636,61 +701,101 @@ function update_data() {
 						orangewifi.value = "Wifi";
 					}
 					else if (private_state > 0){
-						portal_background.src = "orange_0.jpg";
+						if (private_state < 3){
+							portal_background.src = "black.png";
+							portal_text.innerHTML = private_effect_text;
+							portal_text.style.color = "white";
+						}else if (private_state == 3){
+							portal_background.src = "orange_0.jpg";
+							portal_text.innerHTML = private_effect_text;
+							portal_text.style.color = "black";
+						}else if (private_state == 4){
+							portal_text.innerHTML = "";
+							if (live_preview == "ON"){
+								portal_background.src = "/assets/" + private_state.toString() + ".gif";
+							}else{
+								portal_background.src = "";
+							}
+						}
+						
 						portal_foreground.src = "orange_portal.png";
 						orangewifi.style.backgroundColor = "orange";
 						orangewifi.style.color = "transparent";
 						bluewifi.style.backgroundColor = "";
 						bluewifi.style.color = "transparent";
-						if (private_state >= 3){
-							blueself.style.backgroundColor = "blue";
-							blueself.style.color = "transparent";
-						}else{
-							blueself.style.backgroundColor = "";
-							blueself.style.color = "transparent";
-						}
-						
+						blueself.style.backgroundColor = "blue";
+						blueself.style.color = "transparent";
+						blueself.style.backgroundColor = "";
+						blueself.style.color = "transparent";
 						orangeself.style.backgroundColor = "orange";
 						orangeself.value = private_state;
 						orangeself.style.color = "black";
 					}
 					else if (private_state < 0){
-						portal_background.src = "blue_0.jpg";
+						
+						if (private_state > -3){
+							portal_background.src = "black.png";
+							portal_text.innerHTML = private_effect_text;
+							portal_text.style.color = "white";
+						}else if (private_state == -3){
+							portal_background.src = "blue_0.jpg";
+							portal_text.innerHTML = private_effect_text;
+							portal_text.style.color = "black";
+						}else if (private_state == -4){
+							portal_text.innerHTML = "";
+							if (live_preview == "ON"){
+								portal_background.src = "/assets/" + private_state.toString() + ".gif";
+							}else{
+								portal_background.src = "";
+							}
+						}
+						
 						portal_foreground.src = "blue_portal.png";
 						orangewifi.style.backgroundColor = "";
 						orangewifi.style.color = "transparent";
 						bluewifi.style.backgroundColor = "blue";
 						bluewifi.style.color = "transparent";
-						if (private_state <= -3){
-							orangeself.style.backgroundColor = "orange";
-							orangeself.style.color = "transparent";
-							
-						}else{
-							orangeself.style.backgroundColor = "";
-							orangeself.style.color = "transparent";
-						}
+						orangeself.style.backgroundColor = "";
+						orangeself.style.color = "transparent";
 						blueself.style.backgroundColor = "blue";
 						blueself.value = private_state * -1;
 						blueself.style.color = "white";
 					}
 					else if (shared_state > 0){
-						portal_background.src = "orange_0.jpg";
-						portal_foreground.src = "orange_portal.png";
+						if (shared_state < 3){
+							portal_background.src = "black.png";
+							portal_text.innerHTML = shared_effect_text;
+							portal_text.style.color = "white";
+						}else if (shared_state == 3 || shared_state == 5){
+							portal_background.src = "orange_0.jpg";
+							portal_text.innerHTML = shared_effect_text;
+							portal_text.style.color = "black";
+						}else if (shared_state == 4){
+							portal_text.innerHTML = "";
+							if (live_preview == "ON"){
+								portal_background.src = "/assets/" + shared_effect.toString() + ".gif";
+							}else{
+								portal_background.src = "";
+							}
+						}
 						
+						portal_foreground.src = "orange_portal.png";
 						bluewifi.style.backgroundColor = "";
 						bluewifi.style.color = "transparent";
 						orangeself.style.backgroundColor = "orange";
 						orangeself.style.color = "transparent";
-						
 						blueself.style.backgroundColor = "";
 						blueself.style.color = "transparent";
-						
 						orangewifi.style.backgroundColor = "orange";
 						orangewifi.value = shared_state;
 						orangewifi.style.color = "black";
 					}
 					else if (shared_state < 0){
-						portal_background.src = "http://" + location.host + ":8080/?action=stream";
+						if (live_preview == "ON"){
+							portal_background.src = "http://" + location.host + ":8080/?action=stream";
+						}else{
+							portal_background.src = "";
+						}
 						portal_foreground.src = "blue_portal.png";
 						orangewifi.style.backgroundColor = "";
 						orangewifi.style.color = "transparent";
@@ -707,11 +812,30 @@ function update_data() {
 					private_state_last = private_state;
 				}
 			}
-		}		
-		setTimeout(update_data,200);
+		}else{
+			missed_packets++;
+		}	
+		interval_obj = setTimeout(update_data,update_rate);
 	}
 	request.open("GET", "/tmp/portal.txt", true);
 	request.send(null);
 }
 
+function setCookie(cname, cvalue, exdays) {
+	var d = new Date();
+	d.setTime(d.getTime() + (exdays*24*60*60*1000));
+	var expires = "expires="+d.toUTCString();
+	document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+	var name = cname + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0; i<ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1);
+		if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+	}
+	return "";
+}
 </script>

@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <sys/time.h>  
 
+uint8_t web_packet_counter = 0;
 int ip;
 
 int web_control;
@@ -139,7 +140,7 @@ void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
 	this_gun.shared_playlist[5],this_gun.shared_playlist[6],this_gun.shared_playlist[7],this_gun.shared_playlist[8],\
 	this_gun.shared_playlist[9],this_gun.shared_effect,this_gun.shared_playlist_index,arduino.battery_level_pretty,\
 	arduino.temperature_pretty,arduino.packets_in_per_second,arduino.packets_out_per_second,arduino.framing_error,\
-	arduino.crc_error,arduino.cpuload,arduino.packet_counter);
+	arduino.crc_error,arduino.cpuload,web_packet_counter++);
 	fflush(bash_fp);
 }
 
@@ -168,17 +169,27 @@ int read_web_pipe(this_gun_struct& this_gun){
 				default: 				web_button = BUTTON_NONE;
 				}
 			}
+			
+			//pad out array with repeat (-1) once encountered
+			if (results == 11){
+				int filler = 0;
+				for (int i = 1; i < 11; i++){
+					if (tv[i] == -1) filler = -1;
+					if (filler == -1)  tv[i] = -1;
+				}
+			}
+			
 			//ir stuff
 			if (tv[0] == 2 && results == 2) {
 				if (tv[1] >= 0 && tv[1] <= 255) this_gun.ir_pwm = tv[1];
 			}
 			//self playlist setting
 			else if (tv[0] == 3 && results == 11) {
-				for (int i = 0; i < 10; i++) this_gun.private_playlist[i] = tv[i+1];
+				this_gun.private_playlist[i] = tv[i+1];
 			}
 			//shared playlist setting
 			else if (tv[0] == 4 && results == 11) {
-				for (int i = 0; i < 10; i++) this_gun.shared_playlist[i] = tv[i+1];
+				this_gun.shared_playlist[i] = tv[i+1];
 			}
 			
 		}
