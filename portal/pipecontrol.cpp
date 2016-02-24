@@ -185,11 +185,15 @@ int read_web_pipe(this_gun_struct& this_gun){
 			}
 			//self playlist setting
 			else if (tv[0] == 3 && results == 11) {
-				this_gun.private_playlist[i] = tv[i+1];
+				for (int i = 0; i < 10; i++){
+					this_gun.private_playlist[i] = tv[i+1];
+				}
 			}
 			//shared playlist setting
 			else if (tv[0] == 4 && results == 11) {
-				this_gun.shared_playlist[i] = tv[i+1];
+				for (int i = 0; i < 10; i++){
+					this_gun.shared_playlist[i] = tv[i+1];
+				}
 			}
 			
 		}
