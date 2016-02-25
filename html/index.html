@@ -5,6 +5,7 @@
 <meta name="viewport" content="initial-scale=1, maximum-scale=1">
 <title>Portal Gun 2.0</title>
 <link rel="stylesheet" type="text/css" href="portalstyle.css">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body id="index-page">
 <div class="wrap_div">
@@ -227,8 +228,8 @@ Select Item to Edit...<br><br>
 <script>
 
 var interval_obj;
-var live_preview = getCookie("preview");
 
+var live_preview = getCookie("preview");
 if (live_preview == ""){
 	setCookie("preview", "ON", 365);
 	live_preview = "ON";
@@ -236,7 +237,6 @@ if (live_preview == ""){
 livepreview.value = live_preview;
 
 var update_rate = getCookie("rate");
-
 if (update_rate == ""){
 	setCookie("preview", "200", 365);
 	update_rate = 200;
@@ -259,8 +259,8 @@ var private_playlist_index_last = -1;
 var shared_effect_last = -22;
 var shared_playlist_index_last = -1;
 
-var private_playlist = [0,0,0,0,0,0,0,0,0,0];
-var shared_playlist = [0,0,0,0,0,0,0,0,0,0];
+var private_playlist = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+var shared_playlist = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
 
 var private_effect_text = "";
 var shared_effect_text = "";
@@ -270,7 +270,6 @@ var arduino_temp_last = -1;
 
 var edit_num = -11;
 var custom_mode = -11;
-var edit_obj;
 
 //populate playlist options
 for(var i=0; i < playlist_self.length; i++){
@@ -326,13 +325,12 @@ function changeupdatespers(object){
 }
 
 function update_edit(thing){
-	if (thing.value >= 50){
-		custom_preview.src = "/assets/" + thing.value.toString() + ".png";
-	}else{
-		custom_preview.src = "/assets/" + thing.value.toString() + ".gif";
-	}
+	custom_preview.src = effect_preview(thing.value);
 }
 
+function effect_preview(num){
+	return "/assets/" + num.toString() + ".gif";
+}
 function update_custom_buttons(){
 	wifi0.value = effect_name(shared_playlist[0]);
 	wifi1.value = effect_name(shared_playlist[1]);
@@ -384,8 +382,12 @@ function reinit_all(){
 
 function menu(sel){
 	if (sel == "switch"){	
-		if (location.host == "192.168.1.23"){window.location.href = 'http://192.168.1.22';}
-		else if (location.host == "192.168.1.22"){window.location.href = 'http://192.168.1.23';}
+		if (location.host == "192.168.1.23"){
+			window.location.href = 'http://192.168.1.22';
+		}
+		else if (location.host == "192.168.1.22"){
+			window.location.href = 'http://192.168.1.23';
+		}
 	}else{
 		requested_mode = sel;
 		mode_set();
@@ -395,8 +397,12 @@ function menu(sel){
 function edit_change(inputnum){
 	var obj = custom_mode ? playlist_wifi : playlist_self;
 	var new_index = obj.selectedIndex + inputnum;
-	if (new_index < 0){new_index = obj.length - 1;}
-	if (new_index >=  obj.length){ new_index = 0;}
+	if (new_index < 0){
+		new_index = obj.length - 1;
+		}
+	if (new_index >=  obj.length){ 
+		new_index = 0;
+		}
 	obj.selectedIndex = new_index;
 	update_edit(obj);
 }
@@ -424,7 +430,7 @@ function edit_playlist( effect_num, mode ){
 function save_playlist(){
 	if (custom_mode == 1){
 		output = "mode=4 ";
-		for(var i=0; i <10; i++){
+		for(var i=0; i < 10; i++){
 			if (edit_num == i){
 				output += playlist_wifi.options[playlist_wifi.selectedIndex].value
 			}else{
@@ -436,7 +442,7 @@ function save_playlist(){
 	}
 	else if (custom_mode == 0){
 		output = "mode=3 ";
-		for(var i=0; i <10; i++){
+		for(var i=0; i < 10; i++){
 			if (edit_num == i){
 				output += playlist_self.options[playlist_self.selectedIndex].value
 			}else{
@@ -505,7 +511,6 @@ function submitb(button) {
 		changetoval = 104;
 		break;
 	} 
-	
 	post_stuff("mode=1 " + changetoval);
 }
 
@@ -572,16 +577,15 @@ function effect_name(a) {
 	}
 }
 
-//$('#streamimage').attr("src", 'http://' + location.host + ':8080/?action=stream');
-
 function update_data() {
 	var request = new XMLHttpRequest();
 	request.onload = function() {
+		if (missed_packets > 2){
+			reinit_all();
+		}
 		if (this.status >= 200 && this.status < 400) {
 			var res = this.response.split(" ");
-			if (missed_packets > 2){
-				reinit_all();
-			}
+
 			var packet_counter = parseInt(res[35]);
 			if (isNaN(packet_counter) == true){
 				missed_packets++;
@@ -712,7 +716,7 @@ function update_data() {
 						}else if (private_state == 4){
 							portal_text.innerHTML = "";
 							if (live_preview == "ON"){
-								portal_background.src = "/assets/" + private_state.toString() + ".gif";
+								portal_background.src = effect_preview(private_effect);
 							}else{
 								portal_background.src = "";
 							}
@@ -744,7 +748,7 @@ function update_data() {
 						}else if (private_state == -4){
 							portal_text.innerHTML = "";
 							if (live_preview == "ON"){
-								portal_background.src = "/assets/" + private_state.toString() + ".gif";
+								portal_background.src = effect_preview(private_effect);
 							}else{
 								portal_background.src = "";
 							}
@@ -773,7 +777,7 @@ function update_data() {
 						}else if (shared_state == 4){
 							portal_text.innerHTML = "";
 							if (live_preview == "ON"){
-								portal_background.src = "/assets/" + shared_effect.toString() + ".gif";
+								portal_background.src = effect_preview(shared_effect);
 							}else{
 								portal_background.src = "";
 							}
