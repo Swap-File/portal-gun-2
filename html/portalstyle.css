@@ -20,6 +20,14 @@ body {
 	font-size: 12px;
 }
 
+.table_top {
+    vertical-align: text-top;
+	text-align: left;
+}
+.centertop {
+    vertical-align: text-top;
+	text-align: center;
+}
 .button_text {
     width: 120px;
 	height: 30px;

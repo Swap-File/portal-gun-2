@@ -1,11 +1,11 @@
+<!DOCTYPE html>
 <html>
 <head>
 <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-<meta content="utf-8" http-equiv="encoding">
 <meta name="viewport" content="initial-scale=1, maximum-scale=1">
 <title>Portal Gun 2.0</title>
 <link rel="stylesheet" type="text/css" href="portalstyle.css">
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body id="index-page">
 <div class="wrap_div">
@@ -35,8 +35,8 @@
 <br>
 <div class="hidden_div" id="imageWrapper"> 
 <br>
-<img class="overlayImage1" id="portal_background" src="black.png">
-<img class="overlayImage2" id="portal_foreground" src="black.png">
+<img class="overlayImage1" id="portal_background" alt="" src="black.png">
+<img class="overlayImage2" id="portal_foreground" alt="" src="black.png">
 <div class="overlayText" id="portal_text"></div>
 </div>
 <div class="hidden_div" id="playlist_div"> 
@@ -44,8 +44,8 @@
 <br>
 <table>
 <tr>
-<td valign="top"><div id="sharedplaylist"></div></td>
-<td valign="top"><div id="selfplaylist"></div></td>
+<td class="table_top"><div id="sharedplaylist"></div></td>
+<td class="table_top"><div id="selfplaylist"></div></td>
 </tr>
 </table>
 </div>
@@ -82,12 +82,12 @@ Updates Per Minute:
 <br>
 <table>
 <tr>
-<td align="center" valign="top"><div>
-<u><b>WIFI PLAYLISTS</u></b><br>
+<td class="centertop"><div>
+<b><u>WIFI PLAYLISTS</u></b><br>
 <input type="button" class="button_text" onclick="playlist_load(5)" value="Empty Wifi"/><br>
 </div></td>
-<td align="center" valign="top"><div>
-<u><b>SELF PLAYLISTS</u></b><br>
+<td class="centertop"><div>
+<b><u>SELF PLAYLISTS</u></b><br>
 <input type="button" class="button_text" onclick="playlist_load(1)" value="Empty Self"/><br>
 <input type="button" class="button_text" onclick="playlist_load(2)" value="Music"/><br>
 <input type="button" class="button_text" onclick="playlist_load(3)" value="Clips"/><br>
@@ -100,31 +100,31 @@ Updates Per Minute:
 Select Item to Edit...<br><br>
 <table>
 <tr>
-<td align="center" valign="top">
-<u><b>WIFI PLAYLIST</u></b><br>
-<input type="button" class="button_text" id="wifi0" onclick="edit_playlist(0,1)" value=""/><br>
-<input type="button" class="button_text" id="wifi1" onclick="edit_playlist(1,1)" value=""/><br>
-<input type="button" class="button_text" id="wifi2" onclick="edit_playlist(2,1)" value=""/><br>
-<input type="button" class="button_text" id="wifi3" onclick="edit_playlist(3,1)" value=""/><br>
-<input type="button" class="button_text" id="wifi4" onclick="edit_playlist(4,1)" value=""/><br>
-<input type="button" class="button_text" id="wifi5" onclick="edit_playlist(5,1)" value=""/><br>
-<input type="button" class="button_text" id="wifi6" onclick="edit_playlist(6,1)" value=""/><br>
-<input type="button" class="button_text" id="wifi7" onclick="edit_playlist(7,1)" value=""/><br>
-<input type="button" class="button_text" id="wifi8" onclick="edit_playlist(8,1)" value=""/><br>
-<input type="button" class="button_text" id="wifi9" onclick="edit_playlist(9,1)" value=""/><br>
+<td class="centertop">
+<b><u>WIFI PLAYLIST</u></b><br>
+<input type="button" class="button_text" id="wifi0" onclick="edit_playlist(0,1)" value="-"/><br>
+<input type="button" class="button_text" id="wifi1" onclick="edit_playlist(1,1)" value="-"/><br>
+<input type="button" class="button_text" id="wifi2" onclick="edit_playlist(2,1)" value="-"/><br>
+<input type="button" class="button_text" id="wifi3" onclick="edit_playlist(3,1)" value="-"/><br>
+<input type="button" class="button_text" id="wifi4" onclick="edit_playlist(4,1)" value="-"/><br>
+<input type="button" class="button_text" id="wifi5" onclick="edit_playlist(5,1)" value="-"/><br>
+<input type="button" class="button_text" id="wifi6" onclick="edit_playlist(6,1)" value="-"/><br>
+<input type="button" class="button_text" id="wifi7" onclick="edit_playlist(7,1)" value="-"/><br>
+<input type="button" class="button_text" id="wifi8" onclick="edit_playlist(8,1)" value="-"/><br>
+<input type="button" class="button_text" id="wifi9" onclick="edit_playlist(9,1)" value="-"/><br>
 </td>
-<td align="center" valign="top">
-<u><b>SELF PLAYLIST</u></b><br>
-<input type="button" class="button_text" id="self0" onclick="edit_playlist(0,0)" value=""/><br>
-<input type="button" class="button_text" id="self1" onclick="edit_playlist(1,0)" value=""/><br>
-<input type="button" class="button_text" id="self2" onclick="edit_playlist(2,0)" value=""/><br>
-<input type="button" class="button_text" id="self3" onclick="edit_playlist(3,0)" value=""/><br>
-<input type="button" class="button_text" id="self4" onclick="edit_playlist(4,0)" value=""/><br>
-<input type="button" class="button_text" id="self5" onclick="edit_playlist(5,0)" value=""/><br>
-<input type="button" class="button_text" id="self6" onclick="edit_playlist(6,0)" value=""/><br>
-<input type="button" class="button_text" id="self7" onclick="edit_playlist(7,0)" value=""/><br>
-<input type="button" class="button_text" id="self8" onclick="edit_playlist(8,0)" value=""/><br>
-<input type="button" class="button_text" id="self9" onclick="edit_playlist(9,0)" value=""/><br>
+<td class="centertop">
+<b><u>SELF PLAYLIST</u></b><br>
+<input type="button" class="button_text" id="self0" onclick="edit_playlist(0,0)" value="-"/><br>
+<input type="button" class="button_text" id="self1" onclick="edit_playlist(1,0)" value="-"/><br>
+<input type="button" class="button_text" id="self2" onclick="edit_playlist(2,0)" value="-"/><br>
+<input type="button" class="button_text" id="self3" onclick="edit_playlist(3,0)" value="-"/><br>
+<input type="button" class="button_text" id="self4" onclick="edit_playlist(4,0)" value="-"/><br>
+<input type="button" class="button_text" id="self5" onclick="edit_playlist(5,0)" value="-"/><br>
+<input type="button" class="button_text" id="self6" onclick="edit_playlist(6,0)" value="-"/><br>
+<input type="button" class="button_text" id="self7" onclick="edit_playlist(7,0)" value="-"/><br>
+<input type="button" class="button_text" id="self8" onclick="edit_playlist(8,0)" value="-"/><br>
+<input type="button" class="button_text" id="self9" onclick="edit_playlist(9,0)" value="-"/><br>
 </td>
 </tr>
 </table>
@@ -221,10 +221,10 @@ Select Item to Edit...<br><br>
 </div>
 <input type="button" onclick="edit_change(1)" value="->"/>
 <br>
-<img id="custom_preview" src="">
+<img id="custom_preview" alt="" src="blank.png">
 </div>
-</body>
-</html>
+</div>
+
 <script>
 
 var interval_obj;
@@ -624,7 +624,7 @@ function update_data() {
 					}
 				}
 				if (changes > 0){
-					var tempstring = "<u><b>SELF PLAYLIST</u></b><br>";
+					var tempstring = "<b><u>SELF PLAYLIST</u></b><br>";
 					for (i = 0; i < 10; i++){
 						if (private_playlist[i] == -1){ break; }
 						tempstring += effect_name(private_playlist[i]) + "<br>"
@@ -641,7 +641,7 @@ function update_data() {
 					}
 				}
 				if (changes2 > 0){
-					var tempstring = "<u><b>WIFI PLAYLIST</u></b><br>";
+					var tempstring = "<b><u>WIFI PLAYLIST</u></b><br>";
 					for (i = 0; i < 10; i++){
 						if (shared_playlist[i] == -1){ break; }
 						tempstring += effect_name(shared_playlist[i]) + "<br>"
@@ -843,3 +843,5 @@ function getCookie(cname) {
 	return "";
 }
 </script>
+</body>
+</html>
