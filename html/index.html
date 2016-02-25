@@ -7,10 +7,9 @@
 <link rel="stylesheet" type="text/css" href="portalstyle.css">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
-<body id="index-page">
-<div class="wrap_div">
-
-<table class="table_c">
+<body>
+<div class="auto_margin">
+<table class="auto_margin">
 <tr>
 <td><div id="gun_name_div"></div></td>
 <td>
@@ -35,9 +34,9 @@
 <br>
 <div class="hidden_div" id="imageWrapper"> 
 <br>
-<img class="overlayImage1" id="portal_background" alt="" src="black.png">
-<img class="overlayImage2" id="portal_foreground" alt="" src="black.png">
-<div class="overlayText" id="portal_text"></div>
+<img class="portal_image" id="portal_back" alt="" src="black.png">
+<img class="portal_image" id="portal_front" alt="" src="black.png">
+<div id="portal_text"></div>
 </div>
 <div class="hidden_div" id="playlist_div"> 
 <div id="connected_div"></div>
@@ -63,8 +62,16 @@ Nightvision Brightness:
 </select>
 <br>
 <br>
-Live Preview:
+Camera Preview:
 <select id="livepreview" onchange="changelivepreview(this)">
+<option value="ON">ON</option>
+<option value="OFF">OFF</option>
+</select>
+</select>
+<br>
+<br>
+Project Preview:
+<select id="projectpreview" onchange="changeprojectpreview(this)">
 <option value="ON">ON</option>
 <option value="OFF">OFF</option>
 </select>
@@ -96,7 +103,7 @@ Updates Per Minute:
 </tr>
 </table>
 </div>
-<div class="hidden_div"  id="custom_div"> 
+<div class="hidden_div" id="custom_div"> 
 Select Item to Edit...<br><br>
 <table>
 <tr>
@@ -129,7 +136,7 @@ Select Item to Edit...<br><br>
 </tr>
 </table>
 </div>
-<div class="hidden_div"  id="edit_div"> 
+<div class="hidden_div" id="edit_div"> 
 <input type="button" class="button_text" onclick="save_playlist()" value="Save Changes"/>
 <input type="button" class="button_text" onclick="menu('custom')" value="Discard Changes"/><br><br>
 <input type="button" onclick="edit_change(-1)" value="<-"/>
@@ -236,6 +243,13 @@ if (live_preview == ""){
 }
 livepreview.value = live_preview;
 
+var project_preview = getCookie("previewp");
+if (project_preview == ""){
+	setCookie("previewp", "ON", 365);
+	project_preview = "ON";
+}
+projectpreview.value = project_preview;
+
 var update_rate = getCookie("rate");
 if (update_rate == ""){
 	setCookie("preview", "200", 365);
@@ -317,6 +331,10 @@ function changelivepreview(object){
 	live_preview = object.options[object.selectedIndex].value;
 	setCookie("preview", live_preview, 365);
 }
+function changeprojectpreview(object){
+	project_preview = object.options[object.selectedIndex].value;
+	setCookie("previewp", live_preview, 365);
+}
 function changeupdatespers(object){
 	update_rate = object.options[object.selectedIndex].value;
 	setCookie("rate", update_rate, 365);
@@ -355,7 +373,6 @@ function update_custom_buttons(){
 }
 
 function reinit_all(){
-	
 	missed_packets = 0;
 	requested_mode = "preview";
 	connected_last = -1;
@@ -368,13 +385,10 @@ function reinit_all(){
 	private_playlist_index_last = -1;
 	shared_effect_last = -1;
 	shared_playlist_index_last = -1;
-
 	private_playlist = [0,0,0,0,0,0,0,0,0,0];
 	shared_playlist = [0,0,0,0,0,0,0,0,0,0];
-
 	private_effect_text = "";
 	shared_effect_text = "";
-	
 	arduino_battery_level_last = -1;
 	arduino_temp_last = -1;
 	mode_set();
@@ -666,7 +680,6 @@ function update_data() {
 					shared_effect_text = effect_name(shared_effect);
 					shared_effect_last = shared_effect;
 				}
-				
 
 				var arduino_battery_level = parseFloat(res[28]);
 				var arduino_temp = parseFloat(res[29]);
@@ -689,8 +702,8 @@ function update_data() {
 				if(private_state != private_state_last || shared_state != shared_state_last){
 					if (private_state == 0 && shared_state == 0){
 						portal_text.innerHTML = "";
-						portal_background.src = "blank.png";
-						portal_foreground.src = "blank.png";
+						portal_back.src = "blank.png";
+						portal_front.src = "blank.png";
 						orangewifi.style.backgroundColor = "orange";
 						orangewifi.style.color = "black";
 						bluewifi.style.backgroundColor = "blue";
@@ -706,23 +719,22 @@ function update_data() {
 					}
 					else if (private_state > 0){
 						if (private_state < 3){
-							portal_background.src = "black.png";
+							portal_back.src = "black.png";
 							portal_text.innerHTML = private_effect_text;
 							portal_text.style.color = "white";
 						}else if (private_state == 3){
-							portal_background.src = "orange_0.jpg";
+							portal_back.src = "orange_0.jpg";
 							portal_text.innerHTML = private_effect_text;
 							portal_text.style.color = "black";
 						}else if (private_state == 4){
 							portal_text.innerHTML = "";
-							if (live_preview == "ON"){
-								portal_background.src = effect_preview(private_effect);
+							if (project_preview == "ON"){
+								portal_back.src = effect_preview(private_effect);
 							}else{
-								portal_background.src = "";
+								portal_back.src = "";
 							}
 						}
-						
-						portal_foreground.src = "orange_portal.png";
+						portal_front.src = "orange_portal.png";
 						orangewifi.style.backgroundColor = "orange";
 						orangewifi.style.color = "transparent";
 						bluewifi.style.backgroundColor = "";
@@ -736,25 +748,23 @@ function update_data() {
 						orangeself.style.color = "black";
 					}
 					else if (private_state < 0){
-						
 						if (private_state > -3){
-							portal_background.src = "black.png";
+							portal_back.src = "black.png";
 							portal_text.innerHTML = private_effect_text;
 							portal_text.style.color = "white";
 						}else if (private_state == -3){
-							portal_background.src = "blue_0.jpg";
+							portal_back.src = "blue_0.jpg";
 							portal_text.innerHTML = private_effect_text;
 							portal_text.style.color = "black";
 						}else if (private_state == -4){
 							portal_text.innerHTML = "";
-							if (live_preview == "ON"){
-								portal_background.src = effect_preview(private_effect);
+							if (project_preview == "ON"){
+								portal_back.src = effect_preview(private_effect);
 							}else{
-								portal_background.src = "";
+								portal_back.src = "";
 							}
 						}
-						
-						portal_foreground.src = "blue_portal.png";
+						portal_front.src = "blue_portal.png";
 						orangewifi.style.backgroundColor = "";
 						orangewifi.style.color = "transparent";
 						bluewifi.style.backgroundColor = "blue";
@@ -767,23 +777,22 @@ function update_data() {
 					}
 					else if (shared_state > 0){
 						if (shared_state < 3){
-							portal_background.src = "black.png";
+							portal_back.src = "black.png";
 							portal_text.innerHTML = shared_effect_text;
 							portal_text.style.color = "white";
 						}else if (shared_state == 3 || shared_state == 5){
-							portal_background.src = "orange_0.jpg";
+							portal_back.src = "orange_0.jpg";
 							portal_text.innerHTML = shared_effect_text;
 							portal_text.style.color = "black";
 						}else if (shared_state == 4){
 							portal_text.innerHTML = "";
-							if (live_preview == "ON"){
-								portal_background.src = effect_preview(shared_effect);
+							if (project_preview == "ON"){
+								portal_back.src = effect_preview(shared_effect);
 							}else{
-								portal_background.src = "";
+								portal_back.src = "";
 							}
 						}
-						
-						portal_foreground.src = "orange_portal.png";
+						portal_front.src = "orange_portal.png";
 						bluewifi.style.backgroundColor = "";
 						bluewifi.style.color = "transparent";
 						orangeself.style.backgroundColor = "orange";
@@ -796,11 +805,11 @@ function update_data() {
 					}
 					else if (shared_state < 0){
 						if (live_preview == "ON"){
-							portal_background.src = "http://" + location.host + ":8080/?action=stream";
+							portal_back.src = "http://" + location.host + ":8080/?action=stream";
 						}else{
-							portal_background.src = "";
+							portal_back.src = "";
 						}
-						portal_foreground.src = "blue_portal.png";
+						portal_front.src = "blue_portal.png";
 						orangewifi.style.backgroundColor = "";
 						orangewifi.style.color = "transparent";
 						orangeself.style.backgroundColor = "";

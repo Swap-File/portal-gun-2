@@ -2,14 +2,10 @@ body {
 	background-color: black;
 	color: white;	
 	text-align: center;
+	font-family: Arial;
 }
 
-.wrap_div {
-    margin: 0 auto;
-    display: inline-block;
-}
-
-.table_c {
+.auto_margin {
     margin: 0 auto;
 }
 
@@ -24,10 +20,12 @@ body {
     vertical-align: text-top;
 	text-align: left;
 }
+
 .centertop {
     vertical-align: text-top;
 	text-align: center;
 }
+
 .button_text {
     width: 120px;
 	height: 30px;
@@ -38,24 +36,29 @@ body {
 .hidden_div {
 	display: none;
 	margin: 0 auto;
-  
 }
+
 .imageWrapper {
 	position: relative;
 }
 
-.overlayImage1,.overlayImage2  {
+.portal_image {
 	position: absolute;
 	top: 130;
 	left:0;
 	right:0;
 	margin-left:auto;
 	margin-right:auto;
-}
-.overlayImage1 {
-	z-index: 98;
 	height: 400;
 	width: 240;
+}
+
+#portal_back {
+	z-index: 98;
+}
+
+#portal_front{
+	z-index: 99;
 }
 
 #custom_preview {
@@ -63,16 +66,12 @@ body {
 	width: 240;
 }
 
-.overlayImage2 {
-	z-index: 99;
-}
-.overlayText {
+#portal_text {
 	position: absolute;
-	top: 300;
 	left:0;
 	right:0;
 	margin-left:auto;
 	margin-right:auto;
-	text-align: center;
+	top: 300px;
 	z-index: 100;
 }
