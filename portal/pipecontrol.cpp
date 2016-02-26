@@ -18,10 +18,11 @@
 uint8_t web_packet_counter = 0;
 int ip;
 
-int web_control;
+int web_in;
 int gstreamer_crashes = 0;
 int ahrs_crashes = 0;
 
+FILE *webout_fp;
 FILE *bash_fp;
 FILE *ahrs_fp;
 FILE *gst_fp;
@@ -50,17 +51,19 @@ void pipecontrol_setup(int new_ip){
 	printf("WEB_PIPE: MKFIFO\n");
 	mkfifo ("/tmp/FIFO_PIPE", 0777 );
 	//OPEN PIPE WITH READ ONLY
-	if ((web_control = open ("/tmp/FIFO_PIPE",  ( O_RDONLY | O_NONBLOCK ) ))<0)
+	if ((web_in = open ("/tmp/FIFO_PIPE",  ( O_RDONLY | O_NONBLOCK ) ))<0)
 	{
 		perror("WEB_PIPE: Could not open named pipe for reading.");
 		exit(-1);
 	}
-	fcntl(web_control, F_SETFL, fcntl(web_control, F_GETFL, 0) | O_NONBLOCK);
+	fcntl(web_in, F_SETFL, fcntl(web_in, F_GETFL, 0) | O_NONBLOCK);
 	
 	fprintf(bash_fp, "sudo chown www-data /tmp/FIFO_PIPE\n");
 	fflush(bash_fp);
 	
 	printf("WEB_PIPE has been opened.\n");
+	
+	webout_fp = fopen("/var/www/html/tmp/portal.txt", "w");
 	
 	system("LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i 'input_file.so -f /var/www/html/tmp -n snapshot.jpg' -o 'output_http.so -w /usr/local/www' &");
 }
@@ -131,7 +134,9 @@ void aplay(const char *filename){
 }
 
 void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
-	fprintf(bash_fp, "echo '%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %d %d %d %d %d %d' > /var/www/html/tmp/portal.txt &\n" ,\
+	
+	rewind(webout_fp);
+	fprintf(webout_fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %d %d %d %d %d %d\n" ,\
 	this_gun.private_state,this_gun.shared_state,this_gun.connected ,this_gun.ir_pwm,this_gun.private_playlist[0],\
 	this_gun.private_playlist[1],this_gun.private_playlist[2],this_gun.private_playlist[3],this_gun.private_playlist[4],\
 	this_gun.private_playlist[5],this_gun.private_playlist[6],this_gun.private_playlist[7],this_gun.private_playlist[8],\
@@ -141,7 +146,8 @@ void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
 	this_gun.shared_playlist[9],this_gun.shared_effect,this_gun.shared_playlist_index,arduino.battery_level_pretty,\
 	arduino.temperature_pretty,arduino.packets_in_per_second,arduino.packets_out_per_second,arduino.framing_error,\
 	arduino.crc_error,arduino.cpuload,web_packet_counter++);
-	fflush(bash_fp);
+	fflush(webout_fp);
+
 }
 
 
@@ -151,7 +157,7 @@ int read_web_pipe(this_gun_struct& this_gun){
 	char buffer[100];
 	//stdin is line buffered so we can cheat a little bit
 	while (count > 0){ // dump entire buffer
-		count = read(web_control, buffer, sizeof(buffer)-1);
+		count = read(web_in, buffer, sizeof(buffer)-1);
 		if (count > 1){ //ignore blank lines
 			buffer[count-1] = '\0';
 			//keep most recent line
