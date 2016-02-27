@@ -25,11 +25,11 @@
 </tr>
 </table>
 <br>
-<input type="button" class="button" id="orangewifi" value="0" onclick="submitb(this.id)"/>
-<input type="button" class="button" id="orangeself" value="0" onclick="submitb(this.id)"/>
+<input type="button" class="button" id="orangeduo" value="0" onclick="submitb(this.id)"/>
+<input type="button" class="button" id="orangesolo" value="0" onclick="submitb(this.id)"/>
 <input type="button" class="button" id="close" value="Close" onclick="submitb(this.id)"/>
-<input type="button" class="button" id="blueself" value="0" onclick="submitb(this.id)"/>
-<input type="button" class="button" id="bluewifi" value="0" onclick="submitb(this.id)"/>
+<input type="button" class="button" id="bluesolo" value="0" onclick="submitb(this.id)"/>
+<input type="button" class="button" id="blueduo" value="0" onclick="submitb(this.id)"/>
 <br>
 <br>
 <div class="hidden_div" id="imageWrapper"> 
@@ -43,8 +43,8 @@
 <br>
 <table>
 <tr>
-<td class="table_top"><div id="sharedplaylist"></div></td>
-<td class="table_top"><div id="selfplaylist"></div></td>
+<td class="table_top"><div id="playlist_duo_text"></div></td>
+<td class="table_top"><div id="playlist_solo_text"></div></td>
 </tr>
 </table>
 </div>
@@ -63,7 +63,7 @@ Nightvision Brightness:
 <br>
 <br>
 Camera Preview:
-<select id="livepreview" onchange="changelivepreview(this)">
+<select id="preview_camera" onchange="preview_camera_onchange(this)">
 <option value="ON">ON</option>
 <option value="OFF">OFF</option>
 </select>
@@ -71,31 +71,31 @@ Camera Preview:
 <br>
 <br>
 Project Preview:
-<select id="projectpreview" onchange="changeprojectpreview(this)">
+<select id="preview_projection" onchange="preview_projection_onchange(this)">
 <option value="ON">ON</option>
 <option value="OFF">OFF</option>
 </select>
 <br>
 <br>
 Updates Per Minute:
-<select id="updatespers" onchange="changeupdatespers(this)">
+<select id="update_speed" onchange="update_speed_onchange(this)">
 <option value="200">300</option>
 <option value="500">120</option>
 <option value="1000">60</option>
 <option value="5000">12</option>
 </select>
 </div>
-<div  class="hidden_div"  id="load_div"> 
+<div  class="hidden_div" id="load_div"> 
 <br>
 <table>
 <tr>
 <td class="centertop"><div>
-<b><u>WIFI PLAYLISTS</u></b><br>
-<input type="button" class="button_text" onclick="playlist_load(5)" value="Empty Wifi"/><br>
+<b><u>DUO PLAYLISTS</u></b><br>
+<input type="button" class="button_text" onclick="playlist_load(5)" value="Empty Duo"/><br>
 </div></td>
 <td class="centertop"><div>
-<b><u>SELF PLAYLISTS</u></b><br>
-<input type="button" class="button_text" onclick="playlist_load(1)" value="Empty Self"/><br>
+<b><u>SOLO PLAYLISTS</u></b><br>
+<input type="button" class="button_text" onclick="playlist_load(1)" value="Empty Solo"/><br>
 <input type="button" class="button_text" onclick="playlist_load(2)" value="Music"/><br>
 <input type="button" class="button_text" onclick="playlist_load(3)" value="Clips"/><br>
 <input type="button" class="button_text" onclick="playlist_load(4)" value="Audio Vis."/><br>
@@ -108,30 +108,30 @@ Select Item to Edit...<br><br>
 <table>
 <tr>
 <td class="centertop">
-<b><u>WIFI PLAYLIST</u></b><br>
-<input type="button" class="button_text" id="wifi0" onclick="edit_playlist(0,1)" value="-"/><br>
-<input type="button" class="button_text" id="wifi1" onclick="edit_playlist(1,1)" value="-"/><br>
-<input type="button" class="button_text" id="wifi2" onclick="edit_playlist(2,1)" value="-"/><br>
-<input type="button" class="button_text" id="wifi3" onclick="edit_playlist(3,1)" value="-"/><br>
-<input type="button" class="button_text" id="wifi4" onclick="edit_playlist(4,1)" value="-"/><br>
-<input type="button" class="button_text" id="wifi5" onclick="edit_playlist(5,1)" value="-"/><br>
-<input type="button" class="button_text" id="wifi6" onclick="edit_playlist(6,1)" value="-"/><br>
-<input type="button" class="button_text" id="wifi7" onclick="edit_playlist(7,1)" value="-"/><br>
-<input type="button" class="button_text" id="wifi8" onclick="edit_playlist(8,1)" value="-"/><br>
-<input type="button" class="button_text" id="wifi9" onclick="edit_playlist(9,1)" value="-"/><br>
+<b><u>DUO PLAYLIST</u></b><br>
+<input type="button" class="button_text" id="duo0" onclick="edit_playlist(0,1)" value="-"/><br>
+<input type="button" class="button_text" id="duo1" onclick="edit_playlist(1,1)" value="-"/><br>
+<input type="button" class="button_text" id="duo2" onclick="edit_playlist(2,1)" value="-"/><br>
+<input type="button" class="button_text" id="duo3" onclick="edit_playlist(3,1)" value="-"/><br>
+<input type="button" class="button_text" id="duo4" onclick="edit_playlist(4,1)" value="-"/><br>
+<input type="button" class="button_text" id="duo5" onclick="edit_playlist(5,1)" value="-"/><br>
+<input type="button" class="button_text" id="duo6" onclick="edit_playlist(6,1)" value="-"/><br>
+<input type="button" class="button_text" id="duo7" onclick="edit_playlist(7,1)" value="-"/><br>
+<input type="button" class="button_text" id="duo8" onclick="edit_playlist(8,1)" value="-"/><br>
+<input type="button" class="button_text" id="duo9" onclick="edit_playlist(9,1)" value="-"/><br>
 </td>
 <td class="centertop">
-<b><u>SELF PLAYLIST</u></b><br>
-<input type="button" class="button_text" id="self0" onclick="edit_playlist(0,0)" value="-"/><br>
-<input type="button" class="button_text" id="self1" onclick="edit_playlist(1,0)" value="-"/><br>
-<input type="button" class="button_text" id="self2" onclick="edit_playlist(2,0)" value="-"/><br>
-<input type="button" class="button_text" id="self3" onclick="edit_playlist(3,0)" value="-"/><br>
-<input type="button" class="button_text" id="self4" onclick="edit_playlist(4,0)" value="-"/><br>
-<input type="button" class="button_text" id="self5" onclick="edit_playlist(5,0)" value="-"/><br>
-<input type="button" class="button_text" id="self6" onclick="edit_playlist(6,0)" value="-"/><br>
-<input type="button" class="button_text" id="self7" onclick="edit_playlist(7,0)" value="-"/><br>
-<input type="button" class="button_text" id="self8" onclick="edit_playlist(8,0)" value="-"/><br>
-<input type="button" class="button_text" id="self9" onclick="edit_playlist(9,0)" value="-"/><br>
+<b><u>SOLO PLAYLIST</u></b><br>
+<input type="button" class="button_text" id="solo0" onclick="edit_playlist(0,0)" value="-"/><br>
+<input type="button" class="button_text" id="solo1" onclick="edit_playlist(1,0)" value="-"/><br>
+<input type="button" class="button_text" id="solo2" onclick="edit_playlist(2,0)" value="-"/><br>
+<input type="button" class="button_text" id="solo3" onclick="edit_playlist(3,0)" value="-"/><br>
+<input type="button" class="button_text" id="solo4" onclick="edit_playlist(4,0)" value="-"/><br>
+<input type="button" class="button_text" id="solo5" onclick="edit_playlist(5,0)" value="-"/><br>
+<input type="button" class="button_text" id="solo6" onclick="edit_playlist(6,0)" value="-"/><br>
+<input type="button" class="button_text" id="solo7" onclick="edit_playlist(7,0)" value="-"/><br>
+<input type="button" class="button_text" id="solo8" onclick="edit_playlist(8,0)" value="-"/><br>
+<input type="button" class="button_text" id="solo9" onclick="edit_playlist(9,0)" value="-"/><br>
 </td>
 </tr>
 </table>
@@ -140,8 +140,8 @@ Select Item to Edit...<br><br>
 <input type="button" class="button_text" onclick="save_playlist()" value="Save Changes"/>
 <input type="button" class="button_text" onclick="menu('custom')" value="Discard Changes"/><br><br>
 <input type="button" onclick="edit_change(-1)" value="<-"/>
-<div id="playlist_wifi_div"> 
-<select id="playlist_wifi" onchange="update_edit(this)">
+<div id="playlist_duo_div"> 
+<select id="playlist_duo_select" onchange="playlist_onchange(this)">
 <optgroup label="Effects">
 <option value="4">4</option>
 <option value="19">19</option>
@@ -194,8 +194,8 @@ Select Item to Edit...<br><br>
 </optgroup>
 </select>
 </div>
-<div id="playlist_self_div"> 
-<select id="playlist_self" onchange="update_edit(this)">
+<div id="playlist_solo_div"> 
+<select id="playlist_solo_select" onchange="playlist_onchange(this)">
 <optgroup label="Audio">
 <option value="10">10</option>
 <option value="11">11</option>
@@ -241,14 +241,14 @@ if (live_preview == ""){
 	setCookie("preview", "ON", 365);
 	live_preview = "ON";
 }
-livepreview.value = live_preview;
+preview_camera.value = live_preview;
 
 var project_preview = getCookie("previewp");
 if (project_preview == ""){
 	setCookie("previewp", "ON", 365);
 	project_preview = "ON";
 }
-projectpreview.value = project_preview;
+preview_projection.value = project_preview;
 
 var update_rate = getCookie("rate");
 if (update_rate == ""){
@@ -257,27 +257,29 @@ if (update_rate == ""){
 }else{
 	update_rate= parseInt(update_rate);
 }
-updatespers.value = update_rate;
+update_speed.value = update_rate;
 
 var last_packet_counter = -1;
 var missed_packets = 0;
 var requested_mode = "preview";
 var connected_last = -1;
-var shared_state = -1;
-var shared_state_last = -1;
-var private_state = -1;
-var private_state_last = -1;
 var ir_pwm_last = -1;
-var private_effect_last = -22;
-var private_playlist_index_last = -1;
-var shared_effect_last = -22;
-var shared_playlist_index_last = -1;
 
-var private_playlist = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
-var shared_playlist = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+var state_duo = -1;
+var state_duo_last = -1;
+var state_solo = -1;
+var state_solo_last = -1;
 
-var private_effect_text = "";
-var shared_effect_text = "";
+var effect_solo_last = -22;
+var effect_duo_last = -22;
+
+var playlist_solo_array = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+var playlist_solo_array_index_last = -1;
+var playlist_duo_array = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+var playlist_duo_array_index_last = -1;
+
+var effect_text_solo = "";
+var effect_text_duo = "";
 
 var arduino_battery_level_last = -1;
 var arduino_temp_last = -1;
@@ -286,11 +288,11 @@ var edit_num = -11;
 var custom_mode = -11;
 
 //populate playlist options
-for(var i=0; i < playlist_self.length; i++){
-	playlist_self.options[i].text = effect_name(parseInt(playlist_self.options[i].value));
+for(var i=0; i < playlist_solo_select.length; i++){
+	playlist_solo_select.options[i].text = effect_name(parseInt(playlist_solo_select.options[i].value));
 }
-for(var i=0; i < playlist_wifi.length; i++){
-	playlist_wifi.options[i].text = effect_name(parseInt(playlist_wifi.options[i].value));
+for(var i=0; i < playlist_duo_select.length; i++){
+	playlist_duo_select.options[i].text = effect_name(parseInt(playlist_duo_select.options[i].value));
 }
 
 menuselecter.value = "preview";
@@ -327,22 +329,22 @@ function playlist_load(num){
 
 	mode_set();
 }
-function changelivepreview(object){
+function preview_camera_onchange(object){
 	live_preview = object.options[object.selectedIndex].value;
 	setCookie("preview", live_preview, 365);
 }
-function changeprojectpreview(object){
+function preview_projection_onchange(object){
 	project_preview = object.options[object.selectedIndex].value;
 	setCookie("previewp", live_preview, 365);
 }
-function changeupdatespers(object){
+function update_speed_onchange(object){
 	update_rate = object.options[object.selectedIndex].value;
 	setCookie("rate", update_rate, 365);
 	clearTimeout(interval_obj);
 	interval_obj = setTimeout(update_data,update_rate);
 }
 
-function update_edit(thing){
+function playlist_onchange(thing){
 	custom_preview.src = effect_preview(thing.value);
 }
 
@@ -350,45 +352,45 @@ function effect_preview(num){
 	return "/assets/" + num.toString() + ".gif";
 }
 function update_custom_buttons(){
-	wifi0.value = effect_name(shared_playlist[0]);
-	wifi1.value = effect_name(shared_playlist[1]);
-	wifi2.value = effect_name(shared_playlist[2]);
-	wifi3.value = effect_name(shared_playlist[3]);
-	wifi4.value = effect_name(shared_playlist[4]);
-	wifi5.value = effect_name(shared_playlist[5]);
-	wifi6.value = effect_name(shared_playlist[6]);
-	wifi7.value = effect_name(shared_playlist[7]);
-	wifi8.value = effect_name(shared_playlist[8]);
-	wifi9.value = effect_name(shared_playlist[9]);
-	self0.value = effect_name(private_playlist[0]);
-	self1.value = effect_name(private_playlist[1]);
-	self2.value = effect_name(private_playlist[2]);
-	self3.value = effect_name(private_playlist[3]);
-	self4.value = effect_name(private_playlist[4]);
-	self5.value = effect_name(private_playlist[5]);
-	self6.value = effect_name(private_playlist[6]);
-	self7.value = effect_name(private_playlist[7]);
-	self8.value = effect_name(private_playlist[8]);
-	self9.value = effect_name(private_playlist[9]);
+	duo0.value = effect_name(playlist_duo_array[0]);
+	duo1.value = effect_name(playlist_duo_array[1]);
+	duo2.value = effect_name(playlist_duo_array[2]);
+	duo3.value = effect_name(playlist_duo_array[3]);
+	duo4.value = effect_name(playlist_duo_array[4]);
+	duo5.value = effect_name(playlist_duo_array[5]);
+	duo6.value = effect_name(playlist_duo_array[6]);
+	duo7.value = effect_name(playlist_duo_array[7]);
+	duo8.value = effect_name(playlist_duo_array[8]);
+	duo9.value = effect_name(playlist_duo_array[9]);
+	solo0.value = effect_name(playlist_solo_array[0]);
+	solo1.value = effect_name(playlist_solo_array[1]);
+	solo2.value = effect_name(playlist_solo_array[2]);
+	solo3.value = effect_name(playlist_solo_array[3]);
+	solo4.value = effect_name(playlist_solo_array[4]);
+	solo5.value = effect_name(playlist_solo_array[5]);
+	solo6.value = effect_name(playlist_solo_array[6]);
+	solo7.value = effect_name(playlist_solo_array[7]);
+	solo8.value = effect_name(playlist_solo_array[8]);
+	solo9.value = effect_name(playlist_solo_array[9]);
 }
 
 function reinit_all(){
 	missed_packets = 0;
 	requested_mode = "preview";
 	connected_last = -1;
-	shared_state = -1;
-	shared_state_last = -1;
-	private_state = -1;
-	private_state_last = -1;
+	state_duo = -1;
+	state_duo_last = -1;
+	state_solo = -1;
+	state_solo_last = -1;
 	ir_pwm_last = -1;
-	private_effect_last = -1;
-	private_playlist_index_last = -1;
-	shared_effect_last = -1;
-	shared_playlist_index_last = -1;
-	private_playlist = [0,0,0,0,0,0,0,0,0,0];
-	shared_playlist = [0,0,0,0,0,0,0,0,0,0];
-	private_effect_text = "";
-	shared_effect_text = "";
+	effect_solo_last = -1;
+	playlist_solo_array_index_last = -1;
+	effect_duo_last = -1;
+	playlist_duo_array_index_last = -1;
+	playlist_solo_array = [0,0,0,0,0,0,0,0,0,0];
+	playlist_duo_array = [0,0,0,0,0,0,0,0,0,0];
+	effect_text_solo = "";
+	effect_text_duo = "";
 	arduino_battery_level_last = -1;
 	arduino_temp_last = -1;
 	mode_set();
@@ -409,7 +411,7 @@ function menu(sel){
 }
 
 function edit_change(inputnum){
-	var obj = custom_mode ? playlist_wifi : playlist_self;
+	var obj = custom_mode ? playlist_duo_select : playlist_solo_select;
 	var new_index = obj.selectedIndex + inputnum;
 	if (new_index < 0){
 		new_index = obj.length - 1;
@@ -418,22 +420,22 @@ function edit_change(inputnum){
 		new_index = 0;
 		}
 	obj.selectedIndex = new_index;
-	update_edit(obj);
+	playlist_onchange(obj);
 }
 
 function edit_playlist( effect_num, mode ){
 
-	playlist_self_div.style.display  = 'none';  
-	playlist_wifi_div.style.display  = 'none';  
+	playlist_solo_div.style.display  = 'none';  
+	playlist_duo_div.style.display  = 'none';  
 	
 	if (mode == 1){
-		playlist_wifi.value = shared_playlist[effect_num].toString();
-		playlist_wifi_div.style.display  = 'inline'; 
-		update_edit(playlist_wifi);
+		playlist_duo_select.value = playlist_duo_array[effect_num].toString();
+		playlist_duo_div.style.display  = 'inline'; 
+		playlist_onchange(playlist_duo_select);
 	}else if (mode == 0){
-		playlist_self.value = private_playlist[effect_num].toString();
-		playlist_self_div.style.display  = 'inline'; 
-		update_edit(playlist_self);
+		playlist_solo_select.value = playlist_solo_array[effect_num].toString();
+		playlist_solo_div.style.display  = 'inline'; 
+		playlist_onchange(playlist_solo_select);
 	}
 
 	menu('edit');
@@ -446,9 +448,9 @@ function save_playlist(){
 		output = "mode=4 ";
 		for(var i=0; i < 10; i++){
 			if (edit_num == i){
-				output += playlist_wifi.options[playlist_wifi.selectedIndex].value
+				output += playlist_duo_select.options[playlist_duo_select.selectedIndex].value
 			}else{
-				output += shared_playlist[i];
+				output += playlist_duo_array[i];
 			}			
 			output += " ";
 		}
@@ -458,9 +460,9 @@ function save_playlist(){
 		output = "mode=3 ";
 		for(var i=0; i < 10; i++){
 			if (edit_num == i){
-				output += playlist_self.options[playlist_self.selectedIndex].value
+				output += playlist_solo_select.options[playlist_solo_select.selectedIndex].value
 			}else{
-				output += private_playlist[i];
+				output += playlist_solo_array[i];
 			}			
 			output += " ";
 		}
@@ -485,7 +487,7 @@ function mode_set(){
 	
 	switch(requested_mode) {
 	case "preview":
-		if (private_state == 0 && shared_state == 0){ 
+		if (state_solo == 0 && state_duo == 0){ 
 			playlist_div.style.display  = 'inline-block'; 
 		}else{
 			imageWrapper.style.display  = 'inline-block'; 
@@ -512,16 +514,16 @@ function submitb(button) {
 	mode_set();
 	var changetoval = 102;//default close
 	switch(button) {
-	case "orangewifi":
+	case "orangeduo":
 		changetoval = 100;
 		break;
-	case "orangeself":
+	case "orangesolo":
 		changetoval = 101;
 		break;
-	case "blueself":
+	case "bluesolo":
 		changetoval = 103;
 		break;
-	case "bluewifi":
+	case "blueduo":
 		changetoval = 104;
 		break;
 	} 
@@ -608,8 +610,8 @@ function update_data() {
 				last_packet_counter = packet_counter;
 				missed_packets = 0;
 				
-				private_state = parseInt(res[0]);
-				shared_state = parseInt(res[1]);
+				state_solo = parseInt(res[0]);
+				state_duo = parseInt(res[1]);
 				
 				var ir_pwm = parseInt(res[3]);
 				if (ir_pwm_last != ir_pwm){
@@ -632,35 +634,35 @@ function update_data() {
 				var changes = 0;
 				for (i = 0; i < 10; i++) { 
 					var num = parseInt(res[4+i]);
-					if (private_playlist[i] != num){
-						private_playlist[i] = num;
+					if (playlist_solo_array[i] != num){
+						playlist_solo_array[i] = num;
 						changes++;
 					}
 				}
 				if (changes > 0){
-					var tempstring = "<b><u>SELF PLAYLIST</u></b><br>";
+					var tempstring = "<b><u>SOLO PLAYLIST</u></b><br>";
 					for (i = 0; i < 10; i++){
-						if (private_playlist[i] == -1){ break; }
-						tempstring += effect_name(private_playlist[i]) + "<br>"
+						if (playlist_solo_array[i] == -1){ break; }
+						tempstring += effect_name(playlist_solo_array[i]) + "<br>"
 					}
-					selfplaylist.innerHTML = tempstring;
+					playlist_solo_text.innerHTML = tempstring;
 				}
 				
 				var changes2 = 0;
 				for (i = 0; i < 10; i++) { 
 					var num = parseInt(res[16+i]);
-					if (shared_playlist[i] != num){
-						shared_playlist[i] = num;
+					if (playlist_duo_array[i] != num){
+						playlist_duo_array[i] = num;
 						changes2++;
 					}
 				}
 				if (changes2 > 0){
-					var tempstring = "<b><u>WIFI PLAYLIST</u></b><br>";
+					var tempstring = "<b><u>DUO PLAYLIST</u></b><br>";
 					for (i = 0; i < 10; i++){
-						if (shared_playlist[i] == -1){ break; }
-						tempstring += effect_name(shared_playlist[i]) + "<br>"
+						if (playlist_duo_array[i] == -1){ break; }
+						tempstring += effect_name(playlist_duo_array[i]) + "<br>"
 					}
-					sharedplaylist.innerHTML = tempstring;
+					playlist_duo_text.innerHTML = tempstring;
 				}
 				
 				//dont bother updating buttons if we are not displaying them
@@ -668,17 +670,17 @@ function update_data() {
 					update_custom_buttons();
 				}
 				
-				var private_effect = parseInt(res[14]);
-				var shared_effect = parseInt(res[26]);
+				var effect_solo = parseInt(res[14]);
+				var effect_duo = parseInt(res[26]);
 				
-				if (private_effect != private_effect_last){
-					private_effect_text = effect_name(private_effect);
-					private_effect_last = private_effect;
+				if (effect_solo != effect_solo_last){
+					effect_text_solo = effect_name(effect_solo);
+					effect_solo_last = effect_solo;
 				}
 				
-				if (shared_effect != shared_effect_last){
-					shared_effect_text = effect_name(shared_effect);
-					shared_effect_last = shared_effect;
+				if (effect_duo != effect_duo_last){
+					effect_text_duo = effect_name(effect_duo);
+					effect_duo_last = effect_duo;
 				}
 
 				var arduino_battery_level = parseFloat(res[28]);
@@ -696,133 +698,133 @@ function update_data() {
 				//var arduino_framing_error = parseInt(res[32]);
 				//var arduino_crc_error = parseInt(res[33]);
 				//var arduino_cpu_load = parseInt(res[34]);
-				//var shared_playlist_index = parseInt(res[27]);
-				//var private_playlist_index = parseInt(res[15]);
+				//var playlist_duo_array_index = parseInt(res[27]);
+				//var playlist_solo_array_index = parseInt(res[15]);
 				
-				if(private_state != private_state_last || shared_state != shared_state_last){
-					if (private_state == 0 && shared_state == 0){
+				if(state_solo != state_solo_last || state_duo != state_duo_last){
+					if (state_solo == 0 && state_duo == 0){
 						portal_text.innerHTML = "";
 						portal_back.src = "blank.png";
 						portal_front.src = "blank.png";
-						orangewifi.style.backgroundColor = "orange";
-						orangewifi.style.color = "black";
-						bluewifi.style.backgroundColor = "blue";
-						bluewifi.style.color = "white";
-						orangeself.style.backgroundColor = "orange";
-						orangeself.style.color = "black";
-						blueself.style.backgroundColor = "blue";
-						blueself.style.color = "white";
-						blueself.value = "Self";
-						orangeself.value = "Self";
-						bluewifi.value = "Wifi";
-						orangewifi.value = "Wifi";
+						orangeduo.style.backgroundColor = "orange";
+						orangeduo.style.color = "black";
+						blueduo.style.backgroundColor = "blue";
+						blueduo.style.color = "white";
+						orangesolo.style.backgroundColor = "orange";
+						orangesolo.style.color = "black";
+						bluesolo.style.backgroundColor = "blue";
+						bluesolo.style.color = "white";
+						bluesolo.value = "Solo";
+						orangesolo.value = "Solo";
+						blueduo.value = "Duo";
+						orangeduo.value = "Duo";
 					}
-					else if (private_state > 0){
-						if (private_state < 3){
+					else if (state_solo > 0){
+						if (state_solo < 3){
 							portal_back.src = "black.png";
-							portal_text.innerHTML = private_effect_text;
+							portal_text.innerHTML = effect_text_solo;
 							portal_text.style.color = "white";
-						}else if (private_state == 3){
+						}else if (state_solo == 3){
 							portal_back.src = "orange_0.jpg";
-							portal_text.innerHTML = private_effect_text;
+							portal_text.innerHTML = effect_text_solo;
 							portal_text.style.color = "black";
-						}else if (private_state == 4){
+						}else if (state_solo == 4){
 							portal_text.innerHTML = "";
 							if (project_preview == "ON"){
-								portal_back.src = effect_preview(private_effect);
+								portal_back.src = effect_preview(effect_solo);
 							}else{
 								portal_back.src = "";
 							}
 						}
 						portal_front.src = "orange_portal.png";
-						orangewifi.style.backgroundColor = "orange";
-						orangewifi.style.color = "transparent";
-						bluewifi.style.backgroundColor = "";
-						bluewifi.style.color = "transparent";
-						blueself.style.backgroundColor = "blue";
-						blueself.style.color = "transparent";
-						blueself.style.backgroundColor = "";
-						blueself.style.color = "transparent";
-						orangeself.style.backgroundColor = "orange";
-						orangeself.value = private_state;
-						orangeself.style.color = "black";
+						orangeduo.style.backgroundColor = "orange";
+						orangeduo.style.color = "transparent";
+						blueduo.style.backgroundColor = "";
+						blueduo.style.color = "transparent";
+						bluesolo.style.backgroundColor = "blue";
+						bluesolo.style.color = "transparent";
+						bluesolo.style.backgroundColor = "";
+						bluesolo.style.color = "transparent";
+						orangesolo.style.backgroundColor = "orange";
+						orangesolo.value = state_solo;
+						orangesolo.style.color = "black";
 					}
-					else if (private_state < 0){
-						if (private_state > -3){
+					else if (state_solo < 0){
+						if (state_solo > -3){
 							portal_back.src = "black.png";
-							portal_text.innerHTML = private_effect_text;
+							portal_text.innerHTML = effect_text_solo;
 							portal_text.style.color = "white";
-						}else if (private_state == -3){
+						}else if (state_solo == -3){
 							portal_back.src = "blue_0.jpg";
-							portal_text.innerHTML = private_effect_text;
+							portal_text.innerHTML = effect_text_solo;
 							portal_text.style.color = "black";
-						}else if (private_state == -4){
+						}else if (state_solo == -4){
 							portal_text.innerHTML = "";
 							if (project_preview == "ON"){
-								portal_back.src = effect_preview(private_effect);
+								portal_back.src = effect_preview(effect_solo);
 							}else{
 								portal_back.src = "";
 							}
 						}
 						portal_front.src = "blue_portal.png";
-						orangewifi.style.backgroundColor = "";
-						orangewifi.style.color = "transparent";
-						bluewifi.style.backgroundColor = "blue";
-						bluewifi.style.color = "transparent";
-						orangeself.style.backgroundColor = "";
-						orangeself.style.color = "transparent";
-						blueself.style.backgroundColor = "blue";
-						blueself.value = private_state * -1;
-						blueself.style.color = "white";
+						orangeduo.style.backgroundColor = "";
+						orangeduo.style.color = "transparent";
+						blueduo.style.backgroundColor = "blue";
+						blueduo.style.color = "transparent";
+						orangesolo.style.backgroundColor = "";
+						orangesolo.style.color = "transparent";
+						bluesolo.style.backgroundColor = "blue";
+						bluesolo.value = state_solo * -1;
+						bluesolo.style.color = "white";
 					}
-					else if (shared_state > 0){
-						if (shared_state < 3){
+					else if (state_duo > 0){
+						if (state_duo < 3){
 							portal_back.src = "black.png";
-							portal_text.innerHTML = shared_effect_text;
+							portal_text.innerHTML = effect_text_duo;
 							portal_text.style.color = "white";
-						}else if (shared_state == 3 || shared_state == 5){
+						}else if (state_duo == 3 || state_duo == 5){
 							portal_back.src = "orange_0.jpg";
-							portal_text.innerHTML = shared_effect_text;
+							portal_text.innerHTML = effect_text_duo;
 							portal_text.style.color = "black";
-						}else if (shared_state == 4){
+						}else if (state_duo == 4){
 							portal_text.innerHTML = "";
 							if (project_preview == "ON"){
-								portal_back.src = effect_preview(shared_effect);
+								portal_back.src = effect_preview(effect_duo);
 							}else{
 								portal_back.src = "";
 							}
 						}
 						portal_front.src = "orange_portal.png";
-						bluewifi.style.backgroundColor = "";
-						bluewifi.style.color = "transparent";
-						orangeself.style.backgroundColor = "orange";
-						orangeself.style.color = "transparent";
-						blueself.style.backgroundColor = "";
-						blueself.style.color = "transparent";
-						orangewifi.style.backgroundColor = "orange";
-						orangewifi.value = shared_state;
-						orangewifi.style.color = "black";
+						blueduo.style.backgroundColor = "";
+						blueduo.style.color = "transparent";
+						orangesolo.style.backgroundColor = "orange";
+						orangesolo.style.color = "transparent";
+						bluesolo.style.backgroundColor = "";
+						bluesolo.style.color = "transparent";
+						orangeduo.style.backgroundColor = "orange";
+						orangeduo.value = state_duo;
+						orangeduo.style.color = "black";
 					}
-					else if (shared_state < 0){
+					else if (state_duo < 0){
 						if (live_preview == "ON"){
 							portal_back.src = "http://" + location.host + ":8080/?action=stream";
 						}else{
 							portal_back.src = "";
 						}
 						portal_front.src = "blue_portal.png";
-						orangewifi.style.backgroundColor = "";
-						orangewifi.style.color = "transparent";
-						orangeself.style.backgroundColor = "";
-						orangeself.style.color = "transparent";
-						blueself.style.backgroundColor = "blue";
-						blueself.style.color = "transparent";
-						bluewifi.style.backgroundColor = "blue";
-						bluewifi.value = shared_state * -1;
-						bluewifi.style.color = "white";
+						orangeduo.style.backgroundColor = "";
+						orangeduo.style.color = "transparent";
+						orangesolo.style.backgroundColor = "";
+						orangesolo.style.color = "transparent";
+						bluesolo.style.backgroundColor = "blue";
+						bluesolo.style.color = "transparent";
+						blueduo.style.backgroundColor = "blue";
+						blueduo.value = state_duo * -1;
+						blueduo.style.color = "white";
 					}
 					mode_set();
-					shared_state_last = shared_state;
-					private_state_last = private_state;
+					state_duo_last = state_duo;
+					state_solo_last = state_solo;
 				}
 			}
 		}else{
