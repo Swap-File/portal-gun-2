@@ -63,16 +63,15 @@ void pipecontrol_setup(int new_ip){
 	
 	printf("WEB_PIPE has been opened.\n");
 	
-	webout_fp = fopen("/var/www/html/tmp/portal.txt", "w");
+	webout_fp = fopen("/var/www/html/tmp/portal.txt", "w+");
+	fcntl(fileno(webout_fp), F_SETFL, fcntl(fileno(webout_fp), F_GETFL, 0) | O_NONBLOCK);
 	
 	system("LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i 'input_file.so -f /var/www/html/tmp -n snapshot.jpg' -o 'output_http.so -w /usr/local/www' &");
 }
 
 void ahrs_command(int x, int y, int z, int number){
-	
 	errno = 0;
 	int completed = 0;
-	
 	while (completed == 0){
 		fprintf(ahrs_fp, "%d %d %d %d\n",x,y,z,number);
 		fflush(ahrs_fp);
@@ -86,8 +85,6 @@ void ahrs_command(int x, int y, int z, int number){
 			completed = 1;
 		}
 	}
-	
-
 }		
 
 void launch_ahrs_control(void){
@@ -98,12 +95,9 @@ void launch_ahrs_control(void){
 }
 
 void gst_command(int number){
-	
 	errno = 0;
 	int completed = 0;
-	
 	while (completed == 0){
-		
 		fprintf(gst_fp, "%d\n",number);
 		fflush(gst_fp);
 		if (errno == EPIPE) {
@@ -123,6 +117,8 @@ void launch_gst_control(void){
 	if (ip == 22) gst_fp = popen("/home/pi/portal/gstvideo/gstvideo 22", "w");
 	else if (ip == 23) gst_fp = popen("/home/pi/portal/gstvideo/gstvideo 23", "w");
 	fcntl(fileno(gst_fp), F_SETFL, fcntl(fileno(gst_fp), F_GETFL, 0) | O_NONBLOCK);
+	fprintf(bash_fp, "sudo renice -n -20 $(pidof gstvideo)\n");
+	fflush(bash_fp);
 	printf("GST_CONTROL: READY\n");
 }
 
@@ -134,20 +130,18 @@ void aplay(const char *filename){
 }
 
 void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
-	
 	rewind(webout_fp);
 	fprintf(webout_fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %d %d %d %d %d %d\n" ,\
-	this_gun.private_state,this_gun.shared_state,this_gun.connected ,this_gun.ir_pwm,this_gun.private_playlist[0],\
-	this_gun.private_playlist[1],this_gun.private_playlist[2],this_gun.private_playlist[3],this_gun.private_playlist[4],\
-	this_gun.private_playlist[5],this_gun.private_playlist[6],this_gun.private_playlist[7],this_gun.private_playlist[8],\
-	this_gun.private_playlist[9],this_gun.private_effect,this_gun.private_playlist_index,this_gun.shared_playlist[0],\
-	this_gun.shared_playlist[1],this_gun.shared_playlist[2],this_gun.shared_playlist[3],this_gun.shared_playlist[4],\
-	this_gun.shared_playlist[5],this_gun.shared_playlist[6],this_gun.shared_playlist[7],this_gun.shared_playlist[8],\
-	this_gun.shared_playlist[9],this_gun.shared_effect,this_gun.shared_playlist_index,arduino.battery_level_pretty,\
+	this_gun.state_solo,this_gun.state_duo,this_gun.connected ,this_gun.ir_pwm,this_gun.playlist_solo[0],\
+	this_gun.playlist_solo[1],this_gun.playlist_solo[2],this_gun.playlist_solo[3],this_gun.playlist_solo[4],\
+	this_gun.playlist_solo[5],this_gun.playlist_solo[6],this_gun.playlist_solo[7],this_gun.playlist_solo[8],\
+	this_gun.playlist_solo[9],this_gun.effect_solo,this_gun.playlist_solo_index,this_gun.playlist_duo[0],\
+	this_gun.playlist_duo[1],this_gun.playlist_duo[2],this_gun.playlist_duo[3],this_gun.playlist_duo[4],\
+	this_gun.playlist_duo[5],this_gun.playlist_duo[6],this_gun.playlist_duo[7],this_gun.playlist_duo[8],\
+	this_gun.playlist_duo[9],this_gun.effect_duo,this_gun.playlist_duo_index,arduino.battery_level_pretty,\
 	arduino.temperature_pretty,arduino.packets_in_per_second,arduino.packets_out_per_second,arduino.framing_error,\
 	arduino.crc_error,arduino.cpuload,web_packet_counter++);
 	fflush(webout_fp);
-
 }
 
 
@@ -181,7 +175,7 @@ int read_web_pipe(this_gun_struct& this_gun){
 				int filler = 0;
 				for (int i = 1; i < 11; i++){
 					if (tv[i] == -1) filler = -1;
-					if (filler == -1)  tv[i] = -1;
+					if (filler == -1) tv[i] = -1;
 				}
 			}
 			
@@ -192,19 +186,18 @@ int read_web_pipe(this_gun_struct& this_gun){
 			//self playlist setting
 			else if (tv[0] == 3 && results == 11) {
 				for (int i = 0; i < 10; i++){
-					this_gun.private_playlist[i] = tv[i+1];
+					this_gun.playlist_solo[i] = tv[i+1];
 				}
 			}
 			//shared playlist setting
 			else if (tv[0] == 4 && results == 11) {
 				for (int i = 0; i < 10; i++){
-					this_gun.shared_playlist[i] = tv[i+1];
+					this_gun.playlist_duo[i] = tv[i+1];
 				}
 			}
 			
 		}
 	}
-
 	return web_button;
 }
 
@@ -212,83 +205,81 @@ int read_web_pipe(this_gun_struct& this_gun){
 void audio_effects(const this_gun_struct& this_gun){
 	
 	//LOCAL STATES
-	if ((this_gun.shared_state_previous != 0 || this_gun.private_state_previous != 0) && (this_gun.shared_state == 0 && this_gun.private_state == 0)){
+	if ((this_gun.state_duo_previous != 0 || this_gun.state_solo_previous != 0) && (this_gun.state_duo == 0 && this_gun.state_solo == 0)){
 		aplay("/home/pi/portalgun/portal_close1.wav");
 	}
 	//on entering state 1
-	if ((this_gun.shared_state_previous != this_gun.shared_state) && (this_gun.shared_state == 1)){
+	else if ((this_gun.state_duo_previous != this_gun.state_duo) && (this_gun.state_duo == 1)){
 		aplay("/home/pi/physcannon/physcannon_charge1.wav");
 	}
 	//on entering state -1
-	if ((this_gun.shared_state_previous != -1)&& (this_gun.shared_state == -1)){
+	else if ((this_gun.state_duo_previous != -1)&& (this_gun.state_duo == -1)){
 		aplay("/home/pi/physcannon/physcannon_charge1.wav");			
 	}
 	//on entering state 2
-	if ((this_gun.shared_state_previous !=2 ) &&  (this_gun.shared_state == 2)){
+	else if ((this_gun.state_duo_previous !=2 ) &&  (this_gun.state_duo == 2)){
 		aplay("/home/pi/physcannon/physcannon_charge2.wav");		
 	}
 	//on entering state -2 from -1
-	if ((this_gun.shared_state_previous !=-2 ) &&  (this_gun.shared_state == -2)){
+	else if ((this_gun.state_duo_previous !=-2 ) &&  (this_gun.state_duo == -2)){
 		aplay("/home/pi/physcannon/physcannon_charge2.wav");
 	}	
-	if ((this_gun.shared_state_previous !=-3 ) &&  (this_gun.shared_state == -3)){
+	else if ((this_gun.state_duo_previous !=-3 ) &&  (this_gun.state_duo == -3)){
 		aplay("/home/pi/physcannon/physcannon_charge3.wav");
 	}	
 	//on entering state 3 from 2
-	if ((this_gun.shared_state_previous == 2 ) && ( this_gun.shared_state ==3)){	
+	else if ((this_gun.state_duo_previous == 2 ) && ( this_gun.state_duo ==3)){	
 		aplay("/home/pi/portalgun/portalgun_shoot_blue1.wav");
 	}
 	//on quick swap to rec
-	if ((this_gun.shared_state_previous < 4 )&& (this_gun.shared_state == 4)){
+	else if ((this_gun.state_duo_previous < 4 )&& (this_gun.state_duo == 4)){
 		aplay("/home/pi/portalgun/portal_open2.wav");
 	}
 	//on quick swap to transmit
-	if ((this_gun.shared_state_previous >= 4 )&& (this_gun.shared_state <= -4)){
+	else if ((this_gun.state_duo_previous >= 4 )&& (this_gun.state_duo <= -4)){
 		aplay("/home/pi/portalgun/portal_fizzle2.wav");
 	}	
 
 	//shared effect change close portal end sfx
-	if (this_gun.shared_state_previous == 4 && this_gun.shared_state == 5){
+	else if (this_gun.state_duo_previous == 4 && this_gun.state_duo == 5){
 		aplay("/home/pi/portalgun/portal_close1.wav");
 	}	
 	//shared effect change open portal end sfx
-	if (this_gun.shared_state_previous == 5 && this_gun.shared_state == 4){
+	else if (this_gun.state_duo_previous == 5 && this_gun.state_duo == 4){
 		aplay("/home/pi/portalgun/portal_open1.wav");
 	}	
 	
 	//SELF STATES
-	if ((this_gun.private_state_previous != this_gun.private_state) && (this_gun.private_state == 1 || this_gun.private_state == -1)){
+	else if ((this_gun.state_solo_previous != this_gun.state_solo) && (this_gun.state_solo == 1 || this_gun.state_solo == -1)){
 		aplay("/home/pi/physcannon/physcannon_charge1.wav");
 	}
 	//on entering state 2 or -2
-	if ((this_gun.private_state_previous != this_gun.private_state) && (this_gun.private_state == 2 || this_gun.private_state == -2)){
+	else if ((this_gun.state_solo_previous != this_gun.state_solo) && (this_gun.state_solo == 2 || this_gun.state_solo == -2)){
 		aplay("/home/pi/physcannon/physcannon_charge2.wav");				
 	}
 	
 	//on entering state 3 or -3 from 0
-	if ((this_gun.private_state_previous < 3 && this_gun.private_state_previous > -3  ) && (this_gun.private_state == 3 || this_gun.private_state == -3)){
+	else if ((this_gun.state_solo_previous < 3 && this_gun.state_solo_previous > -3  ) && (this_gun.state_solo == 3 || this_gun.state_solo == -3)){
 		aplay("/home/pi/portalgun/portalgun_shoot_blue1.wav");
 	}
 
-
-	
 	//on quick swap 
-	if (( this_gun.private_state_previous >= 3 && this_gun.private_state == -3) || (this_gun.private_state_previous <= -3 && this_gun.private_state == 3)){
+	else if (( this_gun.state_solo_previous >= 3 && this_gun.state_solo == -3) || (this_gun.state_solo_previous <= -3 && this_gun.state_solo == 3)){
 		aplay("/home/pi/portalgun/portal_open2.wav");		
 	}
 	
 	//private end sfx
-	if ((this_gun.private_state_previous > 3 && this_gun.private_state == 3) || (this_gun.private_state_previous < -3 && this_gun.private_state == -3)){
+	else if ((this_gun.state_solo_previous > 3 && this_gun.state_solo == 3) || (this_gun.state_solo_previous < -3 && this_gun.state_solo == -3)){
 		aplay("/home/pi/portalgun/portal_close1.wav");
 	}
 	
 	//private start sfx
-	if ((this_gun.private_state_previous != -5 && this_gun.private_state == -5) || (this_gun.private_state_previous != 5 && this_gun.private_state == 5)){
+	else if ((this_gun.state_solo_previous != -5 && this_gun.state_solo == -5) || (this_gun.state_solo_previous != 5 && this_gun.state_solo == 5)){
 		aplay("/home/pi/portalgun/portal_open1.wav");
 	}
 	
 	//rip from private to shared mode sfx
-	if ((this_gun.private_state_previous <= -3 || this_gun.private_state_previous>=3) && this_gun.shared_state == 4){
+	else if ((this_gun.state_solo_previous <= -3 || this_gun.state_solo_previous>=3) && this_gun.state_duo == 4){
 		aplay("/home/pi/portalgun/portal_open2.wav");		
 	}
 	

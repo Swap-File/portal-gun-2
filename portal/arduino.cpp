@@ -43,8 +43,8 @@ int arduino_update(const struct this_gun_struct& this_gun ){
 	uint8_t blue_pwm = (this_gun.connected) ? this_gun.brightness : 127;
 	
 	//blank alt button if in a mode that lights the LEDs
-	if (this_gun.shared_state > 0 ||  this_gun.private_state > 0)  blue_pwm = 0;
-	if (this_gun.shared_state < 0 ||  this_gun.private_state < 0)  orange_pwm = 0;
+	if (this_gun.state_duo > 0 || this_gun.state_solo > 0)  blue_pwm = 0;
+	if (this_gun.state_duo < 0 || this_gun.state_solo < 0)  orange_pwm = 0;
 	
 	//blink orange momentarily if pressed
 	if (arduino->orange_button){
@@ -76,7 +76,7 @@ int arduino_update(const struct this_gun_struct& this_gun ){
 	raw_buffer[0] = blue_pwm;
 	raw_buffer[1] = orange_pwm;
 	//only turn on IR when the camera is on
-	raw_buffer[2] = (this_gun.shared_state <= -2) ? this_gun.ir_pwm : 0;
+	raw_buffer[2] = (this_gun.state_duo <= -2) ? this_gun.ir_pwm : 0;
 	raw_buffer[3] = crc8(raw_buffer, 3);
 
 	uint8_t encoded_buffer[6];

@@ -53,25 +53,25 @@ uint8_t led_update(const this_gun_struct& this_gun,const other_gun_struct& other
 	
 	int color1 = -1;  //default color of white for shutdown state
 	//set color from state data		
-	if (this_gun.shared_state > 0 || this_gun.private_state > 0)		color1 = 20;
-	else if(this_gun.shared_state < 0 || this_gun.private_state < 0)	color1 = 240;
+	if (this_gun.state_duo > 0 || this_gun.state_solo > 0)		color1 = 20;
+	else if(this_gun.state_duo < 0 || this_gun.state_solo < 0)	color1 = 240;
 	
 	int width_request = 20;
 	//set width
-	if(this_gun.shared_state == 1 || this_gun.private_state == -1 || this_gun.private_state == 1 || this_gun.shared_state == -3 ){
+	if(this_gun.state_duo == 1 || this_gun.state_solo == -1 || this_gun.state_solo == 1 || this_gun.state_duo == -3 ){
 		width_request = 10;
-	}else if(this_gun.shared_state == -1)	width_request = 1;	
-	else if(this_gun.shared_state == -2)	width_request = 5;	
+	}else if(this_gun.state_duo == -1)	width_request = 1;	
+	else if(this_gun.state_duo == -2)	width_request = 5;	
 	
 	int width_speed = 200;
 	//set width speed
-	if (this_gun.shared_state <= -4 || this_gun.shared_state >= 4 || this_gun.private_state <= -4 || this_gun.private_state>= 4 ){
+	if (this_gun.state_duo <= -4 || this_gun.state_duo >= 4 || this_gun.state_solo <= -4 || this_gun.state_solo>= 4 ){
 		width_speed = 0;
 	}
 	
 	int shutdown_effect = 0;
 	//shutdown_effect
-	if (this_gun.shared_state == 0 && this_gun.private_state == 0) shutdown_effect = 1;
+	if (this_gun.state_duo == 0 && this_gun.state_solo == 0) shutdown_effect = 1;
 	
 	uint32_t total_time_offset;
 	if (this_gun.connected) {

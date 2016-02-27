@@ -252,25 +252,27 @@ int main(int argc, char *argv[])
 		printf("AHRS_Process: Textures have been loaded.\n");
 		fflush(stdout);
 		
-		uint32_t sampletime = 0;
+		uint32_t time_start = 0;
 		int missed = 0;
-		uint32_t fps_counter = 0;
+		uint32_t time_fps = 0;
 		int fps = 0;
 		//non blocking sdtin read
 		fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
 	
 		while(1)
 		{			
-			sampletime += 20;
-			if (sampletime < millis()){
-				sampletime = millis();
-				//printf("Missed cycle(s), Skipping...\n");
-				missed++;
-				
+	
+			time_start += 20;
+			uint32_t predicted_delay = time_start - millis(); //calc predicted delay
+			if (predicted_delay > 20) predicted_delay = 0; //check for overflow
+			if (predicted_delay != 0){
+				delay(predicted_delay); 
 			}else{
-				delay(sampletime - millis()); //predictive delay
+				time_start = millis(); //reset timer to now
+				//printf("GST_VIDEO has missed cycle(s), Skipping...\n");
+				missed++;
 			}
-			
+
 			int count = 1;
 			char buffer[100];
 			//stdin is line buffered so we can cheat a little bit
@@ -300,13 +302,11 @@ int main(int argc, char *argv[])
 			redraw_scene();
 
 			fps++;
-			if (fps_counter < millis()){
+			if (time_fps < millis()){
 				printf("AHRS FPS:%d  mis:%d\n",fps,missed);
 				fps = 0;
-				fps_counter += 1000;
-				if (fps_counter < millis()){
-					fps_counter = millis()+1000;
-				}			
+				time_fps += 1000;
+				if (time_fps < millis()) time_fps = millis()+1000;	
 			}		
 			
 		}
