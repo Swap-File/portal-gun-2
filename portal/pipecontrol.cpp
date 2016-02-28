@@ -274,7 +274,7 @@ void audio_effects(const this_gun_struct& this_gun){
 	}
 	
 	//private start sfx
-	else if ((this_gun.state_solo_previous != -5 && this_gun.state_solo == -5) || (this_gun.state_solo_previous != 5 && this_gun.state_solo == 5)){
+	else if ((this_gun.state_solo_previous != -4 && this_gun.state_solo == -4) || (this_gun.state_solo_previous != 4 && this_gun.state_solo == 4)){
 		aplay("/home/pi/portalgun/portal_open1.wav");
 	}
 	

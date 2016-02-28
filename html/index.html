@@ -62,7 +62,7 @@ Nightvision Brightness:
 </select>
 <br>
 <br>
-Camera Preview:
+Live Camera Preview:
 <select id="preview_camera" onchange="preview_camera_onchange(this)">
 <option value="ON">ON</option>
 <option value="OFF">OFF</option>
@@ -70,8 +70,15 @@ Camera Preview:
 </select>
 <br>
 <br>
-Project Preview:
+Animated Projector Preview:
 <select id="preview_projection" onchange="preview_projection_onchange(this)">
+<option value="ON">ON</option>
+<option value="OFF">OFF</option>
+</select>
+<br>
+<br>
+Live Audio Preview:
+<select id="preview_audio" onchange="preview_audio_onchange(this)">
 <option value="ON">ON</option>
 <option value="OFF">OFF</option>
 </select>
@@ -252,13 +259,23 @@ preview_projection.value = project_preview;
 
 var update_rate = getCookie("rate");
 if (update_rate == ""){
-	setCookie("preview", "200", 365);
+	setCookie("rate", "200", 365);
 	update_rate = 200;
 }else{
 	update_rate= parseInt(update_rate);
 }
 update_speed.value = update_rate;
 
+var preview_audio_var = getCookie("previewa");
+if (preview_audio_var == ""){
+	setCookie("previewa", "ON", 365);
+	preview_audio_var = "ON";
+}
+preview_audio.value = preview_audio_var;
+
+var effect_solo = -1;
+var effect_duo = -1;
+				
 var last_packet_counter = -1;
 var missed_packets = 0;
 var requested_mode = "preview";
@@ -318,7 +335,7 @@ function playlist_load(num){
 		requested_mode = "preview";
 		break;
 	case 4:	
-		post_stuff('mode=3 10 13 14 15 -1 -1 -1 -1 -1 -1');
+		post_stuff('mode=3 14 15 10 11 12 13 -1 -1 -1 -1');
 		requested_mode = "preview";
 		break;
 	case 5:	
@@ -329,13 +346,20 @@ function playlist_load(num){
 
 	mode_set();
 }
+function preview_audio_onchange(object){
+	preview_audio_var = object.options[object.selectedIndex].value;
+	setCookie("previewa", preview_audio_var, 365);
+	update_portal_background();
+}
 function preview_camera_onchange(object){
 	live_preview = object.options[object.selectedIndex].value;
 	setCookie("preview", live_preview, 365);
+	update_portal_background();
 }
 function preview_projection_onchange(object){
 	project_preview = object.options[object.selectedIndex].value;
-	setCookie("previewp", live_preview, 365);
+	setCookie("previewp", project_preview, 365);
+	update_portal_background();
 }
 function update_speed_onchange(object){
 	update_rate = object.options[object.selectedIndex].value;
@@ -415,10 +439,10 @@ function edit_change(inputnum){
 	var new_index = obj.selectedIndex + inputnum;
 	if (new_index < 0){
 		new_index = obj.length - 1;
-		}
+	}
 	if (new_index >=  obj.length){ 
 		new_index = 0;
-		}
+	}
 	obj.selectedIndex = new_index;
 	playlist_onchange(obj);
 }
@@ -670,8 +694,8 @@ function update_data() {
 					update_custom_buttons();
 				}
 				
-				var effect_solo = parseInt(res[14]);
-				var effect_duo = parseInt(res[26]);
+				effect_solo = parseInt(res[14]);
+				effect_duo = parseInt(res[26]);
 				
 				if (effect_solo != effect_solo_last){
 					effect_text_solo = effect_name(effect_solo);
@@ -730,11 +754,6 @@ function update_data() {
 							portal_text.style.color = "black";
 						}else if (state_solo == 4){
 							portal_text.innerHTML = "";
-							if (project_preview == "ON"){
-								portal_back.src = effect_preview(effect_solo);
-							}else{
-								portal_back.src = "";
-							}
 						}
 						portal_front.src = "orange_portal.png";
 						orangeduo.style.backgroundColor = "orange";
@@ -760,11 +779,6 @@ function update_data() {
 							portal_text.style.color = "black";
 						}else if (state_solo == -4){
 							portal_text.innerHTML = "";
-							if (project_preview == "ON"){
-								portal_back.src = effect_preview(effect_solo);
-							}else{
-								portal_back.src = "";
-							}
 						}
 						portal_front.src = "blue_portal.png";
 						orangeduo.style.backgroundColor = "";
@@ -788,11 +802,7 @@ function update_data() {
 							portal_text.style.color = "black";
 						}else if (state_duo == 4){
 							portal_text.innerHTML = "";
-							if (project_preview == "ON"){
-								portal_back.src = effect_preview(effect_duo);
-							}else{
-								portal_back.src = "";
-							}
+		
 						}
 						portal_front.src = "orange_portal.png";
 						blueduo.style.backgroundColor = "";
@@ -806,11 +816,6 @@ function update_data() {
 						orangeduo.style.color = "black";
 					}
 					else if (state_duo < 0){
-						if (live_preview == "ON"){
-							portal_back.src = "http://" + location.host + ":8080/?action=stream";
-						}else{
-							portal_back.src = "";
-						}
 						portal_front.src = "blue_portal.png";
 						orangeduo.style.backgroundColor = "";
 						orangeduo.style.color = "transparent";
@@ -822,6 +827,7 @@ function update_data() {
 						blueduo.value = state_duo * -1;
 						blueduo.style.color = "white";
 					}
+					update_portal_background();
 					mode_set();
 					state_duo_last = state_duo;
 					state_solo_last = state_solo;
@@ -834,6 +840,36 @@ function update_data() {
 	}
 	request.open("GET", "/tmp/portal.txt", true);
 	request.send(null);
+}
+
+function update_portal_background() {
+	if (state_duo < 0){
+		if (live_preview == "ON"){
+			portal_back.src = "http://" + location.host + ":8080/?action=stream";
+		}else if (project_preview == "ON"){
+			portal_back.src = effect_preview(3);
+		}else{
+			portal_back.src = "";
+		}
+	}
+	else if (state_duo < 0){
+		if (effect_duo >= 10 && effect_duo < 19 && preview_audio_var == "ON"){
+			portal_back.src = "http://" + location.host + ":8080/?action=stream";
+		}else if (project_preview == "ON"){
+			portal_back.src = effect_preview(effect_duo);
+		}else{
+			portal_back.src = "";
+		}
+	}else if (state_solo < 0 || state_solo > 0){
+		if (effect_solo >= 10 && effect_solo < 19 && preview_audio_var == "ON"){
+			portal_back.src = "http://" + location.host + ":8080/?action=stream";
+		}else if (project_preview == "ON"){
+			portal_back.src = effect_preview(effect_solo);
+		}else{
+			portal_back.src = "";
+		}
+	}
+	
 }
 
 function setCookie(cname, cvalue, exdays) {
