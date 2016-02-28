@@ -62,26 +62,22 @@ Nightvision Brightness:
 </select>
 <br>
 <br>
-Live Camera Preview:
-<select id="preview_camera" onchange="preview_camera_onchange(this)">
-<option value="ON">ON</option>
+Camera Preview:
+<select id="preview_camera_select" onchange="preview_camera_onchange(this)">
+<option value="LIVE">LIVE</option>
+<option value="GIF">IMG</option>
 <option value="OFF">OFF</option>
 </select>
 </select>
 <br>
 <br>
-Animated Projector Preview:
-<select id="preview_projection" onchange="preview_projection_onchange(this)">
-<option value="ON">ON</option>
+Projector Preview:
+<select id="preview_projection_select" onchange="preview_projection_onchange(this)">
+<option value="LIVE">LIVE</option>
+<option value="GIF">IMG</option>
 <option value="OFF">OFF</option>
 </select>
 <br>
-<br>
-Live Audio Preview:
-<select id="preview_audio" onchange="preview_audio_onchange(this)">
-<option value="ON">ON</option>
-<option value="OFF">OFF</option>
-</select>
 <br>
 <br>
 Updates Per Minute:
@@ -243,19 +239,19 @@ Select Item to Edit...<br><br>
 
 var interval_obj;
 
-var live_preview = getCookie("preview");
-if (live_preview == ""){
-	setCookie("preview", "ON", 365);
-	live_preview = "ON";
+var preview_camera = getCookie("previewc");
+if (preview_camera == ""){
+	setCookie("previewc", "LIVE", 365);
+	preview_camera = "LIVE";
 }
-preview_camera.value = live_preview;
+preview_camera_select.value = preview_camera;
 
-var project_preview = getCookie("previewp");
-if (project_preview == ""){
-	setCookie("previewp", "ON", 365);
-	project_preview = "ON";
+var preview_project = getCookie("previewp");
+if (preview_project == ""){
+	setCookie("previewp", "LIVE", 365);
+	preview_project = "LIVE";
 }
-preview_projection.value = project_preview;
+preview_projection_select.value = preview_project;
 
 var update_rate = getCookie("rate");
 if (update_rate == ""){
@@ -266,12 +262,6 @@ if (update_rate == ""){
 }
 update_speed.value = update_rate;
 
-var preview_audio_var = getCookie("previewa");
-if (preview_audio_var == ""){
-	setCookie("previewa", "ON", 365);
-	preview_audio_var = "ON";
-}
-preview_audio.value = preview_audio_var;
 
 var effect_solo = -1;
 var effect_duo = -1;
@@ -294,9 +284,6 @@ var playlist_solo_array = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
 var playlist_solo_array_index_last = -1;
 var playlist_duo_array = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
 var playlist_duo_array_index_last = -1;
-
-var effect_text_solo = "";
-var effect_text_duo = "";
 
 var arduino_battery_level_last = -1;
 var arduino_temp_last = -1;
@@ -413,8 +400,7 @@ function reinit_all(){
 	playlist_duo_array_index_last = -1;
 	playlist_solo_array = [0,0,0,0,0,0,0,0,0,0];
 	playlist_duo_array = [0,0,0,0,0,0,0,0,0,0];
-	effect_text_solo = "";
-	effect_text_duo = "";
+
 	arduino_battery_level_last = -1;
 	arduino_temp_last = -1;
 	mode_set();
@@ -574,7 +560,7 @@ function effect_name(a) {
 	case 0:		return "BLANK";
 	case 1:		return "TEST";
 	case 2:		return "TEST_CUBE";	
-	case 3:		return "RPICAMSRC";	
+	case 3:		return "CAMERA";	
 	case 4:		return "NORMAL";
 	case 10:	return "JESS";
 	case 11:	return "INFINITE";
@@ -696,16 +682,6 @@ function update_data() {
 				
 				effect_solo = parseInt(res[14]);
 				effect_duo = parseInt(res[26]);
-				
-				if (effect_solo != effect_solo_last){
-					effect_text_solo = effect_name(effect_solo);
-					effect_solo_last = effect_solo;
-				}
-				
-				if (effect_duo != effect_duo_last){
-					effect_text_duo = effect_name(effect_duo);
-					effect_duo_last = effect_duo;
-				}
 
 				var arduino_battery_level = parseFloat(res[28]);
 				var arduino_temp = parseFloat(res[29]);
@@ -744,17 +720,6 @@ function update_data() {
 						orangeduo.value = "Duo";
 					}
 					else if (state_solo > 0){
-						if (state_solo < 3){
-							portal_back.src = "black.png";
-							portal_text.innerHTML = effect_text_solo;
-							portal_text.style.color = "white";
-						}else if (state_solo == 3){
-							portal_back.src = "orange_0.jpg";
-							portal_text.innerHTML = effect_text_solo;
-							portal_text.style.color = "black";
-						}else if (state_solo == 4){
-							portal_text.innerHTML = "";
-						}
 						portal_front.src = "orange_portal.png";
 						orangeduo.style.backgroundColor = "orange";
 						orangeduo.style.color = "transparent";
@@ -769,17 +734,6 @@ function update_data() {
 						orangesolo.style.color = "black";
 					}
 					else if (state_solo < 0){
-						if (state_solo > -3){
-							portal_back.src = "black.png";
-							portal_text.innerHTML = effect_text_solo;
-							portal_text.style.color = "white";
-						}else if (state_solo == -3){
-							portal_back.src = "blue_0.jpg";
-							portal_text.innerHTML = effect_text_solo;
-							portal_text.style.color = "black";
-						}else if (state_solo == -4){
-							portal_text.innerHTML = "";
-						}
 						portal_front.src = "blue_portal.png";
 						orangeduo.style.backgroundColor = "";
 						orangeduo.style.color = "transparent";
@@ -792,18 +746,6 @@ function update_data() {
 						bluesolo.style.color = "white";
 					}
 					else if (state_duo > 0){
-						if (state_duo < 3){
-							portal_back.src = "black.png";
-							portal_text.innerHTML = effect_text_duo;
-							portal_text.style.color = "white";
-						}else if (state_duo == 3 || state_duo == 5){
-							portal_back.src = "orange_0.jpg";
-							portal_text.innerHTML = effect_text_duo;
-							portal_text.style.color = "black";
-						}else if (state_duo == 4){
-							portal_text.innerHTML = "";
-		
-						}
 						portal_front.src = "orange_portal.png";
 						blueduo.style.backgroundColor = "";
 						blueduo.style.color = "transparent";
@@ -844,26 +786,29 @@ function update_data() {
 
 function update_portal_background() {
 	if (state_duo < 0){
-		if (live_preview == "ON"){
+		portal_text.innerHTML = effect_name(3);
+		if (preview_camera == "LIVE"){
 			portal_back.src = "http://" + location.host + ":8080/?action=stream";
-		}else if (project_preview == "ON"){
+		}else if (preview_camera == "GIF"){
 			portal_back.src = effect_preview(3);
 		}else{
 			portal_back.src = "";
 		}
 	}
-	else if (state_duo < 0){
-		if (effect_duo >= 10 && effect_duo < 19 && preview_audio_var == "ON"){
+	else if (state_duo > 0){
+		portal_text.innerHTML = effect_name(effect_duo);
+		if (effect_duo >= 10 && effect_duo < 19 && preview_project == "LIVE"){
 			portal_back.src = "http://" + location.host + ":8080/?action=stream";
-		}else if (project_preview == "ON"){
+		}else if (preview_project == "GIF"){
 			portal_back.src = effect_preview(effect_duo);
 		}else{
 			portal_back.src = "";
 		}
 	}else if (state_solo < 0 || state_solo > 0){
-		if (effect_solo >= 10 && effect_solo < 19 && preview_audio_var == "ON"){
+		portal_text.innerHTML = effect_name(effect_solo);
+		if (effect_solo >= 10 && effect_solo < 19 && preview_project == "LIVE"){
 			portal_back.src = "http://" + location.host + ":8080/?action=stream";
-		}else if (project_preview == "ON"){
+		}else if (preview_project == "GIF"){
 			portal_back.src = effect_preview(effect_solo);
 		}else{
 			portal_back.src = "";
