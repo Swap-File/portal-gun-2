@@ -261,12 +261,13 @@ if (update_rate == ""){
 }
 update_speed.value = update_rate;
 
+var loading = 1;
 
 var effect_solo = -1;
 var effect_duo = -1;
-				
+
 var last_packet_counter = -1;
-var missed_packets = 0;
+var missed_packets = 3;
 var requested_mode = "preview";
 var connected_last = -1;
 var ir_pwm_last = -1;
@@ -385,7 +386,8 @@ function update_custom_buttons(){
 }
 
 function reinit_all(){
-	missed_packets = 0;
+	//set everything to impossible values to force state change on next load
+	loading = 1;
 	requested_mode = "preview";
 	connected_last = -1;
 	state_duo = -1;
@@ -397,9 +399,8 @@ function reinit_all(){
 	playlist_solo_array_index_last = -1;
 	effect_duo_last = -1;
 	playlist_duo_array_index_last = -1;
-	playlist_solo_array = [0,0,0,0,0,0,0,0,0,0];
-	playlist_duo_array = [0,0,0,0,0,0,0,0,0,0];
-
+	playlist_solo_array = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+	playlist_duo_array = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
 	arduino_battery_level_last = -1;
 	arduino_temp_last = -1;
 	mode_set();
@@ -493,28 +494,29 @@ function mode_set(){
 	playlist_div.style.display  = 'none'; 
 	custom_div.style.display  = 'none'; 
 	load_div.style.display  = 'none'; 
-	
-	switch(requested_mode) {
-	case "preview":
-		if (state_solo == 0 && state_duo == 0){ 
-			playlist_div.style.display  = 'inline-block'; 
-		}else{
-			imageWrapper.style.display  = 'inline-block'; 
+	if (loading == 0){
+		switch(requested_mode) {
+		case "preview":
+			if (state_solo == 0 && state_duo == 0){ 
+				playlist_div.style.display  = 'inline-block'; 
+			}else{
+				imageWrapper.style.display  = 'inline-block'; 
+			}
+			break;
+		case "settings":
+			settings_div.style.display  = 'inline-block'; 
+			break;
+		case "load":	
+			load_div.style.display  = 'inline-block';  
+			break;
+		case "custom":	
+			update_custom_buttons();
+			custom_div.style.display  = 'inline-block';  
+			break;
+		case "edit":	
+			edit_div.style.display  = 'inline-block';  
+			break;
 		}
-		break;
-	case "settings":
-		settings_div.style.display  = 'inline-block'; 
-		break;
-	case "load":	
-		load_div.style.display  = 'inline-block';  
-		break;
-	case "custom":	
-		update_custom_buttons();
-		custom_div.style.display  = 'inline-block';  
-		break;
-	case "edit":	
-		edit_div.style.display  = 'inline-block';  
-		break;
 	}
 }
 
@@ -606,19 +608,24 @@ function update_data() {
 	var request = new XMLHttpRequest();
 	request.onload = function() {
 		if (missed_packets > 2){
+			missed_packets = Math.min(missed_packets,3);
 			reinit_all();
 		}
-		if (this.status >= 200 && this.status < 400) {
+		if (this.status >= 200 && this.status < 400 ) {
 			var res = this.response.split(" ");
-
 			var packet_counter = parseInt(res[35]);
-			if (isNaN(packet_counter) == true){
+			if (isNaN(packet_counter) == true || packet_counter == last_packet_counter){
 				missed_packets++;
 			}else{
-				
 				last_packet_counter = packet_counter;
-				missed_packets = 0;
+				missed_packets = Math.max(missed_packets-2,0);
 				
+				//pop out of loading mode
+				if (missed_packets == 0 && loading != 0){
+					loading = 0;
+					mode_set();	
+				}
+
 				state_solo = parseInt(res[0]);
 				state_duo = parseInt(res[1]);
 				
@@ -699,6 +706,7 @@ function update_data() {
 				//var arduino_cpu_load = parseInt(res[34]);
 				//var playlist_duo_array_index = parseInt(res[27]);
 				//var playlist_solo_array_index = parseInt(res[15]);
+
 				
 				if(state_solo != state_solo_last || state_duo != state_duo_last){
 					if (state_solo == 0 && state_duo == 0){
@@ -769,10 +777,12 @@ function update_data() {
 						blueduo.style.color = "white";
 					}
 					update_portal_background();
+					//suppress initial modeset if portal app is closed
 					mode_set();
 					state_duo_last = state_duo;
 					state_solo_last = state_solo;
 				}
+	
 			}
 		}else{
 			missed_packets++;
