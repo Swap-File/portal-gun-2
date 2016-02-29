@@ -94,6 +94,8 @@ Updates Per Minute:
 <td class="centertop"><div>
 <b><u>DUO PLAYLISTS</u></b><br>
 <input type="button" class="button_text" onclick="playlist_load(5)" value="Empty Duo"/><br>
+<input type="button" class="button_text" onclick="playlist_load(6)" value="TV Duo"/><br>
+<input type="button" class="button_text" onclick="playlist_load(7)" value="GL Duo"/><br>
 </div></td>
 <td class="centertop"><div>
 <b><u>SOLO PLAYLISTS</u></b><br>
@@ -329,23 +331,27 @@ function playlist_load(num){
 		post_stuff('mode=4 4 -1 -1 -1 -1 -1 -1 -1 -1 -1');
 		requested_mode = "custom";
 		break;
+	case 6:	
+		post_stuff('mode=4 4 20 19 21 22 23 25 27 28 29');
+		requested_mode = "preview";
+		break;
+	case 7:	
+		post_stuff('mode=4 4 37 30 31 32 33 34 35 36 26');
+		requested_mode = "preview";
+		break;
 	}
 
 	mode_set();
 }
-function preview_audio_onchange(object){
-	preview_audio_var = object.options[object.selectedIndex].value;
-	setCookie("previewa", preview_audio_var, 365);
-	update_portal_background();
-}
+
 function preview_camera_onchange(object){
-	live_preview = object.options[object.selectedIndex].value;
-	setCookie("preview", live_preview, 365);
+	preview_camera = object.options[object.selectedIndex].value;
+	setCookie("preview", preview_camera, 365);
 	update_portal_background();
 }
 function preview_projection_onchange(object){
-	project_preview = object.options[object.selectedIndex].value;
-	setCookie("previewp", project_preview, 365);
+	preview_project = object.options[object.selectedIndex].value;
+	setCookie("previewp", preview_project, 365);
 	update_portal_background();
 }
 function update_speed_onchange(object){
@@ -494,6 +500,7 @@ function mode_set(){
 	playlist_div.style.display  = 'none'; 
 	custom_div.style.display  = 'none'; 
 	load_div.style.display  = 'none'; 
+	
 	if (loading == 0){
 		switch(requested_mode) {
 		case "preview":
@@ -707,7 +714,6 @@ function update_data() {
 				//var playlist_duo_array_index = parseInt(res[27]);
 				//var playlist_solo_array_index = parseInt(res[15]);
 
-				
 				if(state_solo != state_solo_last || state_duo != state_duo_last){
 					if (state_solo == 0 && state_duo == 0){
 						portal_text.innerHTML = "";
@@ -777,7 +783,6 @@ function update_data() {
 						blueduo.style.color = "white";
 					}
 					update_portal_background();
-					//suppress initial modeset if portal app is closed
 					mode_set();
 					state_duo_last = state_duo;
 					state_solo_last = state_solo;
@@ -806,8 +811,12 @@ function update_portal_background() {
 	}
 	else if (state_duo > 0){
 		portal_text.innerHTML = effect_name(effect_duo);
-		if (effect_duo >= 10 && effect_duo < 19 && preview_project == "LIVE"){
-			portal_back.src = "http://" + location.host + ":8080/?action=stream";
+		if (preview_project == "LIVE"){
+			if (effect_duo >= 10 && effect_duo < 19){
+				portal_back.src = "http://" + location.host + ":8080/?action=stream";
+			}else{
+				portal_back.src = effect_preview(effect_duo);
+			}
 		}else if (preview_project == "GIF"){
 			portal_back.src = effect_preview(effect_duo);
 		}else{
@@ -815,8 +824,12 @@ function update_portal_background() {
 		}
 	}else if (state_solo < 0 || state_solo > 0){
 		portal_text.innerHTML = effect_name(effect_solo);
-		if (effect_solo >= 10 && effect_solo < 19 && preview_project == "LIVE"){
-			portal_back.src = "http://" + location.host + ":8080/?action=stream";
+		if (preview_project == "LIVE"){
+			if (effect_solo >= 10 && effect_solo < 19){
+				portal_back.src = "http://" + location.host + ":8080/?action=stream";
+			}else{
+				portal_back.src = effect_preview(effect_solo);
+			}
 		}else if (preview_project == "GIF"){
 			portal_back.src = effect_preview(effect_solo);
 		}else{
