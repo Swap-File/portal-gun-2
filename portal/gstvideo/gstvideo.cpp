@@ -49,18 +49,18 @@ int main(int argc, char *argv[]) {
 	char rippletv[] =          "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! rippletv ! eglglessink";
 	char edgetv[] =            "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! edgetv ! eglglessink";
 
-	char movie1[] =  "filesrc location=/home/pi/movies/1.mp4  ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie2[] =  "filesrc location=/home/pi/movies/2.mp4  ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie3[] =  "filesrc location=/home/pi/movies/3.mp4  ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie4[] =  "filesrc location=/home/pi/movies/4.mp4  ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie5[] =  "filesrc location=/home/pi/movies/5.mp4  ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie6[] =  "filesrc location=/home/pi/movies/6.mp4  ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie7[] =  "filesrc location=/home/pi/movies/7.mp4  ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie8[] =  "filesrc location=/home/pi/movies/8.mp4  ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie9[] =  "filesrc location=/home/pi/movies/9.mp4  ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie10[] = "filesrc location=/home/pi/movies/10.mp4 ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie11[] = "filesrc location=/home/pi/movies/11.mp4 ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
-	char movie12[] = "filesrc location=/home/pi/movies/12.mp4 ! qtdemux name=dmux ! queue ! avdec_h264 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie1[] =  "filesrc location=/home/pi/movies/1.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie2[] =  "filesrc location=/home/pi/movies/2.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie3[] =  "filesrc location=/home/pi/movies/3.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie4[] =  "filesrc location=/home/pi/movies/4.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie5[] =  "filesrc location=/home/pi/movies/5.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie6[] =  "filesrc location=/home/pi/movies/6.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie7[] =  "filesrc location=/home/pi/movies/7.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie8[] =  "filesrc location=/home/pi/movies/8.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie9[] =  "filesrc location=/home/pi/movies/9.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie10[] = "filesrc location=/home/pi/movies/10.mp4 ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie11[] = "filesrc location=/home/pi/movies/11.mp4 ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
+	char movie12[] = "filesrc location=/home/pi/movies/12.mp4 ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! aacparse !  avdec_aac ! audioconvert ! queue ! alsasink device=hw:0";
 
 	char * new_cmd;
 	char * rpicamsrc;

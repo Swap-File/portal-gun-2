@@ -77,10 +77,7 @@ int main(void){
 			else other_gun.last_seen = this_gun.clock;  //update time data was seen
 			if (millis() - this_gun.clock > 5) break; //flood protect
 		}
-
-		//process state changes
-		local_state_engine(button_event,this_gun,other_gun);
-				
+	
 		//gstreamer state stuff, blank it if shared state and private state are 0
 		int gst_state = GST_BLANK;
 		//camera preload
@@ -89,18 +86,25 @@ int main(void){
 		else if(this_gun.state_duo >= 1) gst_state = this_gun.effect_duo;		
 		//project private preload
 		else if(this_gun.state_solo != 0) gst_state = this_gun.effect_solo;	
-				
+		
+		//special handling of videos
+		if (gst_state >= GST_MOVIE_FIRST && gst_state <= GST_MOVIE_LAST){
+			//auto state change at video ending
+			if (this_gun.clock + 1000 > video_end_time){
+				if (this_gun.state_solo == 4)       this_gun.state_solo = 3;
+				else if (this_gun.state_solo == -4) this_gun.state_solo = -3;
+			}
+		}
+		
+		//process state changes
+		local_state_engine(button_event,this_gun,other_gun);
+		
 		//special handling of videos
 		if (gst_state >= GST_MOVIE_FIRST && gst_state <= GST_MOVIE_LAST){
 			//calculate video end time at video start
 			if ((this_gun.state_solo == 4 && this_gun.state_solo_previous != 4) ||\
     			(this_gun.state_solo == -4 && this_gun.state_solo_previous != -4)){
 				video_end_time = this_gun.clock + video_length[gst_state - GST_MOVIE_FIRST];		
-			}
-			//auto state change at video ending
-			if (this_gun.clock + 1000 > video_end_time){
-				if (this_gun.state_solo == 4)       this_gun.state_solo = 3;
-				else if (this_gun.state_solo == -4) this_gun.state_solo = -3;
 			}
 			//block preloading of video
 			if (this_gun.state_solo != 4 && this_gun.state_solo != -4) gst_state = GST_BLANK;

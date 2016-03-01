@@ -128,16 +128,20 @@ void local_state_engine(int button, this_gun_struct& this_gun, other_gun_struct&
 	}
 	
 	//reset playlists to the start
-	if (button == BUTTON_BLUE_LONG || button == BUTTON_ORANGE_LONG){
-		this_gun.effect_solo = this_gun.playlist_solo[0];
+	//continually reload playlist if in state 0 to catch updates
+	if (this_gun.state_duo == 0){
 		this_gun.effect_duo = this_gun.playlist_duo[0];
-		if (this_gun.effect_solo <= -1) this_gun.effect_solo = GST_VIDEOTESTSRC;
 		if (this_gun.effect_duo <= -1) this_gun.effect_duo = GST_VIDEOTESTSRC;
 		this_gun.playlist_duo_index = 1;
+		//special case of playlist 1 item long
+		if (this_gun.playlist_duo[this_gun.playlist_duo_index] <= -1) this_gun.playlist_duo_index = 0;
+	}
+	if (this_gun.state_solo == 0){
+		this_gun.effect_solo = this_gun.playlist_solo[0];
+		if (this_gun.effect_solo <= -1) this_gun.effect_solo = GST_VIDEOTESTSRC;
 		this_gun.playlist_solo_index = 1;	
 		//special case of playlist 1 item long
 		if (this_gun.playlist_solo[this_gun.playlist_solo_index] <= -1) this_gun.playlist_solo_index = 0;
-		if (this_gun.playlist_duo[this_gun.playlist_duo_index] <= -1) this_gun.playlist_duo_index = 0;
 	}
 	
 	//load next shared playlist item
