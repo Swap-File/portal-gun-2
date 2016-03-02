@@ -26,6 +26,7 @@ FILE *webout_fp;
 FILE *bash_fp;
 FILE *ahrs_fp;
 FILE *gst_fp;
+FILE *ping_fp;
 
 void pipecontrol_cleanup(void){
 	printf("KILLING OLD PROCESSES\n");
@@ -39,20 +40,15 @@ void pipecontrol_setup(int new_ip){
 	ip = new_ip;
 	pipecontrol_cleanup();
 	
-	printf("BASH_CONTROL: SPAWNING PROCESS\n");
 	bash_fp = popen("bash", "w");
 	fcntl(fileno(bash_fp), F_SETFL, fcntl(fileno(bash_fp), F_GETFL, 0) | O_NONBLOCK);
-	printf("BASH_CONTROL: READY\n");
-	
+
 	launch_ahrs_control();
-	
 	launch_gst_control();
 	
-	printf("WEB_PIPE: MKFIFO\n");
 	mkfifo ("/tmp/FIFO_PIPE", 0777 );
 	//OPEN PIPE WITH READ ONLY
-	if ((web_in = open ("/tmp/FIFO_PIPE",  ( O_RDONLY | O_NONBLOCK ) ))<0)
-	{
+	if ((web_in = open ("/tmp/FIFO_PIPE",  ( O_RDONLY | O_NONBLOCK ) ))<0) {
 		perror("WEB_PIPE: Could not open named pipe for reading.");
 		exit(-1);
 	}
@@ -67,6 +63,11 @@ void pipecontrol_setup(int new_ip){
 	fcntl(fileno(webout_fp), F_SETFL, fcntl(fileno(webout_fp), F_GETFL, 0) | O_NONBLOCK);
 	
 	system("LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i 'input_file.so -f /var/www/html/tmp -n snapshot.jpg' -o 'output_http.so -w /usr/local/www' &");
+	
+	if (ip == 22)		ping_fp = popen("ping 192.168.1.23", "r");
+	else if (ip == 23)	ping_fp = popen("ping 192.168.1.22", "r");
+	fcntl(fileno(ping_fp), F_SETFL, fcntl(fileno(ping_fp), F_GETFL, 0) | O_NONBLOCK);
+
 }
 
 void ahrs_command(int x, int y, int z, int number){
@@ -131,7 +132,7 @@ void aplay(const char *filename){
 
 void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
 	rewind(webout_fp);
-	fprintf(webout_fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %d %d %d %d %d %d\n" ,\
+	fprintf(webout_fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %d %d %d %d %d %d %.2f\n" ,\
 	this_gun.state_solo,this_gun.state_duo,this_gun.connected ,this_gun.ir_pwm,this_gun.playlist_solo[0],\
 	this_gun.playlist_solo[1],this_gun.playlist_solo[2],this_gun.playlist_solo[3],this_gun.playlist_solo[4],\
 	this_gun.playlist_solo[5],this_gun.playlist_solo[6],this_gun.playlist_solo[7],this_gun.playlist_solo[8],\
@@ -140,9 +141,10 @@ void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
 	this_gun.playlist_duo[5],this_gun.playlist_duo[6],this_gun.playlist_duo[7],this_gun.playlist_duo[8],\
 	this_gun.playlist_duo[9],this_gun.effect_duo,this_gun.playlist_duo_index,arduino.battery_level_pretty,\
 	arduino.temperature_pretty,arduino.packets_in_per_second,arduino.packets_out_per_second,arduino.framing_error,\
-	arduino.crc_error,arduino.cpuload,web_packet_counter++);
+	arduino.crc_error,arduino.cpuload,web_packet_counter++,this_gun.latency);
 	fflush(webout_fp);
 }
+
 
 
 int read_web_pipe(this_gun_struct& this_gun){
@@ -201,6 +203,29 @@ int read_web_pipe(this_gun_struct& this_gun){
 	return web_button;
 }
 
+void update_ping(float * ping){	
+	int count = 1;
+	char buffer[100];
+	//stdin is line buffered so we can cheat a little bit
+	while (count > 0){ // dump entire buffer
+		count = read(fileno(ping_fp), buffer, sizeof(buffer)-1);
+		if (count > 1){ //ignore blank lines
+			buffer[count-1] = '\0';
+			int placemarker = 0;
+			int equals_pos = 0;
+			while (placemarker < count-2){
+				if (buffer[placemarker] == '=') equals_pos++;
+				placemarker++;
+				if (equals_pos == 3){
+					sscanf(&buffer[placemarker],"%f", ping);
+					break;
+				}
+				
+			}
+		}
+	}
+	return;
+}
 
 void audio_effects(const this_gun_struct& this_gun){
 	

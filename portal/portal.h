@@ -24,6 +24,8 @@ struct this_gun_struct {
 	int8_t playlist_duo[playlist_duo_SIZE]={GST_NORMAL,GST_REVTV,GST_GLCUBE,GST_GLHEAT,GST_EDGETV,-1,-1,-1,-1,-1};
 	int8_t playlist_duo_index = 1;
 	int8_t effect_duo = GST_NORMAL;
+	
+	float latency = 0.0;
 };  
 
 struct other_gun_struct {

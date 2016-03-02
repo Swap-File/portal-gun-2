@@ -66,6 +66,8 @@ int main(void){
 		this_gun.state_solo_previous = this_gun.state_solo;
 		other_gun.state_previous = other_gun.state;
 		
+		update_ping(&this_gun.latency);
+		
 		int button_event = arduino_update(this_gun);
 
 		if (button_event == BUTTON_NONE) button_event = read_web_pipe(this_gun);

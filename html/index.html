@@ -94,8 +94,6 @@ Updates Per Minute:
 <td class="centertop"><div>
 <b><u>DUO PLAYLISTS</u></b><br>
 <input type="button" class="button_text" onclick="playlist_load(5)" value="Empty Duo"/><br>
-<input type="button" class="button_text" onclick="playlist_load(6)" value="TV Duo"/><br>
-<input type="button" class="button_text" onclick="playlist_load(7)" value="GL Duo"/><br>
 </div></td>
 <td class="centertop"><div>
 <b><u>SOLO PLAYLISTS</u></b><br>
@@ -273,7 +271,6 @@ var missed_packets = 3;
 var requested_mode = "preview";
 var connected_last = -1;
 var ir_pwm_last = -1;
-
 var state_duo = -1;
 var state_duo_last = -1;
 var state_solo = -1;
@@ -330,14 +327,6 @@ function playlist_load(num){
 	case 5:	
 		post_stuff('mode=4 4 -1 -1 -1 -1 -1 -1 -1 -1 -1');
 		requested_mode = "custom";
-		break;
-	case 6:	
-		post_stuff('mode=4 4 20 19 21 22 23 25 27 28 29');
-		requested_mode = "preview";
-		break;
-	case 7:	
-		post_stuff('mode=4 4 37 30 31 32 33 34 35 36 26');
-		requested_mode = "preview";
 		break;
 	}
 
@@ -500,7 +489,6 @@ function mode_set(){
 	playlist_div.style.display  = 'none'; 
 	custom_div.style.display  = 'none'; 
 	load_div.style.display  = 'none'; 
-	
 	if (loading == 0){
 		switch(requested_mode) {
 		case "preview":
@@ -643,7 +631,7 @@ function update_data() {
 					irselect.value = "256";
 					ir_pwm_last= ir_pwm;
 				}
-				
+			
 				var connected = parseInt(res[2]);
 				if (connected != connected_last){
 					if (connected == 1 ){
@@ -713,7 +701,8 @@ function update_data() {
 				//var arduino_cpu_load = parseInt(res[34]);
 				//var playlist_duo_array_index = parseInt(res[27]);
 				//var playlist_solo_array_index = parseInt(res[15]);
-
+				
+				
 				if(state_solo != state_solo_last || state_duo != state_duo_last){
 					if (state_solo == 0 && state_duo == 0){
 						portal_text.innerHTML = "";
@@ -783,6 +772,7 @@ function update_data() {
 						blueduo.style.color = "white";
 					}
 					update_portal_background();
+					//suppress initial modeset if portal app is closed
 					mode_set();
 					state_duo_last = state_duo;
 					state_solo_last = state_solo;
