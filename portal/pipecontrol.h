@@ -18,5 +18,5 @@ void launch_ahrs_control(void);
 void audio_effects(const this_gun_struct& this_gun);
 int read_web_pipe(this_gun_struct& this_gun);
 void update_ping(float * ping);
-
+void update_temp(float * ping);
 #endif

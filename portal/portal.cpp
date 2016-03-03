@@ -41,6 +41,7 @@ int main(void){
 	uint32_t time_udp_send = 0;
 	
 	//setup libaries
+	pipecontrol_cleanup();
 	int ip = udpcontrol_setup();
 	pipecontrol_setup(ip);
 	ledcontrol_setup();
@@ -66,6 +67,7 @@ int main(void){
 		this_gun.state_solo_previous = this_gun.state_solo;
 		other_gun.state_previous = other_gun.state;
 		
+		update_temp(&this_gun.coretemp);
 		update_ping(&this_gun.latency);
 		
 		int button_event = arduino_update(this_gun);
@@ -128,7 +130,7 @@ int main(void){
 			else if (this_gun.state_solo >= 4) ahrs_state = AHRS_OPEN_ORANGE;
 		}
 		
-		ahrs_command(2,2,2,ahrs_state);
+		ahrs_command(0,0,0,ahrs_state);
 		audio_effects(this_gun);
 		gst_command(gst_state);	
 
@@ -141,11 +143,12 @@ int main(void){
 			time_udp_send = this_gun.clock;
 			web_output(this_gun,arduino);
 		}
-
+		
 		//fps counter code
 		fps++;
 		if (time_fps < millis()){		
-			printf("MAIN FPS:%d missed: %d\n",fps,missed);
+			
+			printf("MAIN FPS:%d mis:%d\n",fps,missed);
 			fps = 0;
 			time_fps += 1000;
 			//readjust counter if we missed a cycle

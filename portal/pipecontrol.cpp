@@ -18,6 +18,7 @@
 uint8_t web_packet_counter = 0;
 int ip;
 
+int temp_in;
 int web_in;
 int gstreamer_crashes = 0;
 int ahrs_crashes = 0;
@@ -38,7 +39,6 @@ void pipecontrol_cleanup(void){
 
 void pipecontrol_setup(int new_ip){
 	ip = new_ip;
-	pipecontrol_cleanup();
 	
 	bash_fp = popen("bash", "w");
 	fcntl(fileno(bash_fp), F_SETFL, fcntl(fileno(bash_fp), F_GETFL, 0) | O_NONBLOCK);
@@ -47,21 +47,23 @@ void pipecontrol_setup(int new_ip){
 	launch_gst_control();
 	
 	mkfifo ("/tmp/FIFO_PIPE", 0777 );
-	//OPEN PIPE WITH READ ONLY
-	if ((web_in = open ("/tmp/FIFO_PIPE",  ( O_RDONLY | O_NONBLOCK ) ))<0) {
-		perror("WEB_PIPE: Could not open named pipe for reading.");
+	
+	if ((web_in = open ("/tmp/FIFO_PIPE",  ( O_RDONLY | O_NONBLOCK))) < 0) {
+		perror("WEB_IN: Could not open named pipe for reading.");
 		exit(-1);
 	}
-	fcntl(web_in, F_SETFL, fcntl(web_in, F_GETFL, 0) | O_NONBLOCK);
+	
+	if ((temp_in = open ("/sys/class/thermal/thermal_zone0/temp",  ( O_RDONLY | O_NONBLOCK))) < 0) {
+		perror("TEMP_IN: Could not open named pipe for reading.");
+		exit(-1);
+	}
 	
 	fprintf(bash_fp, "sudo chown www-data /tmp/FIFO_PIPE\n");
 	fflush(bash_fp);
 	
-	printf("WEB_PIPE has been opened.\n");
-	
 	webout_fp = fopen("/var/www/html/tmp/portal.txt", "w+");
 	fcntl(fileno(webout_fp), F_SETFL, fcntl(fileno(webout_fp), F_GETFL, 0) | O_NONBLOCK);
-	
+		
 	system("LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i 'input_file.so -f /var/www/html/tmp -n snapshot.jpg' -o 'output_http.so -w /usr/local/www' &");
 	
 	if (ip == 22)		ping_fp = popen("ping 192.168.1.23", "r");
@@ -114,34 +116,33 @@ void gst_command(int number){
 }
 
 void launch_gst_control(void){
-	printf("GST_CONTROL: SPAWNING PROCESS\n");
+	printf("GST_CONTROL : SPAWNING PROCESS\n");
 	if (ip == 22) gst_fp = popen("/home/pi/portal/gstvideo/gstvideo 22", "w");
 	else if (ip == 23) gst_fp = popen("/home/pi/portal/gstvideo/gstvideo 23", "w");
 	fcntl(fileno(gst_fp), F_SETFL, fcntl(fileno(gst_fp), F_GETFL, 0) | O_NONBLOCK);
 	fprintf(bash_fp, "sudo renice -n -20 $(pidof gstvideo)\n");
 	fflush(bash_fp);
-	printf("GST_CONTROL: READY\n");
+	printf("GST_CONTROL : READY\n");
 }
 
 
 void aplay(const char *filename){
-	printf("aplay %s\n",filename);
 	fprintf(bash_fp, "aplay %s &\n",filename);
 	fflush(bash_fp);
 }
 
 void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
 	rewind(webout_fp);
-	fprintf(webout_fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %d %d %d %d %d %d %.2f\n" ,\
-	this_gun.state_solo,this_gun.state_duo,this_gun.connected ,this_gun.ir_pwm,this_gun.playlist_solo[0],\
-	this_gun.playlist_solo[1],this_gun.playlist_solo[2],this_gun.playlist_solo[3],this_gun.playlist_solo[4],\
-	this_gun.playlist_solo[5],this_gun.playlist_solo[6],this_gun.playlist_solo[7],this_gun.playlist_solo[8],\
-	this_gun.playlist_solo[9],this_gun.effect_solo,this_gun.playlist_solo_index,this_gun.playlist_duo[0],\
-	this_gun.playlist_duo[1],this_gun.playlist_duo[2],this_gun.playlist_duo[3],this_gun.playlist_duo[4],\
-	this_gun.playlist_duo[5],this_gun.playlist_duo[6],this_gun.playlist_duo[7],this_gun.playlist_duo[8],\
-	this_gun.playlist_duo[9],this_gun.effect_duo,this_gun.playlist_duo_index,arduino.battery_level_pretty,\
-	arduino.temperature_pretty,arduino.packets_in_per_second,arduino.packets_out_per_second,arduino.framing_error,\
-	arduino.crc_error,arduino.cpuload,web_packet_counter++,this_gun.latency);
+	fprintf(webout_fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %.2f %.2f %d\n" ,\
+	this_gun.state_solo,this_gun.state_duo,this_gun.connected,this_gun.ir_pwm,\
+	this_gun.playlist_solo[0],this_gun.playlist_solo[1],this_gun.playlist_solo[2],this_gun.playlist_solo[3],\
+	this_gun.playlist_solo[4],this_gun.playlist_solo[5],this_gun.playlist_solo[6],this_gun.playlist_solo[7],\
+	this_gun.playlist_solo[8],this_gun.playlist_solo[9],this_gun.effect_solo,\
+	this_gun.playlist_duo[0],this_gun.playlist_duo[1],this_gun.playlist_duo[2],this_gun.playlist_duo[3],\
+	this_gun.playlist_duo[4],this_gun.playlist_duo[5],this_gun.playlist_duo[6],this_gun.playlist_duo[7],\
+	this_gun.playlist_duo[8],this_gun.playlist_duo[9],this_gun.effect_duo,\
+	arduino.battery_level_pretty,arduino.temperature_pretty,this_gun.coretemp,\
+	this_gun.latency,web_packet_counter++);
 	fflush(webout_fp);
 }
 
@@ -158,7 +159,7 @@ int read_web_pipe(this_gun_struct& this_gun){
 			buffer[count-1] = '\0';
 			//keep most recent line
 			int tv[11];
-			printf(" \n'%s'\n",buffer);
+			printf(" \nWeb Command: '%s'\n\n",buffer);
 			int results = sscanf(buffer,"%d %d %d %d %d %d %d %d %d %d %d", &tv[0],&tv[1],&tv[2],&tv[3],&tv[4],&tv[5],&tv[6],&tv[7],&tv[8],&tv[9],&tv[10]);
 			//button stuff
 			if (tv[0] == 1 && results == 2) {
@@ -174,8 +175,8 @@ int read_web_pipe(this_gun_struct& this_gun){
 			
 			//pad out array with repeat (-1) once encountered
 			if (results == 11){
-				int filler = 0;
-				for (int i = 1; i < 11; i++){
+				uint8_t filler = 0;
+				for (uint8_t i = 1; i < 11; i++){
 					if (tv[i] == -1) filler = -1;
 					if (filler == -1) tv[i] = -1;
 				}
@@ -187,13 +188,13 @@ int read_web_pipe(this_gun_struct& this_gun){
 			}
 			//self playlist setting
 			else if (tv[0] == 3 && results == 11) {
-				for (int i = 0; i < 10; i++){
+				for (uint8_t i = 0; i < 10; i++){
 					this_gun.playlist_solo[i] = tv[i+1];
 				}
 			}
 			//shared playlist setting
 			else if (tv[0] == 4 && results == 11) {
-				for (int i = 0; i < 10; i++){
+				for (uint8_t i = 0; i < 10; i++){
 					this_gun.playlist_duo[i] = tv[i+1];
 				}
 			}
@@ -220,10 +221,29 @@ void update_ping(float * ping){
 					sscanf(&buffer[placemarker],"%f", ping);
 					break;
 				}
-				
 			}
 		}
 	}
+	return;
+}
+
+void update_temp(float * temp){	
+	int count = 1;
+	char buffer[100];
+	//stdin is line buffered so we can cheat a little bit
+	while (count > 0){ // dump entire buffer
+		count = read(temp_in, buffer, sizeof(buffer)-1);
+		if (count > 0){ //ignore blank lines
+			buffer[count-1] = '\0';
+			int number;
+			sscanf(buffer,"%d", &number);
+			if (number > 0 && number  < 85000){
+				number = (number << 1) + 30000;
+				*temp = ((float)number) / (1000.0);
+			}
+		}
+	}
+	lseek(temp_in,0,SEEK_SET);
 	return;
 }
 

@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
 			double elapsedTime;
 			gettimeofday(&t1, NULL);
 			
-			printf("\nStarting Request: %d\n",requested_state);
+			printf("GST:  Starting Request: %d\n",requested_state);
 			
 			//figure out the correct app
 			switch (requested_state){
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
 				// compute and print the elapsed time in millisec
 				elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
 				elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
-				printf("GST Lag to enter mode %d: %f ms\n\n",requested_state,elapsedTime);	
+				printf("GST:  Lag to enter mode %d: %f ms\n",requested_state,elapsedTime);	
 				changes++;
 			}
 		}
@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
 		//fps calculations ran every second
 		fps++;
 		if (time_fps < millis()){
-			printf("POPEN FPS:%d  mis:%d changes:%d\n",fps,missed,changes);
+			printf("GST  FPS:%d  mis:%d changes:%d\n",fps,missed,changes);
 			fps = 0;
 			time_fps += 1000;
 			if (time_fps < millis()){

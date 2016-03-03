@@ -608,7 +608,7 @@ function update_data() {
 		}
 		if (this.status >= 200 && this.status < 400 ) {
 			var res = this.response.split(" ");
-			var packet_counter = parseInt(res[35]);
+			var packet_counter = parseInt(res[30]);
 			if (isNaN(packet_counter) == true || packet_counter == last_packet_counter){
 				missed_packets++;
 			}else{
@@ -661,7 +661,7 @@ function update_data() {
 				
 				var changes2 = 0;
 				for (i = 0; i < 10; i++) { 
-					var num = parseInt(res[16+i]);
+					var num = parseInt(res[15+i]);
 					if (playlist_duo_array[i] != num){
 						playlist_duo_array[i] = num;
 						changes2++;
@@ -682,27 +682,17 @@ function update_data() {
 				}
 				
 				effect_solo = parseInt(res[14]);
-				effect_duo = parseInt(res[26]);
+				effect_duo = parseInt(res[25]);
 
-				var arduino_battery_level = parseFloat(res[28]);
-				var arduino_temp = parseFloat(res[29]);
+				var arduino_battery_level = parseFloat(res[26]);
+				var arduino_temp = parseFloat(res[27]);
 				
 				if ((arduino_battery_level != arduino_battery_level_last) || (arduino_temp != arduino_temp_last)){
 					temp_batt_div.innerHTML = arduino_battery_level + " V  " + arduino_temp + " F";
 					arduino_battery_level_last = arduino_battery_level;
 					arduino_temp_last = arduino_temp;
 				}
-				
-				//crap I dont need
-				//var arduino_in_pps = parseInt(res[30]);
-				//var arduino_out_pps = parseInt(res[31]);
-				//var arduino_framing_error = parseInt(res[32]);
-				//var arduino_crc_error = parseInt(res[33]);
-				//var arduino_cpu_load = parseInt(res[34]);
-				//var playlist_duo_array_index = parseInt(res[27]);
-				//var playlist_solo_array_index = parseInt(res[15]);
-				
-				
+							
 				if(state_solo != state_solo_last || state_duo != state_duo_last){
 					if (state_solo == 0 && state_duo == 0){
 						portal_text.innerHTML = "";
@@ -772,12 +762,10 @@ function update_data() {
 						blueduo.style.color = "white";
 					}
 					update_portal_background();
-					//suppress initial modeset if portal app is closed
 					mode_set();
 					state_duo_last = state_duo;
 					state_solo_last = state_solo;
 				}
-	
 			}
 		}else{
 			missed_packets++;
@@ -826,7 +814,6 @@ function update_portal_background() {
 			portal_back.src = "";
 		}
 	}
-	
 }
 
 function setCookie(cname, cvalue, exdays) {

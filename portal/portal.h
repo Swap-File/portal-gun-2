@@ -26,7 +26,9 @@ struct this_gun_struct {
 	int8_t effect_duo = GST_NORMAL;
 	
 	float latency = 0.0;
+	float coretemp = 0.0;
 };  
+
 
 struct other_gun_struct {
 	int state = 0; //state read from other gun

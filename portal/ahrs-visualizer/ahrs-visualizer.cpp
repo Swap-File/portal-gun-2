@@ -282,23 +282,24 @@ int main(int argc, char *argv[])
 					buffer[count-1] = '\0'; //replace last char with string ending
 					//printf("!%s!\n",buffer);
 					//check the line
-					float temp[3];
-					int result = sscanf(buffer,"%f %f %f %d", &temp[0], &temp[2], &temp[1], &frame);
+					int temp[4];
+					
+					int result = sscanf(buffer,"%d %d %d %d", &temp[0], &temp[2], &temp[1], &temp[3]);
 					if (result != 4){
 						fprintf(stderr, "AHRS_Process: Unrecognized input with %d items.\n", result);
 					}else{
 						acceleration[0] = temp[0] * -1.0;
-						acceleration[1] = temp[1] * -1.0;	
-						acceleration[2] = temp[2];	
-						if (state != frame){
-							printf("AHRS_Process: %d\n",frame);
-							state = frame;
-						}		
+						acceleration[1] = temp[1] * -1.0;
+						acceleration[2] = temp[2];
+						frame = temp[3];
 					}
 					
 				}
 			}
-			
+			if (state != frame){
+				printf("AHRS_Process: Mode %d\n",frame);
+				state = frame;
+			}	
 			redraw_scene();
 
 			fps++;
