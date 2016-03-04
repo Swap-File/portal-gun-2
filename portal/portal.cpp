@@ -39,6 +39,7 @@ int main(void){
 	uint32_t time_fps = 0;
 	int fps = 0;
 	uint32_t time_udp_send = 0;
+	uint32_t time_delay = 0;
 	
 	//setup libaries
 	pipecontrol_cleanup();
@@ -55,9 +56,10 @@ int main(void){
 		if (predicted_delay > 10) predicted_delay = 0; //check for overflow
 		if (predicted_delay != 0){
 			delay(predicted_delay); 
+			time_delay += predicted_delay;
 		}else{
 			time_start = millis(); //reset timer to now
-			printf("MAIN has missed cycle(s), Skipping...\n");
+			printf("MAIN Skipping Idle...\n");
 			missed++;
 		}
 		
@@ -148,8 +150,9 @@ int main(void){
 		fps++;
 		if (time_fps < millis()){		
 			
-			printf("MAIN FPS:%d mis:%d\n",fps,missed);
+			printf("MAIN FPS:%d mis:%d idle:%d%%\n",fps,missed,time_delay/10);
 			fps = 0;
+			time_delay = 0;
 			time_fps += 1000;
 			//readjust counter if we missed a cycle
 			if (time_fps < millis()) time_fps = millis() + 1000;

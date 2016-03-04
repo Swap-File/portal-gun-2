@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	const char *arg1_gst[]  = {"popen"};
+	const char *arg1_gst[]  = {"gstvideo"};
 	const char *arg2_gst[]  = {"--gst-disable-registry-update"};
 	const char *arg3_gst[]  = {"--gst-debug-level=0"};
 	char ** argv_gst[3] = {(char **)arg1_gst,(char **)arg2_gst,(char **)arg3_gst};
@@ -100,6 +100,7 @@ int main(int argc, char *argv[]) {
 	int missed = 0;
 	uint32_t time_fps = 0;
 	int fps = 0;
+	uint32_t time_delay = 0;
 	
 	//non blocking sdtin read
 	fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
@@ -110,10 +111,11 @@ int main(int argc, char *argv[]) {
 		uint32_t predicted_delay = time_start - millis(); //calc predicted delay
 		if (predicted_delay > 20) predicted_delay = 0; //check for overflow
 		if (predicted_delay != 0){
-			delay(predicted_delay); 
+			delay(predicted_delay);
+			time_delay += predicted_delay;			
 		}else{
 			time_start = millis(); //reset timer to now
-			//printf("GST_VIDEO has missed cycle(s), Skipping...\n");
+			printf("GST  Skipping Idle...\n");
 			missed++;
 		}
 			
@@ -128,7 +130,7 @@ int main(int argc, char *argv[]) {
 				int temp_state = 0;
 				int result = sscanf(buffer,"%d", &temp_state);
 				if (result != 1){
-					fprintf(stderr, "POPEN_Process: Unrecognized input with %d items.\n", result);
+					fprintf(stderr, "GST  Unrecognized input with %d items.\n", result);
 				}else{
 					requested_state = temp_state;
 				}
@@ -142,7 +144,7 @@ int main(int argc, char *argv[]) {
 			double elapsedTime;
 			gettimeofday(&t1, NULL);
 			
-			printf("GST:  Starting Request: %d\n",requested_state);
+			printf("GST  Starting Request: %d\n",requested_state);
 			
 			//figure out the correct app
 			switch (requested_state){
@@ -203,14 +205,20 @@ int main(int argc, char *argv[]) {
 			if (active_state != requested_state){
 
 				//kill old pieline
-				gst_element_set_state (pipeline, GST_STATE_NULL);
-				gst_object_unref (pipeline);
+				if (GST_IS_ELEMENT(pipeline)){
+					gst_element_set_state (pipeline, GST_STATE_NULL);
+					gst_object_unref (pipeline);
+				}
 				
 				//make new pipeline
-				pipeline = gst_parse_launch (new_cmd, NULL);
+				if (new_cmd != blank){
+					pipeline = gst_parse_launch (new_cmd, NULL);
+				}
 				
 				//new start pipeline
-				gst_element_set_state (pipeline, GST_STATE_PLAYING);
+				if (GST_IS_ELEMENT(pipeline)){
+					gst_element_set_state (pipeline, GST_STATE_PLAYING);
+				}
 				
 				//mark request as completed
 				active_state = requested_state;
@@ -229,8 +237,9 @@ int main(int argc, char *argv[]) {
 		//fps calculations ran every second
 		fps++;
 		if (time_fps < millis()){
-			printf("GST  FPS:%d  mis:%d changes:%d\n",fps,missed,changes);
+			printf("GST  FPS:%d  mis:%d idle:%d%% changes:%d\n",fps,missed,time_delay/10,changes);
 			fps = 0;
+			time_delay = 0;
 			time_fps += 1000;
 			if (time_fps < millis()){
 				time_fps = millis()+1000;

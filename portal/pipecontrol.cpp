@@ -23,7 +23,7 @@ int web_in;
 int gstreamer_crashes = 0;
 int ahrs_crashes = 0;
 
-FILE *webout_fp;
+
 FILE *bash_fp;
 FILE *ahrs_fp;
 FILE *gst_fp;
@@ -61,8 +61,7 @@ void pipecontrol_setup(int new_ip){
 	fprintf(bash_fp, "sudo chown www-data /tmp/FIFO_PIPE\n");
 	fflush(bash_fp);
 	
-	webout_fp = fopen("/var/www/html/tmp/portal.txt", "w+");
-	fcntl(fileno(webout_fp), F_SETFL, fcntl(fileno(webout_fp), F_GETFL, 0) | O_NONBLOCK);
+
 		
 	system("LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i 'input_file.so -f /var/www/html/tmp -n snapshot.jpg' -o 'output_http.so -w /usr/local/www' &");
 	
@@ -132,7 +131,8 @@ void aplay(const char *filename){
 }
 
 void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
-	rewind(webout_fp);
+	FILE *webout_fp;
+	webout_fp = fopen("/var/www/html/tmp/temp.txt", "w");
 	fprintf(webout_fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %.2f %.2f %.2f %.2f %d\n" ,\
 	this_gun.state_solo,this_gun.state_duo,this_gun.connected,this_gun.ir_pwm,\
 	this_gun.playlist_solo[0],this_gun.playlist_solo[1],this_gun.playlist_solo[2],this_gun.playlist_solo[3],\
@@ -143,7 +143,8 @@ void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
 	this_gun.playlist_duo[8],this_gun.playlist_duo[9],this_gun.effect_duo,\
 	arduino.battery_level_pretty,arduino.temperature_pretty,this_gun.coretemp,\
 	this_gun.latency,web_packet_counter++);
-	fflush(webout_fp);
+	fclose(webout_fp);
+	rename("/var/www/html/tmp/temp.txt","/var/www/html/tmp/portal.txt");
 }
 
 

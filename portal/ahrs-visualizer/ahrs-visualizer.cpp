@@ -249,13 +249,15 @@ int main(int argc, char *argv[])
 		projection_init();
 		textures_init();
 		model_board_init();
-		printf("AHRS_Process: Textures have been loaded.\n");
+		printf("AHRS Textures loaded\n");
 		fflush(stdout);
 		
 		uint32_t time_start = 0;
 		int missed = 0;
 		uint32_t time_fps = 0;
 		int fps = 0;
+		uint32_t time_delay = 0;
+			
 		//non blocking sdtin read
 		fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
 	
@@ -267,9 +269,10 @@ int main(int argc, char *argv[])
 			if (predicted_delay > 20) predicted_delay = 0; //check for overflow
 			if (predicted_delay != 0){
 				delay(predicted_delay); 
+				time_delay += predicted_delay;
 			}else{
 				time_start = millis(); //reset timer to now
-				//printf("GST_VIDEO has missed cycle(s), Skipping...\n");
+				printf("AHRS Skipping Idle...\n");
 				missed++;
 			}
 
@@ -286,7 +289,7 @@ int main(int argc, char *argv[])
 					
 					int result = sscanf(buffer,"%d %d %d %d", &temp[0], &temp[2], &temp[1], &temp[3]);
 					if (result != 4){
-						fprintf(stderr, "AHRS_Process: Unrecognized input with %d items.\n", result);
+						fprintf(stderr, "AHRS Unrecognized input with %d items.\n", result);
 					}else{
 						acceleration[0] = temp[0] * -1.0;
 						acceleration[1] = temp[1] * -1.0;
@@ -297,15 +300,16 @@ int main(int argc, char *argv[])
 				}
 			}
 			if (state != frame){
-				printf("AHRS_Process: Mode %d\n",frame);
+				printf("AHRS Entering Mode %d\n",frame);
 				state = frame;
 			}	
 			redraw_scene();
 
 			fps++;
 			if (time_fps < millis()){
-				printf("AHRS FPS:%d  mis:%d\n",fps,missed);
+				printf("AHRS FPS:%d  mis:%d idle:%d%%\n",fps,missed,time_delay/10);
 				fps = 0;
+				time_delay = 0;
 				time_fps += 1000;
 				if (time_fps < millis()) time_fps = millis()+1000;	
 			}		
