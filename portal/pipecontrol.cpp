@@ -14,7 +14,9 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <sys/time.h>  
+#include <wiringPi.h>
 
+uint32_t ping_time = 0;
 uint8_t web_packet_counter = 0;
 int ip;
 
@@ -23,12 +25,17 @@ int web_in;
 int gstreamer_crashes = 0;
 int ahrs_crashes = 0;
 
-
 FILE *bash_fp;
 FILE *ahrs_fp;
 FILE *gst_fp;
 FILE *ping_fp;
 
+uint8_t temp_index = 0;
+uint32_t temp_array[256];
+uint32_t temp_total;
+uint32_t temp_level;
+bool temp_first_cycle = true;
+					
 void pipecontrol_cleanup(void){
 	printf("KILLING OLD PROCESSES\n");
 	system("pkill gst");
@@ -45,29 +52,31 @@ void pipecontrol_setup(int new_ip){
 
 	launch_ahrs_control();
 	launch_gst_control();
+
+	mkfifo ("/home/pi/FIFO_PIPE", 0777 );
 	
-	mkfifo ("/tmp/FIFO_PIPE", 0777 );
-	
-	if ((web_in = open ("/tmp/FIFO_PIPE",  ( O_RDONLY | O_NONBLOCK))) < 0) {
+	if ((web_in = open ("/home/pi/FIFO_PIPE",  ( O_RDONLY | O_NONBLOCK))) < 0) {
 		perror("WEB_IN: Could not open named pipe for reading.");
 		exit(-1);
 	}
+	
+	fprintf(bash_fp, "sudo chown www-data /home/pi/FIFO_PIPE\n");
+	fflush(bash_fp);
 	
 	if ((temp_in = open ("/sys/class/thermal/thermal_zone0/temp",  ( O_RDONLY | O_NONBLOCK))) < 0) {
 		perror("TEMP_IN: Could not open named pipe for reading.");
 		exit(-1);
 	}
-	
-	fprintf(bash_fp, "sudo chown www-data /tmp/FIFO_PIPE\n");
-	fflush(bash_fp);
-	
-
 		
 	system("LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i 'input_file.so -f /var/www/html/tmp -n snapshot.jpg' -o 'output_http.so -w /usr/local/www' &");
 	
 	if (ip == 22)		ping_fp = popen("ping 192.168.1.23", "r");
 	else if (ip == 23)	ping_fp = popen("ping 192.168.1.22", "r");
 	fcntl(fileno(ping_fp), F_SETFL, fcntl(fileno(ping_fp), F_GETFL, 0) | O_NONBLOCK);
+	
+	//empty named pipe
+	char buffer[100]; 
+	while(read(web_in, buffer, sizeof(buffer)-1));
 
 }
 
@@ -147,8 +156,6 @@ void web_output(const this_gun_struct& this_gun,const arduino_struct& arduino ){
 	rename("/var/www/html/tmp/temp.txt","/var/www/html/tmp/portal.txt");
 }
 
-
-
 int read_web_pipe(this_gun_struct& this_gun){
 	int web_button = BUTTON_NONE;
 	int count = 1;
@@ -160,7 +167,7 @@ int read_web_pipe(this_gun_struct& this_gun){
 			buffer[count-1] = '\0';
 			//keep most recent line
 			int tv[11];
-			printf(" \nWeb Command: '%s'\n\n",buffer);
+			printf("MAIN Web Command: '%s'\n",buffer);
 			int results = sscanf(buffer,"%d %d %d %d %d %d %d %d %d %d %d", &tv[0],&tv[1],&tv[2],&tv[3],&tv[4],&tv[5],&tv[6],&tv[7],&tv[8],&tv[9],&tv[10]);
 			//button stuff
 			if (tv[0] == 1 && results == 2) {
@@ -220,11 +227,13 @@ void update_ping(float * ping){
 				placemarker++;
 				if (equals_pos == 3){
 					sscanf(&buffer[placemarker],"%f", ping);
+					ping_time = millis();
 					break;
 				}
 			}
 		}
 	}
+	if (millis() - ping_time > 2000) *ping = 0.0;
 	return;
 }
 
@@ -239,8 +248,25 @@ void update_temp(float * temp){
 			int number;
 			sscanf(buffer,"%d", &number);
 			if (number > 0 && number  < 85000){
-				number = (number << 1) + 30000;
-				*temp = ((float)number) / (1000.0);
+				number = (number * 9/5) + 32000;
+				
+				if (temp_first_cycle){
+					//preload filters with data if empty
+					for ( int i = 0; i < 256; i++ ) temp_array[i] = number;
+					temp_total = 256*number;
+					temp_level = number;
+					temp_first_cycle = false;
+				}
+				
+				temp_total -= temp_array[temp_index];
+				temp_array[temp_index] = number;
+				temp_total += temp_array[temp_index++];
+				
+				//if (temp_index>63) temp_index = 0;
+				
+				float temp_temp = ((float)(temp_total >> 8)) / (1000.0);
+				*temp = temp_temp;
+				//*temp = *temp * .5 + .5 *temp_temp;
 			}
 		}
 	}

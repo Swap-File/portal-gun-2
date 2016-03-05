@@ -75,3 +75,9 @@ body {
 	top: 100px;
 	z-index: 100;
 }
+
+#temp_div,#batt_div {
+	
+	font-size: 85%;
+	
+}

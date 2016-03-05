@@ -40,6 +40,7 @@ int main(void){
 	int fps = 0;
 	uint32_t time_udp_send = 0;
 	uint32_t time_delay = 0;
+	int changes = 0;
 	
 	//setup libaries
 	pipecontrol_cleanup();
@@ -104,6 +105,7 @@ int main(void){
 		
 		//process state changes
 		local_state_engine(button_event,this_gun,other_gun);
+		if (button_event != BUTTON_NONE) changes++;
 		
 		//special handling of videos
 		if (gst_state >= GST_MOVIE_FIRST && gst_state <= GST_MOVIE_LAST){
@@ -149,8 +151,7 @@ int main(void){
 		//fps counter code
 		fps++;
 		if (time_fps < millis()){		
-			
-			printf("MAIN FPS:%d mis:%d idle:%d%%\n",fps,missed,time_delay/10);
+			printf("MAIN FPS:%d mis:%d idle:%d%% changes:%d\n",fps,missed,time_delay/10,changes);
 			fps = 0;
 			time_delay = 0;
 			time_fps += 1000;

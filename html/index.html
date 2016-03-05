@@ -21,7 +21,8 @@
 <option value="switch">Switch Guns</option>
 </select>
 </td>
-<td><div id="temp_batt_div"></div></td>
+<td><div id="batt_div"></div></td>
+<td><div id="temp_div"></div></td>
 </tr>
 </table>
 <br>
@@ -262,10 +263,10 @@ if (update_rate == ""){
 update_speed.value = update_rate;
 
 var loading = 1;
-
+var latency_last = -1;
 var effect_solo = -1;
 var effect_duo = -1;
-
+var core_temp_last = -1;
 var last_packet_counter = -1;
 var missed_packets = 3;
 var requested_mode = "preview";
@@ -383,6 +384,8 @@ function update_custom_buttons(){
 function reinit_all(){
 	//set everything to impossible values to force state change on next load
 	loading = 1;
+	latency_last = -1;
+	core_temp_last = -1;
 	requested_mode = "preview";
 	connected_last = -1;
 	state_duo = -1;
@@ -685,14 +688,23 @@ function update_data() {
 				effect_duo = parseInt(res[25]);
 
 				var arduino_battery_level = parseFloat(res[26]);
-				var arduino_temp = parseFloat(res[27]);
+				var arduino_temp = Math.floor(parseFloat(res[27]));
+				var core_temp = Math.floor(parseFloat(res[28]));
+				var latency = Math.floor(parseFloat(res[29]));
 				
-				if ((arduino_battery_level != arduino_battery_level_last) || (arduino_temp != arduino_temp_last)){
-					temp_batt_div.innerHTML = arduino_battery_level + " V  " + arduino_temp + " F";
+				if ((arduino_battery_level != arduino_battery_level_last) || (latency != latency_last)){
+					batt_div.innerHTML = arduino_battery_level + "V<br>" + latency + "ms";
 					arduino_battery_level_last = arduino_battery_level;
-					arduino_temp_last = arduino_temp;
+					latency_last = latency;
 				}
-							
+				
+				if ( (arduino_temp != arduino_temp_last) || (core_temp != core_temp_last) ){
+					temp_div.innerHTML = arduino_temp + "F<br>" + core_temp + "F";
+					arduino_temp_last = arduino_temp;
+					core_temp_last = core_temp;
+				}
+					
+					
 				if(state_solo != state_solo_last || state_duo != state_duo_last){
 					if (state_solo == 0 && state_duo == 0){
 						portal_text.innerHTML = "";

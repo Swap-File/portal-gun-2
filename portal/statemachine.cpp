@@ -7,14 +7,14 @@ void local_state_engine(int button, this_gun_struct& this_gun, other_gun_struct&
 	if (this_gun.clock - other_gun.last_seen > GUN_EXPIRE) {
 		if (this_gun.connected != false){
 			this_gun.connected = false;
-			printf("\nGun Expired\n");	
+			printf("MAIN Gun Expired\n");	
 		}
 		other_gun.state = 0;
 	}
 	else {
 		if(this_gun.connected == false){
 			this_gun.connected = true;
-			printf("\nGun Connected\n");
+			printf("MAIN Gun Connected\n");
 		}
 	}
 		

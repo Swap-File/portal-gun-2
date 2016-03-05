@@ -19,7 +19,7 @@ uint8_t incoming_decoded_buffer[INCOMING_BUFFER_SIZE];
 
 int framing_error = 0;
 int crc_error =0;
-
+uint32_t arduino_time = 0;
 struct arduino_struct *arduino;
 
 int fd;
@@ -37,6 +37,15 @@ float temperature_reading(int input){
 }
 
 int arduino_update(const struct this_gun_struct& this_gun ){
+	
+	if (millis() - arduino_time > 100){
+		arduino->cpuload = 0;
+		arduino->battery_level_pretty = 0;
+		arduino->temperature_pretty = 0;	
+		arduino->packets_in_per_second = 0;
+		arduino->packets_out_per_second = 0;
+		arduino->first_cycle = true;
+	} 
 	
 	//default lights
 	uint8_t orange_pwm = (this_gun.connected) ? this_gun.brightness : 127;
@@ -149,8 +158,7 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 	
 			arduino->battery_total -= arduino->battery[arduino->battery_index];
 			arduino->battery[arduino->battery_index] = buffer[26] << 8 | buffer[27]; 
-			arduino->battery_total += arduino->battery[arduino->battery_index];
-			arduino->battery_index++;
+			arduino->battery_total += arduino->battery[arduino->battery_index++];
 
 			arduino->battery_level = (arduino->battery_level) *.8 + .2*(arduino->battery_total >> 8);
 			
@@ -168,7 +176,7 @@ int onPacket(const uint8_t* buffer, uint8_t size)
 			//printf("Temp: %2.2f  %2.2f \n",arduino->temperature_pretty, arduino->battery_level_pretty);
 			//printf("PPSIN: %d  PPSOUT: %d  FRAMING: %d CRC: %d\n",packets_in_per_second ,packets_out_per_second,framing_error ,crc_error);
 			
-			
+			arduino_time = millis();
 			//scan for button presses
 			
 			if (!arduino->blue_button && arduino->blue_button_previous){

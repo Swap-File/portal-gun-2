@@ -26,7 +26,7 @@
 
 #define MAX 100
 
-
+int changes = 0;
 int frame = 0;
 int state = 0;
 /* OpenGL rotation matrix that converts board coordinates
@@ -302,12 +302,13 @@ int main(int argc, char *argv[])
 			if (state != frame){
 				printf("AHRS Entering Mode %d\n",frame);
 				state = frame;
+				changes++;
 			}	
 			redraw_scene();
 
 			fps++;
 			if (time_fps < millis()){
-				printf("AHRS FPS:%d  mis:%d idle:%d%%\n",fps,missed,time_delay/10);
+				printf("AHRS FPS:%d  mis:%d idle:%d%% changes:%d\n",fps,missed,time_delay/10, changes);
 				fps = 0;
 				time_delay = 0;
 				time_fps += 1000;
