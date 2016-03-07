@@ -401,6 +401,16 @@ function reinit_all(){
 	playlist_duo_array = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
 	arduino_battery_level_last = -1;
 	arduino_temp_last = -1;
+	
+	orangeduo.style.backgroundColor = "";
+	orangeduo.style.color = "transparent";		
+	blueduo.style.backgroundColor = "";
+	blueduo.style.color = "transparent";	
+	bluesolo.style.backgroundColor = "";
+	bluesolo.style.color = "transparent";	
+	orangesolo.style.backgroundColor = "";		
+	orangesolo.style.color = "transparent";	
+	
 	mode_set();
 }
 
@@ -704,8 +714,8 @@ function update_data() {
 					core_temp_last = core_temp;
 				}
 					
-					
-				if(state_solo != state_solo_last || state_duo != state_duo_last){
+
+				if((state_solo != state_solo_last || state_duo != state_duo_last) && loading == 0){
 					if (state_solo == 0 && state_duo == 0){
 						portal_text.innerHTML = "";
 						portal_back.src = "blank.png";
@@ -729,8 +739,6 @@ function update_data() {
 						orangeduo.style.color = "transparent";
 						blueduo.style.backgroundColor = "";
 						blueduo.style.color = "transparent";
-						bluesolo.style.backgroundColor = "blue";
-						bluesolo.style.color = "transparent";
 						bluesolo.style.backgroundColor = "";
 						bluesolo.style.color = "transparent";
 						orangesolo.style.backgroundColor = "orange";
