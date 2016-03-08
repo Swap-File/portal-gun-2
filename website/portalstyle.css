@@ -7,5 +7,46 @@ body {
    margin:auto;
 }
 .auto_margin {
-    margin: 0 auto;
+    margin: auto;
+}
+.portal_image {
+	position: absolute;
+	top: 130;
+	left:0;
+	right:0;
+	margin-left:auto;
+	margin-right:auto;
+	height: 400;
+	width: 240;
+}
+
+.imageWrapper {
+	position: relative;
+}
+
+#portal_back {
+	z-index: 98;
+}
+
+#portal_front{
+	z-index: 99;
+}
+
+.container {
+    overflow: hidden;
+	width: 300px;
+		left:0;
+	right:0;
+	margin-left:auto;
+	margin-right:auto;
+}
+.floatleft {
+    float: left;
+}
+.floatright {
+    float: right;
+}
+.txt{
+	
+	margin-top: 20px;
 }
