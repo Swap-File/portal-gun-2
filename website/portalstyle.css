@@ -1,44 +1,33 @@
 body {
 	background-color: black;
 	color: white;	
+	width: 300px;
 	text-align: center;
 	font-family: Arial;
-	   display:block;
-   margin:auto;
+	display: block;
+	margin: auto;
 }
 .auto_margin {
     margin: auto;
 }
 .portal_image {
 	position: absolute;
-	top: 130;
-	left:0;
-	right:0;
+	left: 0;
+	right: 0;
 	margin-left:auto;
 	margin-right:auto;
-	height: 400;
-	width: 240;
 }
-
 .imageWrapper {
 	position: relative;
 }
-
 #portal_back {
 	z-index: 98;
 }
-
 #portal_front{
 	z-index: 99;
 }
-
 .container {
     overflow: hidden;
-	width: 300px;
-		left:0;
-	right:0;
-	margin-left:auto;
-	margin-right:auto;
 }
 .floatleft {
     float: left;
@@ -46,7 +35,14 @@ body {
 .floatright {
     float: right;
 }
-.txt{
-	
-	margin-top: 20px;
+#titletxt{
+	font-size: 33px;
+	margin-top: 19px;
+}
+
+#gordontxt,#chelltxt{
+	font-size: 24px;
+}
+#gordonstats,#chellstats{
+	font-size: 15px;
 }

@@ -9,53 +9,97 @@
 </head>
 <body>
 
-
 <div class="container">
-	<img class="floatleft" src="lb.png">
-    <img class="floatright" src="ro.png">
-    <div class="txt">
-       <font size="6">Portal Guns 2.0</font>
-    </div>
+<img class="floatleft" id="leftlogo" alt="" src="lb.png">
+<img class="floatright" id="rightlogo" alt="" src="ro.png">
+<div id="titletxt">Portal Guns 2.0</div>
 </div>
 
-<table class="auto_margin">
-  <tr>
-    <td>Gordon - Offline</td>
-    <td>1ms Lag</td>
-  </tr>
-  <tr>
-    <td>12.32v</td>
-    <td>Core: 125F</td> 
-    <td>Exhaust: 80F</td>
-  </tr>
-</table>
-
-<table class="auto_margin">
-  <tr>
-    <td>Chell - Offline</td>
-    <td>1ms Lag</td>
-  </tr>
-  <tr>
-    <td>12.32v</td>
-    <td>Core: 115F</td> 
-    <td>Exhaust: 84F</td>
-  </tr>
-</table>
-
+<div id="gordontxt">Gordon - Offline</div>
+<div id="gordonstats">16.2v 1ms 125F 80F</div>
+<div id="chelltxt">Chell - Offline</div>
+<div id="chellstats">16.2v 1ms 125F 80F</div>
+<br>
 <div class="auto_margin" id="imageWrapper"> 
-<img class="portal_image" id="portal_back" alt="" src="orange_0.jpg">
+<img class="portal_image" id="portal_back" alt="" src="blank.png">
 <img class="portal_image" id="portal_front" alt="" src="orange_portal.png">
 <div id="portal_text"></div>
 <img alt="" src="blank.png">
-<br>
+<br><br>
+
 <div id="timestamp">Last Seen 07-05-2015 at 10:01:03pm</div>
-<a href="http://192.168.1.22">Gordon</a>
+
+<div class="container">
+<a class="floatleft" href="http://192.168.1.22">Gordon</a>
+<a class="floatright" href="http://192.168.1.23">Chell</a>
 <a href="https://github.com/Swap-File/portal-gun-2">View Code</a>
-<a href="http://192.168.1.23">Chell</a>
 </div>
 
-
-
 </div>
+<script>
 
+var views = getCookie("views");
+if (views == ""){
+	setCookie("views", "0", 365);
+	views = 0;
+}else{
+	views= parseInt(views);
+}
+
+main_loop();
+
+function main_loop(){
+
+	increment_idle_view();
+	
+	setTimeout(main_loop,1000);
+}
+
+
+function increment_idle_view(){
+	views++;
+	if (views > 3 || views < 0) { views = 0;}
+	switch(views) {
+	case 0:
+		leftlogo.src = "lo.png"
+		rightlogo.src = "rb.png"
+		portal_front.src = "blue_portal.png";
+		break;
+	case 1:
+		leftlogo.src = "lb.png"
+		rightlogo.src = "ro.png"
+		portal_front.src = "blue_portal.png";
+		break;
+	case 2:	
+		leftlogo.src = "lo.png"
+		rightlogo.src = "rb.png"
+		portal_front.src = "orange_portal.png";
+		break;
+	case 3:	
+		leftlogo.src = "lb.png"
+		rightlogo.src = "ro.png"
+		portal_front.src = "orange_portal.png";
+		break;
+	}
+	setCookie("views", views, 365);
+}
+
+function setCookie(cname, cvalue, exdays) {
+	var d = new Date();
+	d.setTime(d.getTime() + (exdays*24*60*60*1000));
+	var expires = "expires="+d.toUTCString();
+	document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+function getCookie(cname) {
+	var name = cname + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0; i<ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1);
+		if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+	}
+	return "";
+}
+</script>
 </body>
+</html>
