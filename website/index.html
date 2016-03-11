@@ -10,9 +10,9 @@
 <body>
 
 <div class="container">
-<img class="floatleft" id="leftlogo" alt="" src="lb.png">
+<a href="http://www.portalguns.com"><img class="floatleft" id="leftlogo" alt="" src="lb.png">
 <img class="floatright" id="rightlogo" alt="" src="ro.png">
-<div id="titletxt">Portal Guns 2.0</div>
+<div id="titletxt">Portal Guns 2.0</div></a>
 </div>
 
 <div id="gordontxt">Gordon - Offline</div>
@@ -26,14 +26,48 @@
 
 <div class="portal_image" id="portaloverlay">
 
-<div class="floatleft"><a class="floatleft" href="http://192.168.1.22">Gordon</a><br>
-<a class="floatright" href="http://192.168.1.23">Chell</a></div>
-<div class="floatright"><a href="https://github.com/Swap-File/portal-gun-2">View<br>Code</a></div>
-Test Overlap
+<div class="floatleft codebutton" id="histdiv" onmouseenter="histov(1)" onmouseleave="histov(0)" onClick="javascript:location.href='hist.html';">
+<img alt="" width="35" id="histimg" height="35" src="hist.png" /><br>History</div>
+
+
+<div class="floatright codebutton" id="codediv" onmouseenter="codeov(1)" onmouseleave="codeov(0)" onClick="javascript:location.href='https://github.com/Swap-File/portal-gun-2';">
+<img alt="" width="35" id="codeimg" height="35" src="code.png" /><br>Code</div>
+
 </div>
 
 
 <script>
+
+function codeov(state){
+	if (state == 1){
+		if (hovers % 2){
+			codeimg.src = "codeo.png";
+		}else{
+			codeimg.src = "codeb.png";
+		}
+		codediv.style.backgroundColor = "#707070";
+		hovers++;
+	}else{
+		codeimg.src = "code.png";
+		codediv.style.backgroundColor = "#404040";
+	}
+}
+
+function histov(state){
+	if (state == 1){
+		if (hovers% 2){
+			histimg.src = "histo.png";
+		}else{
+			histimg.src = "histb.png";
+		}
+		histdiv.style.backgroundColor = "#707070";
+		hovers++;
+	}else{
+		histimg.src = "hist.png";
+		histdiv.style.backgroundColor = "#404040";
+	}
+}
+
 
 var views = getCookie("views");
 if (views == ""){
@@ -42,6 +76,8 @@ if (views == ""){
 }else{
 	views= parseInt(views);
 }
+
+var hovers = views;
 
 main_loop();
 
