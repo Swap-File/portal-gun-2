@@ -20,22 +20,19 @@
 <div id="chelltxt">Chell - Offline</div>
 <div id="chellstats">16.2v 1ms 125F 80F</div>
 <br>
-<div class="auto_margin" id="imageWrapper"> 
+
 <img class="portal_image" id="portal_back" alt="" src="blank.png">
 <img class="portal_image" id="portal_front" alt="" src="orange_portal.png">
-<div id="portal_text"></div>
-<img alt="" src="blank.png">
-<br><br>
 
-<div id="timestamp">Last Seen 07-05-2015 at 10:01:03pm</div>
+<div class="portal_image" id="portaloverlay">
 
-<div class="container">
-<a class="floatleft" href="http://192.168.1.22">Gordon</a>
-<a class="floatright" href="http://192.168.1.23">Chell</a>
-<a href="https://github.com/Swap-File/portal-gun-2">View Code</a>
+<div class="floatleft"><a class="floatleft" href="http://192.168.1.22">Gordon</a><br>
+<a class="floatright" href="http://192.168.1.23">Chell</a></div>
+<div class="floatright"><a href="https://github.com/Swap-File/portal-gun-2">View<br>Code</a></div>
+Test Overlap
 </div>
 
-</div>
+
 <script>
 
 var views = getCookie("views");
@@ -52,7 +49,7 @@ function main_loop(){
 
 	increment_idle_view();
 	
-	setTimeout(main_loop,1000);
+	setTimeout(main_loop,3000);
 }
 
 
@@ -64,21 +61,37 @@ function increment_idle_view(){
 		leftlogo.src = "lo.png"
 		rightlogo.src = "rb.png"
 		portal_front.src = "blue_portal.png";
+		gordontxt.innerHTML = "Gordon - Offline";
+		chelltxt.innerHTML = "Chell - Offline";
+		gordonstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
+		chellstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
 		break;
 	case 1:
 		leftlogo.src = "lb.png"
 		rightlogo.src = "ro.png"
 		portal_front.src = "blue_portal.png";
+		gordontxt.innerHTML = "Gordon - Online";
+		chelltxt.innerHTML = "Chell - Offline";
+		gordonstats.innerHTML =  "16.2v 1ms 125F 80F"
+		chellstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
 		break;
 	case 2:	
 		leftlogo.src = "lo.png"
 		rightlogo.src = "rb.png"
 		portal_front.src = "orange_portal.png";
+		gordontxt.innerHTML = "Gordon - Offline";
+		chelltxt.innerHTML = "Chell - Online";
+		gordonstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
+		chellstats.innerHTML =  "16.2v 1ms 125F 80F"
 		break;
 	case 3:	
 		leftlogo.src = "lb.png"
 		rightlogo.src = "ro.png"
 		portal_front.src = "orange_portal.png";
+		gordontxt.innerHTML = "Gordon - Synced";
+		chelltxt.innerHTML = "Chell - Synced";
+		gordonstats.innerHTML =  "16.2v 1ms 125F 80F"
+		chellstats.innerHTML =  "16.2v 1ms 125F 80F"
 		break;
 	}
 	setCookie("views", views, 365);
