@@ -10,8 +10,8 @@
 <body>
 
 <div class="container">
-<a href="http://www.portalguns.com"><img class="floatleft" id="leftlogo" alt="" src="lb.png">
-<img class="floatright" id="rightlogo" alt="" src="ro.png">
+<a href="http://www.portalguns.com"><img class="floatleft" id="leftlogo" alt="" src="assets/lb.png">
+<img class="floatright" id="rightlogo" alt="" src="assets/ro.png">
 <div id="titletxt">Portal Guns 2.0</div></a>
 </div>
 
@@ -21,17 +21,17 @@
 <div id="chellstats">16.2v 1ms 125F 80F</div>
 <br>
 
-<img class="portal_image" id="portal_back" alt="" src="blank.png">
-<img class="portal_image" id="portal_front" alt="" src="orange_portal.png">
+<img class="portal_image" id="portal_back" alt="" src="assets/blank.png">
+<img class="portal_image" id="portal_front" alt="" src="assets/orange_portal.png">
 
 <div class="portal_image" id="portaloverlay">
 
 <div class="floatleft codebutton" id="histdiv" onmouseenter="histov(1)" onmouseleave="histov(0)" onClick="javascript:location.href='hist.html';">
-<img alt="" width="35" id="histimg" height="35" src="hist.png" /><br>History</div>
+<img alt="" width="35" id="histimg" height="35" src="assets/hist.png" /><br>History</div>
 
 
 <div class="floatright codebutton" id="codediv" onmouseenter="codeov(1)" onmouseleave="codeov(0)" onClick="javascript:location.href='https://github.com/Swap-File/portal-gun-2';">
-<img alt="" width="35" id="codeimg" height="35" src="code.png" /><br>Code</div>
+<img alt="" width="35" id="codeimg" height="35" src="assets/code.png" /><br>Code</div>
 
 </div>
 
@@ -41,14 +41,14 @@
 function codeov(state){
 	if (state == 1){
 		if (hovers % 2){
-			codeimg.src = "codeo.png";
+			codeimg.src = "assets/codeo.png";
 		}else{
-			codeimg.src = "codeb.png";
+			codeimg.src = "assets/codeb.png";
 		}
 		codediv.style.backgroundColor = "#707070";
 		hovers++;
 	}else{
-		codeimg.src = "code.png";
+		codeimg.src = "assets/code.png";
 		codediv.style.backgroundColor = "#404040";
 	}
 }
@@ -56,14 +56,14 @@ function codeov(state){
 function histov(state){
 	if (state == 1){
 		if (hovers% 2){
-			histimg.src = "histo.png";
+			histimg.src = "assets/histo.png";
 		}else{
-			histimg.src = "histb.png";
+			histimg.src = "assets/histb.png";
 		}
 		histdiv.style.backgroundColor = "#707070";
 		hovers++;
 	}else{
-		histimg.src = "hist.png";
+		histimg.src = "assets/hist.png";
 		histdiv.style.backgroundColor = "#404040";
 	}
 }
@@ -94,36 +94,36 @@ function increment_idle_view(){
 	if (views > 3 || views < 0) { views = 0;}
 	switch(views) {
 	case 0:
-		leftlogo.src = "lo.png"
-		rightlogo.src = "rb.png"
-		portal_front.src = "blue_portal.png";
+		leftlogo.src = "assets/lo.png"
+		rightlogo.src = "assets/rb.png"
+		portal_front.src = "assets/blue_portal.png";
 		gordontxt.innerHTML = "Gordon - Offline";
 		chelltxt.innerHTML = "Chell - Offline";
 		gordonstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
 		chellstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
 		break;
 	case 1:
-		leftlogo.src = "lb.png"
-		rightlogo.src = "ro.png"
-		portal_front.src = "blue_portal.png";
+		leftlogo.src = "assets/lb.png"
+		rightlogo.src = "assets/ro.png"
+		portal_front.src = "assets/blue_portal.png";
 		gordontxt.innerHTML = "Gordon - Online";
 		chelltxt.innerHTML = "Chell - Offline";
 		gordonstats.innerHTML =  "16.2v 1ms 125F 80F"
 		chellstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
 		break;
 	case 2:	
-		leftlogo.src = "lo.png"
-		rightlogo.src = "rb.png"
-		portal_front.src = "orange_portal.png";
+		leftlogo.src = "assets/lo.png"
+		rightlogo.src = "assets/rb.png"
+		portal_front.src = "assets/orange_portal.png";
 		gordontxt.innerHTML = "Gordon - Offline";
 		chelltxt.innerHTML = "Chell - Online";
 		gordonstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
 		chellstats.innerHTML =  "16.2v 1ms 125F 80F"
 		break;
 	case 3:	
-		leftlogo.src = "lb.png"
-		rightlogo.src = "ro.png"
-		portal_front.src = "orange_portal.png";
+		leftlogo.src = "assets/lb.png"
+		rightlogo.src = "assets/ro.png"
+		portal_front.src = "assets/orange_portal.png";
 		gordontxt.innerHTML = "Gordon - Synced";
 		chelltxt.innerHTML = "Chell - Synced";
 		gordonstats.innerHTML =  "16.2v 1ms 125F 80F"
