@@ -50,12 +50,21 @@ body {
     float: right;
 }
 .codebutton {
+position: relative;
     height: 55px;
 	width: 55px;
 	background-color: #404040;
 	text-align: center;
 	font-size: 14px;
 	opacity: 0.9;
+}
+.floatbottom {
+	position: absolute;
+	top:345px;
+	left: 0;
+	right: 0;
+	margin-left:auto;
+	margin-right:auto;
 }
 #titletxt{
 	font-size: 33px;
