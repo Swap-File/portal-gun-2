@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 <meta name="viewport" content="initial-scale=1, maximum-scale=1">
 <title>Portal Gun 2.0</title>
@@ -10,50 +11,150 @@
 <body>
 
 <div class="container">
-<a href="http://www.portalguns.com"><img class="floatleft" id="leftlogo" alt="" src="assets/lb.png">
-<img class="floatright" id="rightlogo" alt="" src="assets/ro.png">
-<div id="titletxt">Portal Guns 2.0</div></a>
+<img class="floatleft" id="leftlogo" alt="" src="assets/lb.png" onclick="magic(1)" >
+<img class="floatright" id="rightlogo" alt="" src="assets/ro.png" onclick="magic(1)">
+<div id="titletxt"><a href="index.html">Portal Guns 2.0</a></div>
 </div>
-
-<div id="recordnum">Viewing Record #
-<input id="lowerlimit" type="number" min="0" value="0" style="width:50px;" value="21" onchange=""></div>
-<div id="timestamp">07-05-2015 at 10:01:03pm</div>
-<div id="gordonstats">Gordon: 16.2v 1ms 125F 80F</div>
-<div id="chellstats">Chell: 16.2v 1ms 125F 80F</div>
-
-
-<input id="buttonload" type="button" onclick="loaddata2();" value="<< REW" style="width:70px;">
-<input id="buttonload" type="button" onclick="loaddata2();" value="< REW" style="width:70px;">
-<input id="buttonload" type="button" onclick="loaddata2();" value="FWD >" style="width:70px;">
-<input id="buttonload" type="button" onclick="loaddata2();" value="FWD >>" style="width:70px;">
-<br>
-<br>
-
+<div id="timestampdiv"></div>
+<div id="gordonstats"></div>
+<div id="chellstats"></div>
+<input id="buttonload" type="button" onclick="loaddata2(2);" value="<<" style="width:40px;">
+<input id="buttonload" type="button" onclick="loaddata2(-1);" value="<" style="width:40px;">
+<input id="currentid" type="number" min="0" value="0" style="width:50px;" onchange="updatepage(this)">
+<input id="buttonload" type="button" onclick="loaddata2(1);" value= ">" style="width:40px;">
+<input id="buttonload" type="button" onclick="loaddata2(2);" value=">>" style="width:40px;">
+<br><br>
 <img class="portal_image" id="portal_back" alt="" src="assets/blank.png">
 <img class="portal_image" id="portal_front" alt="" src="assets/orange_portal.png">
 
 <div class="portal_image" id="portaloverlay">
 
-<div class="floatleft codebutton" onClick="javascript:location.href='index.html';">
-<img alt="" width="35" id="histimg" height="35" src="assets/hist.png" /><br>Main</div>
+<div id="floatmagic">
+
+<a href="http://192.168.1.22">
+<div class="floatleft iconbutton" id="gordondiv" onmouseenter="swapper(1,'gordon')" onmouseleave="swapper(0,'gordon')">
+<i class="fa fa-wrench fa-2x" id="gordonicon"></i>Gordon</div>
+</a>
 
 
-<div class="floatright codebutton" onClick="javascript:location.href='https://github.com/Swap-File/portal-gun-2';">
-<img alt="" width="35" id="codeimg" height="35" src="assets/code.png" /><br>Code</div>
+<a href="http://192.168.1.23">
+<div class="floatright iconbutton" id="chelldiv" onmouseenter="swapper(1,'chell')" onmouseleave="swapper(0,'chell')">
+<i class="fa fa-wrench fa-2x" id="chellicon"></i>Chell</div>
+</a>
 
-
-<div class="floatbottom">
-<div class="floatleft codebutton"  onClick="javascript:location.href='index.html';">
-<img alt="" width="35" id="histimg" height="35" src="assets/hist.png" /><br>Private</div>
-
-
-<div class="floatright codebutton" onClick="javascript:location.href='https://github.com/Swap-File/portal-gun-2';">
-<img alt="" width="35" id="codeimg" height="35" src="assets/code.png" /><br>Private</div>
 </div>
 </div>
+<script src="portal.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script>
 
+var magic_clicks = 0;
+var button_hovers = 0;
+var portal_color_saved = 0;
 
+var views = getCookie("views");
+if (views == ""){
+	setCookie("views", "0", 365);
+	views = 0;
+}else{
+	views= parseInt(views);
+}
 
+loaddata(-1);
+
+function magic(num){
+	increment_idle_view();
+	if (num == 0){
+		floatmagic.style.display = 'none';
+		magic_clicks = 0;
+	}else{
+		magic_clicks += num;		
+	}
+	if (magic_clicks ==  5){
+		floatmagic.style.display = 'inline';
+		timestampdiv.innerHTML = "Private Management Links";
+		gordonstats.innerHTML = "Enjoy!";
+		chellstats.innerHTML = "Portal Gun Wifi Network Only!";
+	}	
+}
+
+function updatepage(element) {
+	loaddata(element.value);
+}
+
+function loaddata2(num){
+	magic(0);
+	currentid.value = parseInt(currentid.value) + num;
+	loaddata(currentid.value);
+}
+
+function loaddata(number) {
+	$.post('index_get.php', {id: number,live: 0}, function(data) {
+		var line = data.split("\t");
+		if (line.length == 17){
+		
+			var timestamp = line[0];
+			var id = parseInt(line[1]);
+			var synced = parseInt(line[2]);
+			
+			var g_live = parseInt(line[3]);
+			var g_time = line[4];
+			var g_lag = parseFloat(line[5]);
+			var g_volts = parseFloat(line[6]);
+			var g_temp1 = parseFloat(line[7]);
+			var g_temp2 = parseFloat(line[8]);
+			
+			var c_live = parseInt(line[9]);
+			var c_time = line[10];
+			var c_lag = parseFloat(line[11]);
+			var c_volts = parseFloat(line[12]);
+			var c_temp1 = parseFloat(line[13]);
+			var c_temp2 = parseFloat(line[14]);
+			
+			var g_state = parseFloat(line[15]);
+			var c_state = parseFloat(line[16]);
+			
+			currentid.value = id;
+			timestampdiv.innerHTML = timestamp;
+			
+			if (g_live){
+				gordonstats.innerHTML = "Gordon: " + g_volts + "V " + g_lag + "ms " + g_temp1 + "F " + g_temp2 + "F";
+			}else{
+				gordonstats.innerHTML = "Gordon Last Seen at " + g_time;
+			}
+			if (c_live){
+				chellstats.innerHTML = "Chell: " + c_volts + "V " + c_lag + "ms " + c_temp1 + "F " + c_temp2 + "F";
+			}else{
+				gordonstats.innerHTML = "Chell Last Seen at " + c_time;
+			}
+			
+			if (g_state < 0 ){
+				portal_front.src = "assets/orange_portal.png"
+				portal_back.src = "getimage.php?id=" +id;
+				portal_color_saved = 0;
+			}else if (c_state < 0){
+				portal_color_saved = 1;
+				portal_front.src = "assets/blue_portal.png"
+				portal_back.src = "getimage.php?id=" +id;
+			}else{
+				if (synced == 1){
+					if (portal_color_saved == 1 ){
+						portal_back.src = "assets/blue_0.jpg";
+					}else if (portal_color_saved == 0){
+						portal_back.src  = "assets/orange_0.jpg"; 
+					}
+				}else{
+					portal_back.src  = "assets/blank.png"; 
+				}
+				
+				
+			}
+			
+			
+			
+		}
+	});
+}
 
 </script>
 </body>

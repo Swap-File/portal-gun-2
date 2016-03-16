@@ -4,7 +4,7 @@ a:link {
 a:visited {
     text-decoration: none;
 }
-a {
+a{
     color: white;
 }
 a:hover {
@@ -37,9 +37,7 @@ body {
 #portal_front{
 	z-index: 2;
 }
-#portaloverlay{
-	z-index: 4;
-}
+
 .container {
     overflow: hidden;
 }
@@ -49,22 +47,23 @@ body {
 .floatright {
     float: right;
 }
-.codebutton {
-position: relative;
+.iconbutton {
+	position: relative;
     height: 55px;
 	width: 55px;
 	background-color: #404040;
 	text-align: center;
 	font-size: 14px;
 	opacity: 0.9;
+	z-index: 4;
 }
-.floatbottom {
-	position: absolute;
-	top:345px;
-	left: 0;
-	right: 0;
-	margin-left:auto;
-	margin-right:auto;
+.fa-2x{
+	margin-top:4px;
+	margin-bottom:2px;
+	color: black;
+}
+#floatmagic {
+	display: none;
 }
 #titletxt{
 	font-size: 33px;

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 <meta name="viewport" content="initial-scale=1, maximum-scale=1">
 <title>Portal Gun 2.0</title>
@@ -10,9 +11,9 @@
 <body>
 
 <div class="container">
-<a href="http://www.portalguns.com"><img class="floatleft" id="leftlogo" alt="" src="assets/lb.png">
-<img class="floatright" id="rightlogo" alt="" src="assets/ro.png">
-<div id="titletxt">Portal Guns 2.0</div></a>
+<img class="floatleft" id="leftlogo" alt="" src="assets/lb.png" onclick="increment_idle_view()">
+<img class="floatright" id="rightlogo" alt="" src="assets/ro.png" onclick="increment_idle_view()">
+<div id="titletxt"><a href="index.html">Portal Guns 2.0</a></div>
 </div>
 
 <div id="gordontxt">Gordon - Offline</div>
@@ -21,55 +22,30 @@
 <div id="chellstats">16.2v 1ms 125F 80F</div>
 <br>
 
+
 <img class="portal_image" id="portal_back" alt="" src="assets/blank.png">
 <img class="portal_image" id="portal_front" alt="" src="assets/orange_portal.png">
 
-<div class="portal_image" id="portaloverlay">
+<div class="portal_image">
+<a href="hist.html">
+<div class="floatleft iconbutton" id="histdiv" onmouseenter="swapper(1,'hist')" onmouseleave="swapper(0,'hist')">
+<i class="fa fa-history fa-2x" id="histicon"></i>History</div>
+</a>
 
-<div class="floatleft codebutton" id="histdiv" onmouseenter="histov(1)" onmouseleave="histov(0)" onClick="javascript:location.href='hist.html';">
-<img alt="" width="35" id="histimg" height="35" src="assets/hist.png" /><br>History</div>
-
-
-<div class="floatright codebutton" id="codediv" onmouseenter="codeov(1)" onmouseleave="codeov(0)" onClick="javascript:location.href='https://github.com/Swap-File/portal-gun-2';">
-<img alt="" width="35" id="codeimg" height="35" src="assets/code.png" /><br>Code</div>
-
+<a href="https://github.com/Swap-File/portal-gun-2">
+<div class="floatright iconbutton" id="codediv" onmouseenter="swapper(1,'code')" onmouseleave="swapper(0,'code')">
+<i class="fa fa-code fa-2x" id="codeicon"></i>Code</div>
+</a>
+</div>
 </div>
 
+<script src="portal.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 
 <script>
 
-function codeov(state){
-	if (state == 1){
-		if (hovers % 2){
-			codeimg.src = "assets/codeo.png";
-		}else{
-			codeimg.src = "assets/codeb.png";
-		}
-		codediv.style.backgroundColor = "#707070";
-		hovers++;
-	}else{
-		codeimg.src = "assets/code.png";
-		codediv.style.backgroundColor = "#404040";
-	}
-}
-
-function histov(state){
-	if (state == 1){
-		if (hovers% 2){
-			histimg.src = "assets/histo.png";
-		}else{
-			histimg.src = "assets/histb.png";
-		}
-		histdiv.style.backgroundColor = "#707070";
-		hovers++;
-	}else{
-		histimg.src = "assets/hist.png";
-		histdiv.style.backgroundColor = "#404040";
-	}
-}
-
-
 var views = getCookie("views");
+
 if (views == ""){
 	setCookie("views", "0", 365);
 	views = 0;
@@ -77,78 +53,18 @@ if (views == ""){
 	views= parseInt(views);
 }
 
-var hovers = views;
-
+var button_hovers = views;
 main_loop();
+
 
 function main_loop(){
 
-	increment_idle_view();
 	
-	setTimeout(main_loop,3000);
+	//setTimeout(main_loop,3000);
 }
 
 
-function increment_idle_view(){
-	views++;
-	if (views > 3 || views < 0) { views = 0;}
-	switch(views) {
-	case 0:
-		leftlogo.src = "assets/lo.png"
-		rightlogo.src = "assets/rb.png"
-		portal_front.src = "assets/blue_portal.png";
-		gordontxt.innerHTML = "Gordon - Offline";
-		chelltxt.innerHTML = "Chell - Offline";
-		gordonstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
-		chellstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
-		break;
-	case 1:
-		leftlogo.src = "assets/lb.png"
-		rightlogo.src = "assets/ro.png"
-		portal_front.src = "assets/blue_portal.png";
-		gordontxt.innerHTML = "Gordon - Online";
-		chelltxt.innerHTML = "Chell - Offline";
-		gordonstats.innerHTML =  "16.2v 1ms 125F 80F"
-		chellstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
-		break;
-	case 2:	
-		leftlogo.src = "assets/lo.png"
-		rightlogo.src = "assets/rb.png"
-		portal_front.src = "assets/orange_portal.png";
-		gordontxt.innerHTML = "Gordon - Offline";
-		chelltxt.innerHTML = "Chell - Online";
-		gordonstats.innerHTML =  "Last Seen: 07-05-2015 at 10:01:03pm"
-		chellstats.innerHTML =  "16.2v 1ms 125F 80F"
-		break;
-	case 3:	
-		leftlogo.src = "assets/lb.png"
-		rightlogo.src = "assets/ro.png"
-		portal_front.src = "assets/orange_portal.png";
-		gordontxt.innerHTML = "Gordon - Synced";
-		chelltxt.innerHTML = "Chell - Synced";
-		gordonstats.innerHTML =  "16.2v 1ms 125F 80F"
-		chellstats.innerHTML =  "16.2v 1ms 125F 80F"
-		break;
-	}
-	setCookie("views", views, 365);
-}
 
-function setCookie(cname, cvalue, exdays) {
-	var d = new Date();
-	d.setTime(d.getTime() + (exdays*24*60*60*1000));
-	var expires = "expires="+d.toUTCString();
-	document.cookie = cname + "=" + cvalue + "; " + expires;
-}
-function getCookie(cname) {
-	var name = cname + "=";
-	var ca = document.cookie.split(';');
-	for(var i=0; i<ca.length; i++) {
-		var c = ca[i];
-		while (c.charAt(0)==' ') c = c.substring(1);
-		if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
-	}
-	return "";
-}
 </script>
 </body>
 </html>
