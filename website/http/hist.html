@@ -7,88 +7,72 @@
 <title>Portal Gun 2.0</title>
 <link rel="stylesheet" type="text/css" href="portalstyle.css">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="dropit/dropit.css" type="text/css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="dropit/dropit.js"></script>
+<script src="portal.js"></script>
 </head>
 <body>
 
-<div class="container">
-<img class="floatleft" id="leftlogo" alt="" src="assets/lb.png" onclick="magic(1)" >
-<img class="floatright" id="rightlogo" alt="" src="assets/ro.png" onclick="magic(1)">
-<div id="titletxt"><a href="index.html">Portal Guns 2.0</a></div>
+<div id="menudiv">
+<ul class="menu">
+<li>
+<a><i id="menuicon" class="fa fa-chevron-down"></i></a>
+<ul>
+<li><a href="index.html"><i class="fa fa-home fa-fw"></i> Home</a></li>
+<li><a href="hist.html"><i class="fa fa-history fa-fw"></i> History</a></li>
+<li><a href="https://github.com/Swap-File/portal-gun-2"><i class="fa fa-code fa-fw"></i> View Code</a></li>
+<li><a href="http://192.168.1.22"><i class="fa fa-wrench fa-fw"></i> Gordon</a></li>
+<li><a href="http://192.168.1.23"><i class="fa fa-wrench fa-fw"></i> Chell</a></li>
+</ul>
+</li>
+</ul>
+<div id="menutxt">Menu</div>
 </div>
+
+
+<div class="portalguy" onclick="portal_guy_click()">
+<img id="leftlogo" alt="" src="assets/lb.png">
+<img id="rightlogo" alt="" src="assets/ro.png" >
+<div id="loadingtxt">Loading</div>
+</div>
+
+<div id="titletext">Portal Guns 2.0</div>
+
+
 <div id="timestampdiv"></div>
 <div id="gordonstats"></div>
 <div id="chellstats"></div>
-<input id="buttonload" type="button" onclick="loaddata2(2);" value="<<" style="width:40px;">
-<input id="buttonload" type="button" onclick="loaddata2(-1);" value="<" style="width:40px;">
+
+<input class="histbutton" type="button" onclick="loaddata2(2);" value="<<" style="width:40px;">
+<input class="histbutton" type="button" onclick="loaddata2(-1);" value="<" style="width:40px;">
 <input id="currentid" type="number" min="0" value="0" style="width:50px;" onchange="updatepage(this)">
-<input id="buttonload" type="button" onclick="loaddata2(1);" value= ">" style="width:40px;">
-<input id="buttonload" type="button" onclick="loaddata2(2);" value=">>" style="width:40px;">
-<br><br>
+<input class="histbutton" type="button" onclick="loaddata2(1);" value= ">" style="width:40px;">
+<input class="histbutton" type="button" onclick="loaddata2(2);" value=">>" style="width:40px;">
+<br>
 <img class="portal_image" id="portal_back" alt="" src="assets/blank.png">
 <img class="portal_image" id="portal_front" alt="" src="assets/orange_portal.png">
 
 <div class="portal_image" id="portaloverlay">
 
-<div id="floatmagic">
-
-<a href="http://192.168.1.22">
-<div class="floatleft iconbutton" id="gordondiv" onmouseenter="swapper(1,'gordon')" onmouseleave="swapper(0,'gordon')">
-<i class="fa fa-wrench fa-2x" id="gordonicon"></i>Gordon</div>
-</a>
-
-
-<a href="http://192.168.1.23">
-<div class="floatright iconbutton" id="chelldiv" onmouseenter="swapper(1,'chell')" onmouseleave="swapper(0,'chell')">
-<i class="fa fa-wrench fa-2x" id="chellicon"></i>Chell</div>
-</a>
-
 </div>
-</div>
-<script src="portal.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
 <script>
 
-var magic_clicks = 0;
-var button_hovers = 0;
-var portal_color_saved = 0;
-
-var views = getCookie("views");
-if (views == ""){
-	setCookie("views", "0", 365);
-	views = 0;
-}else{
-	views= parseInt(views);
-}
 
 loaddata(-1);
-
-function magic(num){
-	increment_idle_view();
-	if (num == 0){
-		floatmagic.style.display = 'none';
-		magic_clicks = 0;
-	}else{
-		magic_clicks += num;		
-	}
-	if (magic_clicks ==  5){
-		floatmagic.style.display = 'inline';
-		timestampdiv.innerHTML = "Private Management Links";
-		gordonstats.innerHTML = "Enjoy!";
-		chellstats.innerHTML = "Portal Gun Wifi Network Only!";
-	}	
-}
 
 function updatepage(element) {
 	loaddata(element.value);
 }
 
 function loaddata2(num){
-	magic(0);
 	currentid.value = parseInt(currentid.value) + num;
 	loaddata(currentid.value);
 }
 
 function loaddata(number) {
+	$('#loadingtxt').stop(true,true).show();
 	$.post('index_get.php', {id: number,live: 0}, function(data) {
 		var line = data.split("\t");
 		if (line.length == 17){
@@ -125,17 +109,21 @@ function loaddata(number) {
 			if (c_live){
 				chellstats.innerHTML = "Chell: " + c_volts + "V " + c_lag + "ms " + c_temp1 + "F " + c_temp2 + "F";
 			}else{
-				gordonstats.innerHTML = "Chell Last Seen at " + c_time;
+				chellstats.innerHTML = "Chell Last Seen at " + c_time;
 			}
 			
 			if (g_state < 0 ){
 				portal_front.src = "assets/orange_portal.png"
 				portal_back.src = "getimage.php?id=" +id;
+				$(".menu ul.dropit-submenu a").removeClass("orange");
+				$(".menu ul.dropit-submenu a").addClass("blue");
 				portal_color_saved = 0;
 			}else if (c_state < 0){
 				portal_color_saved = 1;
 				portal_front.src = "assets/blue_portal.png"
 				portal_back.src = "getimage.php?id=" +id;
+				$(".menu ul.dropit-submenu a").removeClass("blue");
+				$(".menu ul.dropit-submenu a").addClass("orange");
 			}else{
 				if (synced == 1){
 					if (portal_color_saved == 1 ){
@@ -145,14 +133,10 @@ function loaddata(number) {
 					}
 				}else{
 					portal_back.src  = "assets/blank.png"; 
-				}
-				
-				
-			}
-			
-			
-			
+				}				
+			}		
 		}
+		setTimeout(fadeit,300);
 	});
 }
 

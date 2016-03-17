@@ -7,62 +7,141 @@
 <title>Portal Gun 2.0</title>
 <link rel="stylesheet" type="text/css" href="portalstyle.css">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="dropit/dropit.css" type="text/css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="dropit/dropit.js"></script>
+<script src="portal.js"></script>
 </head>
 <body>
 
-<div class="container">
-<img class="floatleft" id="leftlogo" alt="" src="assets/lb.png" onclick="increment_idle_view()">
-<img class="floatright" id="rightlogo" alt="" src="assets/ro.png" onclick="increment_idle_view()">
-<div id="titletxt"><a href="index.html">Portal Guns 2.0</a></div>
+<div id="menudiv">
+<ul class="menu">
+<li>
+<a><i id="menuicon" class="fa fa-chevron-down"></i></a>
+<ul>
+<li><a href="index.html"><i class="fa fa-home fa-fw"></i> Home</a></li>
+<li><a href="hist.html"><i class="fa fa-history fa-fw"></i> History</a></li>
+<li><a href="https://github.com/Swap-File/portal-gun-2"><i class="fa fa-code fa-fw"></i> View Code</a></li>
+<li><a href="http://192.168.1.22"><i class="fa fa-wrench fa-fw"></i> Gordon</a></li>
+<li><a href="http://192.168.1.23"><i class="fa fa-wrench fa-fw"></i> Chell</a></li>
+</ul>
+</li>
+</ul>
+<div id="menutxt">Menu</div>
 </div>
 
-<div id="gordontxt">Gordon - Offline</div>
-<div id="gordonstats">16.2v 1ms 125F 80F</div>
-<div id="chelltxt">Chell - Offline</div>
-<div id="chellstats">16.2v 1ms 125F 80F</div>
-<br>
+<div class="portalguy" onclick="portal_guy_click()">
+<img id="leftlogo" alt="" src="assets/lb.png">
+<img id="rightlogo" alt="" src="assets/ro.png" >
+<div id="loadingtxt">Loading</div>
+</div>
 
+<div id="titletext">Portal Guns 2.0</div>
 
+<div id="mainpage">
+<div id="gordontxt"></div>
+<div id="gordonstats"></div>
+<div id="chelltxt"></div>
+<div id="chellstats"></div>
 <img class="portal_image" id="portal_back" alt="" src="assets/blank.png">
 <img class="portal_image" id="portal_front" alt="" src="assets/orange_portal.png">
-
 <div class="portal_image">
-<a href="hist.html">
-<div class="floatleft iconbutton" id="histdiv" onmouseenter="swapper(1,'hist')" onmouseleave="swapper(0,'hist')">
-<i class="fa fa-history fa-2x" id="histicon"></i>History</div>
-</a>
-
-<a href="https://github.com/Swap-File/portal-gun-2">
-<div class="floatright iconbutton" id="codediv" onmouseenter="swapper(1,'code')" onmouseleave="swapper(0,'code')">
-<i class="fa fa-code fa-2x" id="codeicon"></i>Code</div>
-</a>
 </div>
 </div>
-
-<script src="portal.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 
 <script>
 
-var views = getCookie("views");
 
-if (views == ""){
-	setCookie("views", "0", 365);
-	views = 0;
-}else{
-	views= parseInt(views);
+
+loaddata(-1);
+
+function loaddata(number) {
+	$('#loadingtxt').stop(true,true).show();
+	$.post('index_get.php', {id: number,live: 1}, function(data) {
+		var line = data.split("\t");
+
+		
+		if (line.length == 17){
+			
+			var timestamp = line[0];
+			var id = parseInt(line[1]);
+			var synced = parseInt(line[2]);
+			
+			var g_live = parseInt(line[3]);
+			var g_time = line[4];
+			var g_lag = parseFloat(line[5]);
+			var g_volts = parseFloat(line[6]);
+			var g_temp1 = parseFloat(line[7]);
+			var g_temp2 = parseFloat(line[8]);
+			
+			var c_live = parseInt(line[9]);
+			var c_time = line[10];
+			var c_lag = parseFloat(line[11]);
+			var c_volts = parseFloat(line[12]);
+			var c_temp1 = parseFloat(line[13]);
+			var c_temp2 = parseFloat(line[14]);
+			
+			var g_state = parseFloat(line[15]);
+			var c_state = parseFloat(line[16]);
+			
+			if (g_live){
+				gordonstats.innerHTML = g_volts + "V " + g_lag + "ms " + g_temp1 + "F " + g_temp2 + "F";
+			}else{
+				gordonstats.innerHTML = "Last Seen at " + g_time;
+			}
+			
+			if (c_live){
+				chellstats.innerHTML = c_volts + "V " + c_lag + "ms " + c_temp1 + "F " + c_temp2 + "F";
+			}else{
+				chellstats.innerHTML = "Last Seen at " + c_time;
+			}
+			
+			if (synced == 1){
+				gordontxt.innerHTML = "Gordon - Synced";
+				chelltxt.innerHTML = "Chell - Synced";
+			}else{
+				if (g_live){
+					gordontxt.innerHTML = "Gordon - Online";
+				}else{
+					gordontxt.innerHTML = "Gordon - Offline";
+				}
+				if (c_live){
+					chelltxt.innerHTML = "Chell - Online";
+				}else{
+					chelltxt.innerHTML = "Chell - Offline";
+				}
+			}
+			
+			if (g_state < 0 ){
+				portal_front.src = "assets/orange_portal.png"
+				portal_back.src = "getimage.php?id=" +id;
+				portal_color_saved = 0;
+				$(".menu ul.dropit-submenu a").removeClass("orange");
+				$(".menu ul.dropit-submenu a").addClass("blue");
+			}else if (c_state < 0){
+				portal_color_saved = 1;
+				portal_front.src = "assets/blue_portal.png"
+				portal_back.src = "getimage.php?id=" +id;
+				$(".menu ul.dropit-submenu a").removeClass("blue");
+				$(".menu ul.dropit-submenu a").addClass("orange");
+			}else{
+				if (synced == 1){
+					if (portal_color_saved == 1 ){
+						portal_back.src = "assets/blue_0.jpg";
+					}else if (portal_color_saved == 0){
+						portal_back.src  = "assets/orange_0.jpg"; 
+					}
+				}else{
+					portal_back.src  = "assets/blank.png"; 
+				}				
+			}		
+		}
+		titleview();
+		
+		setTimeout(fadeit,300);
+		setTimeout(loaddata,5000,-1);
+	});
 }
-
-var button_hovers = views;
-main_loop();
-
-
-function main_loop(){
-
-	
-	//setTimeout(main_loop,3000);
-}
-
 
 
 </script>

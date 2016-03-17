@@ -35,6 +35,7 @@ try {
 			$row["c_temp1"]= 0;  
 			$row["c_temp2"]= 0; 
 			$row["c_state"]= 0; 
+			$row["synced"] = 0;
 		}
 		
 		//lookup when gordon was last seen if not online
