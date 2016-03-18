@@ -11,10 +11,11 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 <script src="dropit/dropit.js"></script>
 <script src="portal.js"></script>
+
 </head>
 <body>
 
-<div id="menudiv">
+<div id="menudiv" onclick="force_menu()">
 <ul class="menu">
 <li>
 <a><i id="menuicon" class="fa fa-chevron-down"></i></a>
@@ -31,8 +32,17 @@
 </div>
 
 <div class="portalguy" onclick="portal_guy_click()">
-<img id="leftlogo" alt="" src="assets/lb.png">
-<img id="rightlogo" alt="" src="assets/ro.png" >
+<div id="portalflipdiv" class="flip-container" >
+<div class="flipper">
+<div class="front">
+<img id="leftlogo" alt="" src="assets/2.png">
+</div>
+<div class="back">
+<img id="rightlogo" alt="" src="assets/1.png" >
+</div>
+</div>
+</div>
+
 <div id="loadingtxt">Loading</div>
 </div>
 
@@ -44,19 +54,19 @@
 <div id="chelltxt"></div>
 <div id="chellstats"></div>
 <img class="portal_image" id="portal_back" alt="" src="assets/blank.png">
-<img class="portal_image" id="portal_front" alt="" src="assets/orange_portal.png">
+<img class="portal_image" id="portal_front" alt="" src="orange.gif">
 <div class="portal_image">
 </div>
 </div>
 
 <script>
 
-
-
 loaddata(-1);
 
+  
 function loaddata(number) {
 	$('#loadingtxt').stop(true,true).show();
+		
 	$.post('index_get.php', {id: number,live: 1}, function(data) {
 		var line = data.split("\t");
 
@@ -113,17 +123,21 @@ function loaddata(number) {
 			}
 			
 			if (g_state < 0 ){
-				portal_front.src = "assets/orange_portal.png"
+				if (portal_color_saved != 0){
+					portal_color_saved = 0;
+					portal_front.src = "orange.gif"
+					$(".menu ul.dropit-submenu a").removeClass("orange");
+					$(".menu ul.dropit-submenu a").addClass("blue");
+				}
 				portal_back.src = "getimage.php?id=" +id;
-				portal_color_saved = 0;
-				$(".menu ul.dropit-submenu a").removeClass("orange");
-				$(".menu ul.dropit-submenu a").addClass("blue");
 			}else if (c_state < 0){
-				portal_color_saved = 1;
-				portal_front.src = "assets/blue_portal.png"
+				if (portal_color_saved != 1){
+					portal_color_saved = 1;
+					portal_front.src = "blue.gif"
+					$(".menu ul.dropit-submenu a").removeClass("blue");
+					$(".menu ul.dropit-submenu a").addClass("orange");
+				}
 				portal_back.src = "getimage.php?id=" +id;
-				$(".menu ul.dropit-submenu a").removeClass("blue");
-				$(".menu ul.dropit-submenu a").addClass("orange");
 			}else{
 				if (synced == 1){
 					if (portal_color_saved == 1 ){
@@ -132,12 +146,11 @@ function loaddata(number) {
 						portal_back.src  = "assets/orange_0.jpg"; 
 					}
 				}else{
-					portal_back.src  = "assets/blank.png"; 
+					portal_back.src  = "assets/blank.png";
 				}				
 			}		
 		}
-		titleview();
-		
+		portalflipdiv.classList.toggle("flip")
 		setTimeout(fadeit,300);
 		setTimeout(loaddata,5000,-1);
 	});

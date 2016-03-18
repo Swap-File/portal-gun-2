@@ -16,8 +16,8 @@ body {
 #timestampdiv { padding-top: 20px;}
 #mainpage{ padding-top: 10px;}
 #menutxt {
-    font-size: 12px;
-	margin-top: 10px;
+    font-size: 15px;
+	margin-top: 9px;
 }
 #titletext {
     margin-top: 14px;
@@ -33,9 +33,9 @@ body {
 }
 #menuicon {
 	padding-top: -5px;
-    font-size: 43px;
-	padding-bottom: 12px;
-	margin-bottom: -12px;
+    font-size: 38px;
+	padding-bottom: 2px;
+
 }
 #menudiv {
 	padding-top: 5px;
@@ -111,6 +111,7 @@ body {
     z-index: 1;
 }
 #portal_front {
+	pointer-events: none;
     z-index: 2;
 }
 #gordontxt,#chelltxt {
@@ -120,4 +121,44 @@ body {
 #gordonstats,#chellstats {
     z-index: 2;
     font-size: 15px;
+}
+
+/* entire container, keeps perspective */
+.flip-container {
+	perspective: 1000;
+}
+.flip-container, .front, .back {
+	width: 50px;
+	height: 50px;
+	    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+.flip-container.flip .flipper {
+	transform: rotateY(180deg);
+}
+/* flip speed goes here */
+.flipper {
+	transition: 0.6s;
+	transform-style: preserve-3d;
+	position: relative;
+}
+/* hide back of pane during swap */
+.front, .back {
+	backface-visibility: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+	
+}
+/* front pane, placed above back */
+.front {
+	z-index: 2;
+	/* for firefox 31 */
+	transform: rotateY(0deg);
+}
+/* back, initially hidden pane */
+.back {
+	transform: rotateY(180deg);
 }

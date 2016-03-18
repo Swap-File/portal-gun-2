@@ -4,6 +4,7 @@ var title_views = 0;
 var portal_color_saved = 0;
 
 function portal_guy_click(){
+	portalflipdiv.classList.toggle("flip")
 	magic_clicks++;
 	if (magic_clicks == 5){
 		titletext.innerHTML = "Unlocked!"
@@ -12,21 +13,13 @@ function portal_guy_click(){
 		
 		suppressed = 1;
 		$('#menuicon').trigger('click');
-
-	}
-	titleview();
-}
-function titleview(){
-	title_views++;
-	if (title_views % 2){
-		leftlogo.src = "assets/lo.png"
-		rightlogo.src = "assets/rb.png"
-	}else{
-		leftlogo.src = "assets/lb.png"
-		rightlogo.src = "assets/ro.png"
 	}
 }
 
+function force_menu(){
+	suppressed = 1;
+	$('#menuicon').trigger('click');
+}
 function fadeit(){
 	$( "#loadingtxt" ).fadeOut("slow");
 }
