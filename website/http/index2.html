@@ -48,50 +48,29 @@
 
 <div id="titletext">Portal Guns 2.0</div>
 
-
-<div id="timestampdiv"></div>
-<div id="gordonstats"></div>
-<div id="chellstats"></div>
-
-<input class="histbutton" type="button" onclick="loaddata2(2);" value="<<" style="width:40px;">
-<input class="histbutton" type="button" onclick="loaddata2(-1);" value="<" style="width:40px;">
-<input id="currentid" type="number" min="0" value="0" style="width:50px;" onchange="updatepage(this)">
-<input class="histbutton" type="button" onclick="loaddata2(1);" value= ">" style="width:40px;">
-<input class="histbutton" type="button" onclick="loaddata2(2);" value=">>" style="width:40px;">
-<br>
-<img class="portal_image" id="portal_back" alt="" src="assets/blank.png">
-
-<img class="portal_image" id="portal_front" alt="" src="mask.png">
-
+<div id="mainpage">
+<div id="test">
 <svg id="gear" width="240" height="240" viewBox="0 0 900 900" 
      xmlns="http://www.w3.org/2000/svg">
 
   <path d="M 428.81479,898.84176 C 347.90254,892.75786 265.12288,863.25006 191.85193,814.37346 125.93459,770.40236 73.653865,711.42826 42.015018,645.35346 -3.4914003,550.31756 -12.24497,439.68441 16.794508,326.60031 40.114278,235.78961 90.535005,147.47884 147.63858,97.429799 c 16.17265,-14.1747 14.76201,-13.19364 13.03799,-9.06748 -4.07861,9.76148 -17.30149,31.528211 -37.94129,62.456731 -15.26809,22.87906 -23.747055,38.24866 -30.255715,54.84376 -3.18636,8.1242 -8.75533,28.3469 -8.01117,29.0911 0.19887,0.1989 1.77841,-2.0465 3.51009,-4.9898 C 109.59052,193.03151 144.73909,149.83063 177.94291,119.1895 301.12096,5.5183693 451.61315,-27.884681 609.28354,23.449699 713.41616,57.353229 799.04872,134.32773 851.6241,241.28781 c 46.11506,93.8174 59.03944,187.9235 39.33431,286.40615 -18.41569,92.0385 -63.91547,176.9226 -130.34541,243.1714 -89.11696,88.8741 -213.54805,136.8678 -331.79821,127.9764 z m 93.75,-49.5034 c 13.89844,-2.4684 21.99947,-4.7075 32.84728,-9.0791 8.38735,-3.38 21.55819,-10.5036 20.80772,-11.2541 -0.21806,-0.218 -7.73897,0.077 -16.71319,0.6557 -64.72359,4.1736 -130.95615,-8.9105 -184.5264,-36.4526 -30.01727,-15.4328 -52.77024,-32.2289 -78.353,-57.8396 -26.34914,-26.3779 -44.91981,-51.9455 -60.87892,-83.8165 -6.12132,-12.2246 -13.04765,-28.2128 -12.47167,-28.7888 0.18048,-0.1805 3.42135,4.3367 7.20193,10.0383 28.02591,42.2662 72.16443,83.4226 118.18,110.1952 33.56173,19.5267 71.48453,33.0706 109.00969,38.9324 18.0767,2.8236 60.54825,3.0742 78.02156,0.4603 116.99166,-17.5015 204.74746,-94.141 244.09274,-213.1725 7.87613,-23.8277 13.96885,-52.1186 17.62397,-81.8355 2.39616,-19.48165 2.41331,-74.33045 0.0291,-93.74995 -8.43384,-68.6972 -28.30209,-127.2846 -61.05047,-180.0257 -7.68806,-12.3816 -22.16034,-33.0407 -22.73981,-32.4612 -0.18937,0.1894 1.79288,5.0809 4.40485,10.8701 15.84159,35.1106 26.05875,69.5573 31.43793,105.9918 2.0475,13.8684 2.81597,44.9831 1.4371,58.1922 -2.82394,27.0539 -11.06916,50.8699 -23.58891,68.1356 -4.54031,6.2615 -7.01906,8.4762 -4.75781,4.251 0.52078,-0.9731 2.03981,-5.6566 3.37565,-10.4077 11.59172,-41.228 8.54635,-93.3625 -8.427,-144.2657 -29.07009,-87.1814 -90.91986,-156.54625 -165.63214,-185.757301 -26.49788,-10.36017 -50.47125,-15.07791 -80.424,-15.82674 -35.81348,-0.89536 -64.5166,3.58237 -100.3125,15.64891 C 294.8409,113.70299 230.8624,172.61491 184.80911,259.56901 c -27.16871,51.2978 -45.50193,114.6876 -51.92301,179.5313 -1.56951,15.85 -1.57973,64.85705 -0.0167,80.15625 6.46126,63.2434 23.17333,116.1596 51.96254,164.5311 29.07703,48.8551 71.92467,91.6789 117.61932,117.5537 42.19126,23.891 105.25308,44.171 151.67607,48.7773 5.67187,0.5628 11.57812,1.1948 13.125,1.4047 1.54687,0.2098 12.09375,0.2535 23.4375,0.097 15.91678,-0.2194 23.19309,-0.7404 31.875,-2.2823 z"
         fill="orange" stroke-width="0" />
-			<use id="use" xlink:href="#c1" />
 </svg>
+</div>
+</div>
 
 <script>
 
-
-
 loaddata(-1);
 
-function updatepage(element) {
-	loaddata(element.value);
-}
-
-function loaddata2(num){
-
-	
-	currentid.value = parseInt(currentid.value) + num;
-	loaddata(currentid.value);
-}
-
+  
 function loaddata(number) {
 	$('#loadingtxt').stop(true,true).show();
-	$.post('index_get.php', {id: number,live: 0}, function(data) {
+		
+	$.post('index_get.php', {id: number,live: 1}, function(data) {
 		var line = data.split("\t");
+
+		
 		if (line.length == 17){
 			
 			var timestamp = line[0];
@@ -115,26 +94,38 @@ function loaddata(number) {
 			var g_state = parseFloat(line[15]);
 			var c_state = parseFloat(line[16]);
 			
-			currentid.value = id;
-			timestampdiv.innerHTML = timestamp;
-			
 			if (g_live){
-				gordonstats.innerHTML = "Gordon: " + g_volts + "V " + g_lag + "ms " + g_temp1 + "F " + g_temp2 + "F";
+				gordonstats.innerHTML = g_volts + "V " + g_lag + "ms " + g_temp1 + "F " + g_temp2 + "F";
 			}else{
-				gordonstats.innerHTML = "Gordon Last Seen at " + g_time;
+				gordonstats.innerHTML = "Last Seen at " + g_time;
 			}
+			
 			if (c_live){
-				chellstats.innerHTML = "Chell: " + c_volts + "V " + c_lag + "ms " + c_temp1 + "F " + c_temp2 + "F";
+				chellstats.innerHTML = c_volts + "V " + c_lag + "ms " + c_temp1 + "F " + c_temp2 + "F";
 			}else{
-				chellstats.innerHTML = "Chell Last Seen at " + c_time;
+				chellstats.innerHTML = "Last Seen at " + c_time;
+			}
+			
+			if (synced == 1){
+				gordontxt.innerHTML = "Gordon - Synced";
+				chelltxt.innerHTML = "Chell - Synced";
+			}else{
+				if (g_live){
+					gordontxt.innerHTML = "Gordon - Online";
+				}else{
+					gordontxt.innerHTML = "Gordon - Offline";
+				}
+				if (c_live){
+					chelltxt.innerHTML = "Chell - Online";
+				}else{
+					chelltxt.innerHTML = "Chell - Offline";
+				}
 			}
 			
 			if (g_state < 0 ){
 				if (portal_color_saved != 0){
 					portal_color_saved = 0;
-					//portal_front.src = "orange.gif"
-					$("#gear path").removeClass("blue");
-					$("#gear path").addClass("orange");					
+					portal_front.src = "orange.gif"
 					$(".menu ul.dropit-submenu a").removeClass("orange");
 					$(".menu ul.dropit-submenu a").addClass("blue");
 				}
@@ -142,9 +133,7 @@ function loaddata(number) {
 			}else if (c_state < 0){
 				if (portal_color_saved != 1){
 					portal_color_saved = 1;
-					//portal_front.src = "blue.gif"
-					$("#gear path").removeClass("orange");
-					$("#gear path").addClass("blue");
+					portal_front.src = "blue.gif"
 					$(".menu ul.dropit-submenu a").removeClass("blue");
 					$(".menu ul.dropit-submenu a").addClass("orange");
 				}
@@ -157,15 +146,17 @@ function loaddata(number) {
 						portal_back.src  = "assets/orange_0.jpg"; 
 					}
 				}else{
-					//portal_text.innerHTML = "Please Check<br>Back Later!"
+					portal_text.innerHTML = "Please Check<br>Back Later!"
 					portal_back.src  = "assets/blank.png";
 				}				
 			}		
 		}
 		portalflipdiv.classList.toggle("flip")
 		setTimeout(fadeit,300);
+		setTimeout(loaddata,5000,-1);
 	});
 }
+
 
 </script>
 </body>

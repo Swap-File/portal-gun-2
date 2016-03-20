@@ -12,12 +12,56 @@ body {
     font-family: Arial;
     margin: auto;
     position: relative;
+	z-index: 2;
+	
+}
+#test{
+	width:240px;
+	height:400px;
+	background-color: black;
+}
+#gear{
+	pointer-events: none;
+
+margin-top:80px;
+   animation-iteration-count: infinite;
+    display: inline-block;
+    animation-name: ckw;
+	animation-timing-function: linear;
+    animation-duration: 15.5s;
+    transform-origin: 50% 50%;
+}
+#gear path.blue {
+    fill: #16ABE3;
+}
+#gear path.orange {
+    fill: #F79126;
+}
+
+@keyframes ckw {
+	
+    0% {
+        transform:  scale(1,1.65) rotate(360deg);
+		   -webkit-transform: scale(1,1.65) rotate(360deg);
+    -ms-transform: scale(1,1.65) rotate(360deg);
+    }
+    100% {
+        transform: scale(1,1.65) rotate(0deg) ;
+		   -webkit-transform: scale(1,1.65) rotate(0deg) ;
+    -ms-transform: scale(1,1.65) rotate(0deg) ;
+		
+    }
 }
 #timestampdiv { padding-top: 20px;}
 #mainpage{ padding-top: 10px;}
 #menutxt {
     font-size: 15px;
 	margin-top: 9px;
+	
+}
+#portal_text{
+	margin-top: 190px;
+	
 }
 #titletext {
     margin-top: 14px;
@@ -107,19 +151,10 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
-#portal_back {
-    z-index: 1;
-}
-#portal_front {
-	pointer-events: none;
-    z-index: 2;
-}
 #gordontxt,#chelltxt {
-    z-index: 2;
     font-size: 22px;
 }
 #gordonstats,#chellstats {
-    z-index: 2;
     font-size: 15px;
 }
 
@@ -130,7 +165,7 @@ body {
 .flip-container, .front, .back {
 	width: 50px;
 	height: 50px;
-	    left: 0;
+	left: 0;
     right: 0;
     margin-left: auto;
     margin-right: auto;
