@@ -10,7 +10,6 @@
 <link rel="stylesheet" href="dropit/dropit.css" type="text/css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 <script src="dropit/dropit.js"></script>
-<script src="portal.js"></script>
 
 </head>
 <body>
@@ -20,8 +19,8 @@
 <li>
 <a><i id="menuicon" class="fa fa-chevron-down"></i></a>
 <ul>
-<li><a href="index.html"><i class="fa fa-home fa-fw"></i> Home</a></li>
-<li><a href="hist.html"><i class="fa fa-history fa-fw"></i> History</a></li>
+<li><a onclick="changemode(1)"><i class="fa fa-home fa-fw"></i> Live Feed</a></li>
+<li><a onclick="changemode(0)"><i class="fa fa-history fa-fw"></i> History</a></li>
 <li><a href="https://github.com/Swap-File/portal-gun-2"><i class="fa fa-code fa-fw"></i> View Code</a></li>
 <li><a href="http://192.168.1.22"><i class="fa fa-wrench fa-fw"></i> Gordon</a></li>
 <li><a href="http://192.168.1.23"><i class="fa fa-wrench fa-fw"></i> Chell</a></li>
@@ -31,53 +30,111 @@
 <div id="menutxt">Menu</div>
 </div>
 
-<div class="portalguy" onclick="portal_guy_click()">
-<div id="portalflipdiv" class="flip-container" >
+<div class="runningguy" onclick="running_man_click()">
+<div class="flip-container" >
 <div class="flipper">
-<div class="front">
-<img id="leftlogo" alt="" src="assets/2.png">
-</div>
-<div class="back">
-<img id="rightlogo" alt="" src="assets/1.png" >
+<div class="front"><img class="runningguyimg" alt="" src="assets/2.png"></div>
+<div class="back"><img class="runningguyimg" alt="" src="assets/1.png" ></div>
 </div>
 </div>
-</div>
-
 <div id="loadingtxt">Loading</div>
 </div>
 
 <div id="titletext">Portal Guns 2.0</div>
-
+<div id="subtext">Live Feed</div>
 <div id="mainpage">
+
+<div id="livepage">
 <div id="gordontxt"></div>
 <div id="gordonstats"></div>
 <div id="chelltxt"></div>
-<div id="chellstats"></div>
-<img class="portal_image" id="portal_back" alt="" src="assets/blank.png">
+<div id="chellstats_live"></div>
+</div>
 
+<div id="histpage">
+<div id="timestampdiv"></div>
+<div id="gordonstats2"></div>
+<div id="chellstats_hist"></div>
+<input class="histbutton" type="button" onclick="load_hist(2);" value="<<" style="width:40px;">
+<input class="histbutton" type="button" onclick="load_hist(-1);" value="<" style="width:40px;">
+<input id="currentid" type="number" min="0" value="0" style="width:50px;" onchange="updatepage(this)">
+<input class="histbutton" type="button" onclick="load_hist(1);" value= ">" style="width:40px;">
+<input class="histbutton" type="button" onclick="load_hist(2);" value=">>" style="width:40px;">
+</div>
+
+<div>
+<img class="portal_image" id="portal_back" alt="" src="test.jpg">
 <img class="portal_image" id="portal_front" alt="" src="mask.png">
-
-<svg id="gear" width="240" height="240" viewBox="0 0 900 900" 
-     xmlns="http://www.w3.org/2000/svg">
-
-  <path d="M 428.81479,898.84176 C 347.90254,892.75786 265.12288,863.25006 191.85193,814.37346 125.93459,770.40236 73.653865,711.42826 42.015018,645.35346 -3.4914003,550.31756 -12.24497,439.68441 16.794508,326.60031 40.114278,235.78961 90.535005,147.47884 147.63858,97.429799 c 16.17265,-14.1747 14.76201,-13.19364 13.03799,-9.06748 -4.07861,9.76148 -17.30149,31.528211 -37.94129,62.456731 -15.26809,22.87906 -23.747055,38.24866 -30.255715,54.84376 -3.18636,8.1242 -8.75533,28.3469 -8.01117,29.0911 0.19887,0.1989 1.77841,-2.0465 3.51009,-4.9898 C 109.59052,193.03151 144.73909,149.83063 177.94291,119.1895 301.12096,5.5183693 451.61315,-27.884681 609.28354,23.449699 713.41616,57.353229 799.04872,134.32773 851.6241,241.28781 c 46.11506,93.8174 59.03944,187.9235 39.33431,286.40615 -18.41569,92.0385 -63.91547,176.9226 -130.34541,243.1714 -89.11696,88.8741 -213.54805,136.8678 -331.79821,127.9764 z m 93.75,-49.5034 c 13.89844,-2.4684 21.99947,-4.7075 32.84728,-9.0791 8.38735,-3.38 21.55819,-10.5036 20.80772,-11.2541 -0.21806,-0.218 -7.73897,0.077 -16.71319,0.6557 -64.72359,4.1736 -130.95615,-8.9105 -184.5264,-36.4526 -30.01727,-15.4328 -52.77024,-32.2289 -78.353,-57.8396 -26.34914,-26.3779 -44.91981,-51.9455 -60.87892,-83.8165 -6.12132,-12.2246 -13.04765,-28.2128 -12.47167,-28.7888 0.18048,-0.1805 3.42135,4.3367 7.20193,10.0383 28.02591,42.2662 72.16443,83.4226 118.18,110.1952 33.56173,19.5267 71.48453,33.0706 109.00969,38.9324 18.0767,2.8236 60.54825,3.0742 78.02156,0.4603 116.99166,-17.5015 204.74746,-94.141 244.09274,-213.1725 7.87613,-23.8277 13.96885,-52.1186 17.62397,-81.8355 2.39616,-19.48165 2.41331,-74.33045 0.0291,-93.74995 -8.43384,-68.6972 -28.30209,-127.2846 -61.05047,-180.0257 -7.68806,-12.3816 -22.16034,-33.0407 -22.73981,-32.4612 -0.18937,0.1894 1.79288,5.0809 4.40485,10.8701 15.84159,35.1106 26.05875,69.5573 31.43793,105.9918 2.0475,13.8684 2.81597,44.9831 1.4371,58.1922 -2.82394,27.0539 -11.06916,50.8699 -23.58891,68.1356 -4.54031,6.2615 -7.01906,8.4762 -4.75781,4.251 0.52078,-0.9731 2.03981,-5.6566 3.37565,-10.4077 11.59172,-41.228 8.54635,-93.3625 -8.427,-144.2657 -29.07009,-87.1814 -90.91986,-156.54625 -165.63214,-185.757301 -26.49788,-10.36017 -50.47125,-15.07791 -80.424,-15.82674 -35.81348,-0.89536 -64.5166,3.58237 -100.3125,15.64891 C 294.8409,113.70299 230.8624,172.61491 184.80911,259.56901 c -27.16871,51.2978 -45.50193,114.6876 -51.92301,179.5313 -1.56951,15.85 -1.57973,64.85705 -0.0167,80.15625 6.46126,63.2434 23.17333,116.1596 51.96254,164.5311 29.07703,48.8551 71.92467,91.6789 117.61932,117.5537 42.19126,23.891 105.25308,44.171 151.67607,48.7773 5.67187,0.5628 11.57812,1.1948 13.125,1.4047 1.54687,0.2098 12.09375,0.2535 23.4375,0.097 15.91678,-0.2194 23.19309,-0.7404 31.875,-2.2823 z"
-        fill="orange" stroke-width="0" />
-			<use id="use" xlink:href="#c1" />
+<svg id="portal_svg" width="240" height="240" viewBox="0 0 900 900" xmlns="http://www.w3.org/2000/svg">
+<path d="M 756.40902,784.0783 C 616.0042,905.68214 406.7082,935.38868 255.32421,855.20018 95.456062,770.51755 -14.28054,574.63033 1.5088513,402.12233 c 0.7212765,-7.88061 9.9179217,27.56439 18.6659637,71.94121 7.144324,36.24178 14.253293,57.29784 25.999171,77.00728 6.269958,10.5211 6.820865,10.85845 4.788725,2.93318 C -38.050012,206.86111 264.09254,-88.248872 593.22907,24.359284 914.50598,134.27856 1007.3874,566.70754 756.40902,784.0783 Z m 31.03184,-100.79679 c 11.1115,-16.00214 18.26769,-30.60154 22.02678,-44.93698 2.39922,-9.14966 2.62855,-9.26756 -9.91798,5.0984 -97.29734,111.40648 -243.02569,148.79256 -371.41791,95.28574 -10.90363,-4.54408 -10.40659,-4.79062 3.83466,-1.90211 178.69635,36.24486 346.73752,-71.53617 372.99635,-239.23868 28.98311,-185.10091 -131.06343,-382.66985 -337.576,-416.719266 -15.40391,-2.539801 -15.60922,-2.237873 -1.99385,2.93177 92.94107,35.289056 159.2535,96.896116 168.65244,156.684996 1.19408,7.59634 1.00593,10.8979 -0.36128,6.337 C 621.1429,204.98718 547.70656,146.46123 479.0548,123.58889 201.7575,31.203709 19.725511,327.98554 183.57947,605.32674 c 128.859,218.10822 377.23805,274.65225 556.52928,126.69506 4.36065,-3.59853 8.93369,-7.31351 10.16229,-8.2554 6.72944,-5.15908 30.98543,-31.57826 37.16982,-40.48489 z" fill="orange" stroke-width="0" />
+<use id="use" xlink:href="#c1" />
 </svg>
 </div>
 
+</div>
 <script>
 
-loaddata(-1);
+var suppress_menu_close = 0; //this needs to be set before forcing open the menu
+var secret_menu_clicks = 0; //keeps track of clicks to load secret menu
+var portal_color_saved = 0; //0 is orange 1 is blue
+var running_man_orientation = 0;
 
-  
-function loaddata(number) {
+//keeps track of timer for reset during mode changes
+var interval_obj;
+
+//selects live or non-live data
+var live_mode = 1;
+
+//live mode is initial mode so hide history div
+histpage.style.display  = 'none';
+
+//initial menu setup, since init portal is orange set to blue
+$(document).ready(function() {
+	$('.menu').dropit();	
+	$(".menu ul.dropit-submenu a").addClass("blue");
+	$(".menu li:eq(4)").hide();
+	$(".menu li:eq(5)").hide();
+	
+	//load live data  
+	request_data(-1);
+});
+function load_hist(num){
+	currentid.value = parseInt(currentid.value) + num;
+	request_data(currentid.value);
+}
+function changemode(mode_req){
+	live_mode = mode_req;
+	clearTimeout(interval_obj);
+	livepage.style.display  = 'none';  
+	histpage.style.display  = 'none';  
+	request_data(-1);
+}
+function rotate_running_man(){
+	running_man_orientation += 180;
+	$(".flipper").css("transform", "rotateY("+running_man_orientation+"deg)");
+}
+function running_man_click(){
+	rotate_running_man();
+	secret_menu_clicks++;
+	if (secret_menu_clicks == 5){
+		titletext.innerHTML = "Unlocked!"
+		$(".menu li:eq(4)").show();
+		$(".menu li:eq(5)").show();
+		suppress_menu_close = 1;
+		$('#menuicon').trigger('click');
+	}
+}
+function force_menu(){
+	suppress_menu_close = 1;
+	$('#menuicon').trigger('click');
+}
+function request_data(number) {
+
 	$('#loadingtxt').stop(true,true).show();
-		
-	$.post('index_get.php', {id: number,live: 1}, function(data) {
+	
+	$.post('index_get.php', {id: number,live: live_mode}, function(data) {
 		var line = data.split("\t");
 
-		
 		if (line.length == 17){
 			
 			var timestamp = line[0];
@@ -100,17 +157,23 @@ function loaddata(number) {
 			
 			var g_state = parseFloat(line[15]);
 			var c_state = parseFloat(line[16]);
+			currentid.value = id;
+			timestampdiv.innerHTML = timestamp;
 			
 			if (g_live){
 				gordonstats.innerHTML = g_volts + "V " + g_lag + "ms " + g_temp1 + "F " + g_temp2 + "F";
+				gordonstats2.innerHTML = "Gordon: " + gordonstats.innerHTML;	
 			}else{
 				gordonstats.innerHTML = "Last Seen at " + g_time;
+				gordonstats2.innerHTML = "Gordon " + gordonstats.innerHTML;	
 			}
 			
 			if (c_live){
-				chellstats.innerHTML = c_volts + "V " + c_lag + "ms " + c_temp1 + "F " + c_temp2 + "F";
+				chellstats_live.innerHTML = c_volts + "V " + c_lag + "ms " + c_temp1 + "F " + c_temp2 + "F";
+				chellstats_hist.innerHTML = "Chell: " + chellstats_live.innerHTML;
 			}else{
-				chellstats.innerHTML = "Last Seen at " + c_time;
+				chellstats_live.innerHTML = "Last Seen at " + c_time;
+				chellstats_hist.innerHTML = "Chell " + chellstats_live.innerHTML;
 			}
 			
 			if (synced == 1){
@@ -133,20 +196,18 @@ function loaddata(number) {
 				if (portal_color_saved != 0){
 					portal_color_saved = 0;
 					//portal_front.src = "orange.gif"
-					$("#gear path").removeClass("blue");
-					$("#gear path").addClass("orange");					
-					$(".menu ul.dropit-submenu a").removeClass("orange");
+					$('#portal_svg path').css({"fill":"#F79126"});
 					$(".menu ul.dropit-submenu a").addClass("blue");
+					$(".menu ul.dropit-submenu a").removeClass("orange");
 				}
 				portal_back.src = "getimage.php?id=" +id;
 			}else if (c_state < 0){
 				if (portal_color_saved != 1){
 					portal_color_saved = 1;
 					//portal_front.src = "blue.gif"
-					$("#gear path").removeClass("orange");
-					$("#gear path").addClass("blue");
-					$(".menu ul.dropit-submenu a").removeClass("blue");
+					$('#portal_svg path').css({"fill":"#16ABE3"});
 					$(".menu ul.dropit-submenu a").addClass("orange");
+					$(".menu ul.dropit-submenu a").removeClass("blue");
 				}
 				portal_back.src = "getimage.php?id=" +id;
 			}else{
@@ -157,14 +218,23 @@ function loaddata(number) {
 						portal_back.src  = "assets/orange_0.jpg"; 
 					}
 				}else{
-					//portal_text.innerHTML = "Please Check<br>Back Later!"
-					portal_back.src  = "assets/blank.png";
+					portal_back.src  = "test.jpg";
 				}				
-			}		
-		}
-		portalflipdiv.classList.toggle("flip")
-		setTimeout(fadeit,300);
-		setTimeout(loaddata,5000,-1);
+			}	
+			
+			if (live_mode == 1 ){
+				livepage.style.display  = 'inline'; 
+				subtext.innerHTML = "Live Feed"
+				interval_obj = setTimeout(request_data,5000,-1);
+			}else if (live_mode == 0 ){
+				histpage.style.display  = 'inline'; 
+				subtext.innerHTML = "History"
+			}
+			rotate_running_man();
+			setTimeout(function(){
+				$( "#loadingtxt" ).fadeOut("slow");
+			},300);			
+		}		
 	});
 }
 

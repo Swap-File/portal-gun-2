@@ -1,8 +1,18 @@
-a:link { text-decoration: none; }
-a:visited { text-decoration: none; }
-a { color: white; }
-a:hover { text-decoration: none; }
-a:active { text-decoration: none; }
+a:link {
+	text-decoration: none;
+}
+a:visited {
+	text-decoration: none;
+}
+a {
+	color: white;
+}
+a:hover {
+	text-decoration: none;
+}
+a:active {
+	text-decoration: none;
+}
 body {
 	padding-top: 5px;
     background-color: black;
@@ -12,79 +22,68 @@ body {
     font-family: Arial;
     margin: auto;
     position: relative;
-	z-index: 2;
-	
 }
 #test{
 	width:240px;
 	height:400px;
 	background-color: black;
 }
-#gear{
+#portal_svg{
 	pointer-events: none;
-
-margin-top:80px;
-   animation-iteration-count: infinite;
+	margin-top:80px;
+    animation-iteration-count: infinite;
     display: inline-block;
     animation-name: ckw;
 	animation-timing-function: linear;
-    animation-duration: 15.5s;
+    animation-duration: 14.4s;
     transform-origin: 50% 50%;
 }
-#gear path.blue {
-    fill: #16ABE3;
-}
-#gear path.orange {
+#portal_svg path {
     fill: #F79126;
 }
-
 @keyframes ckw {
-	
     0% {
-        transform:  scale(1,1.65) rotate(360deg);
-		   -webkit-transform: scale(1,1.65) rotate(360deg);
+    transform:  scale(1,1.65) rotate(360deg);
+	-webkit-transform: scale(1,1.65) rotate(360deg);
     -ms-transform: scale(1,1.65) rotate(360deg);
     }
     100% {
-        transform: scale(1,1.65) rotate(0deg) ;
-		   -webkit-transform: scale(1,1.65) rotate(0deg) ;
+    transform: scale(1,1.65) rotate(0deg) ;
+	-webkit-transform: scale(1,1.65) rotate(0deg) ;
     -ms-transform: scale(1,1.65) rotate(0deg) ;
-		
     }
 }
-#timestampdiv { padding-top: 20px;}
-#mainpage{ padding-top: 10px;}
+#timestampdiv {
+	padding-top: 5px;
+}
+#mainpage{ 
+	padding-top: 10px;
+}
 #menutxt {
     font-size: 15px;
 	margin-top: 9px;
-	
 }
 #portal_text{
 	margin-top: 190px;
-	
 }
 #titletext {
-    margin-top: 14px;
+    margin-top: 10px;
     font-size: 24px;
+}
+#subtext{
+    font-size: 16px;
 }
 #loadingtxt {
     display: none;
     font-size: 12px;
 }
-#leftlogo,#rightlogo{
-	width:auto;
-    height:50px; 
-}
 #menuicon {
-	padding-top: -5px;
     font-size: 38px;
 	padding-bottom: 2px;
-
 }
 #menudiv {
 	padding-top: 5px;
 	height: 70px;
-    z-index: 1;
     margin-right: -60px;
     width: 60px;
     float: left;
@@ -94,14 +93,21 @@ margin-top:80px;
 	-moz-border-radius:3px;
 	border-radius:3px;
 }
-
-.portalguy {
+.runningguy,#menudiv{
+	cursor: pointer;
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+.runningguy {
 	padding-top: 5px;
     width: 60px;
     display: inline-block;
     float: right;
     margin-left: -60px;
-    z-index: 1;
 	background-color:#404040;
 	-webkit-border-radius:3px;
 	-moz-border-radius:3px;
@@ -131,7 +137,6 @@ margin-top:80px;
 	color:white;
 	padding:0 18px;
 }
-
 .menu ul.dropit-submenu a.blue:hover{
 	background:#16ABE3;
 	color:#fff;
@@ -142,7 +147,6 @@ margin-top:80px;
 	color:#fff;
 	text-decoration:none;
 }
-
 .portal_image {
 	padding-top: 5px;
     position: absolute;
@@ -157,44 +161,38 @@ margin-top:80px;
 #gordonstats,#chellstats {
     font-size: 15px;
 }
-
-/* entire container, keeps perspective */
 .flip-container {
-	perspective: 1000;
+	perspective: 50px;
+	transform: rotateY(0deg);
+}
+.runningguyimg{
+	width:  auto;
+	height: 50px; 
 }
 .flip-container, .front, .back {
-	width: 50px;
-	height: 50px;
+	height:50px; 
 	left: 0;
     right: 0;
     margin-left: auto;
-    margin-right: auto;
+    margin-right: auto;	
 }
-.flip-container.flip .flipper {
-	transform: rotateY(180deg);
-}
-/* flip speed goes here */
 .flipper {
 	transition: 0.6s;
 	transform-style: preserve-3d;
 	position: relative;
 }
-/* hide back of pane during swap */
 .front, .back {
+	width:50px;
+    height:50px; 
 	backface-visibility: hidden;
 	-webkit-backface-visibility: hidden;
 	position: absolute;
 	top: 0;
 	left: 0;
-	
 }
-/* front pane, placed above back */
 .front {
-	z-index: 2;
-	/* for firefox 31 */
 	transform: rotateY(0deg);
 }
-/* back, initially hidden pane */
 .back {
 	transform: rotateY(180deg);
 }
