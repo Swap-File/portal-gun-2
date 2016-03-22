@@ -23,13 +23,10 @@ body {
     margin: auto;
     position: relative;
 }
-#test{
-	width:240px;
-	height:400px;
-	background-color: black;
+#portal_front,#portal_svg{
+	pointer-events: none;
 }
 #portal_svg{
-	pointer-events: none;
 	margin-top:80px;
     animation-iteration-count: infinite;
     display: inline-block;
@@ -63,9 +60,6 @@ body {
     font-size: 15px;
 	margin-top: 9px;
 }
-#portal_text{
-	margin-top: 190px;
-}
 #titletext {
     margin-top: 10px;
     font-size: 24px;
@@ -73,7 +67,7 @@ body {
 #subtext{
     font-size: 16px;
 }
-#loadingtxt {
+#loading_txt {
     display: none;
     font-size: 12px;
 }
@@ -81,39 +75,29 @@ body {
     font-size: 38px;
 	padding-bottom: 2px;
 }
-#menudiv {
-	padding-top: 5px;
-	height: 70px;
-    margin-right: -60px;
-    width: 60px;
-    float: left;
-    font-size: 12px;
-	background-color:#404040;
-	-webkit-border-radius:3px;
-	-moz-border-radius:3px;
-	border-radius:3px;
-}
-.runningguy,#menudiv{
+#menudiv,#running_div{
 	cursor: pointer;
-	-webkit-user-select: none; /* Chrome/Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+ */
-	/* Rules below not implemented in browsers yet */
+	-webkit-user-select: none;  
+	-moz-user-select: none; 
+	-ms-user-select: none; 
 	-o-user-select: none;
 	user-select: none;
-}
-.runningguy {
-	padding-top: 5px;
-    width: 60px;
-    display: inline-block;
-    float: right;
-    margin-left: -60px;
 	background-color:#404040;
 	-webkit-border-radius:3px;
 	-moz-border-radius:3px;
 	border-radius:3px;
+	width: 60px;
+	padding-top: 5px;
 	height: 70px;
 }
+#running_div {
+    float: right;
+}
+#menudiv {
+    float: left;
+}
+
+
 .menu ul{
 	display:none;
 	text-align: left;
@@ -158,18 +142,18 @@ body {
 #gordontxt,#chelltxt {
     font-size: 22px;
 }
-#gordonstats,#chellstats {
+#gordonstats_live,#chellstats_live,#gordonstats_hist,#chellstats_hist {
     font-size: 15px;
 }
-.flip-container {
+.flip_wrap {
 	perspective: 50px;
 	transform: rotateY(0deg);
 }
-.runningguyimg{
+.running_img{
 	width:  auto;
 	height: 50px; 
 }
-.flip-container, .front, .back {
+.flip_wrap, .front, .back {
 	height:50px; 
 	left: 0;
     right: 0;
