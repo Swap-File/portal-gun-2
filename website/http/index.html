@@ -14,10 +14,10 @@
 </head>
 <body>
 
-<div id="menudiv" onclick="force_menu()">
+<div id="menu_div" onclick="force_menu()">
 <ul class="menu">
 <li>
-<a><i id="menuicon" class="fa fa-chevron-down"></i></a>
+<a><i id="menu_icon" class="fa fa-chevron-down"></i></a>
 <ul>
 <li><a onclick="set_mode(1)"><i class="fa fa-home fa-fw"></i> Live Feed</a></li>
 <li><a onclick="set_mode(0)"><i class="fa fa-history fa-fw"></i> History</a></li>
@@ -55,25 +55,30 @@
 <div id="timestampdiv"></div>
 <div id="gordonstats_hist"></div>
 <div id="chellstats_hist"></div>
-<input class="histbutton" type="button" onclick="load_hist(2);" value="<<" style="width:40px;">
-<input class="histbutton" type="button" onclick="load_hist(-1);" value="<" style="width:40px;">
-<input id="currentid" type="number" min="0" value="0" style="width:50px;" onchange="updatepage(this)">
-<input class="histbutton" type="button" onclick="load_hist(1);" value= ">" style="width:40px;">
-<input class="histbutton" type="button" onclick="load_hist(2);" value=">>" style="width:40px;">
+<input class="histbutton" type="button" onclick="load_hist(-2)" value="<<">
+<input class="histbutton" type="button" onclick="load_hist(-1)" value="<">
+<input type="button" onclick="toggle_browser()" value= "Browse">
+<input class="histbutton" type="button" onclick="load_hist(1)" value= ">">
+<input class="histbutton" type="button" onclick="load_hist(2)" value=">>">
 </div>
 
-<div>
+<div class="portal_spacer"></div>
 <img class="portal_image" id="portal_back" alt="" src="test.jpg">
 <img class="portal_image" id="portal_front" alt="" src="mask.png">
 <svg id="portal_svg" width="240" height="240" viewBox="0 0 900 900" xmlns="http://www.w3.org/2000/svg">
 <path d="M 756.40902,784.0783 C 616.0042,905.68214 406.7082,935.38868 255.32421,855.20018 95.456062,770.51755 -14.28054,574.63033 1.5088513,402.12233 c 0.7212765,-7.88061 9.9179217,27.56439 18.6659637,71.94121 7.144324,36.24178 14.253293,57.29784 25.999171,77.00728 6.269958,10.5211 6.820865,10.85845 4.788725,2.93318 C -38.050012,206.86111 264.09254,-88.248872 593.22907,24.359284 914.50598,134.27856 1007.3874,566.70754 756.40902,784.0783 Z m 31.03184,-100.79679 c 11.1115,-16.00214 18.26769,-30.60154 22.02678,-44.93698 2.39922,-9.14966 2.62855,-9.26756 -9.91798,5.0984 -97.29734,111.40648 -243.02569,148.79256 -371.41791,95.28574 -10.90363,-4.54408 -10.40659,-4.79062 3.83466,-1.90211 178.69635,36.24486 346.73752,-71.53617 372.99635,-239.23868 28.98311,-185.10091 -131.06343,-382.66985 -337.576,-416.719266 -15.40391,-2.539801 -15.60922,-2.237873 -1.99385,2.93177 92.94107,35.289056 159.2535,96.896116 168.65244,156.684996 1.19408,7.59634 1.00593,10.8979 -0.36128,6.337 C 621.1429,204.98718 547.70656,146.46123 479.0548,123.58889 201.7575,31.203709 19.725511,327.98554 183.57947,605.32674 c 128.859,218.10822 377.23805,274.65225 556.52928,126.69506 4.36065,-3.59853 8.93369,-7.31351 10.16229,-8.2554 6.72944,-5.15908 30.98543,-31.57826 37.16982,-40.48489 z" fill="orange" stroke-width="0" />
 <use id="use" xlink:href="#c1" />
 </svg>
+
+
+<div id="hist_browser">
+<input id="currentid" type="number" min="0" value="0" style="width:50px;" onchange="updatepage(this)">
 </div>
 
 </div>
 <script>
 
+var browser_enabled = 0;  //date browser
 var transform_support = true; //fallback to GIF if false
 var suppress_menu_close = 0; //this needs to be set before forcing open the menu
 var secret_menu_clicks = 0; //keeps track of clicks to load secret menu
@@ -95,12 +100,37 @@ $(document).ready(function() {
 	//load live data  
 	request_data(-1);
 });
+function toggle_browser(){
+	if (browser_enabled == 0){
+	hist_browser.style.display = 'inline';
+	portal_back.style.display = 'none';
+	portal_front.style.display = 'none';
+	portal_svg.style.display = 'none';
+	browser_enabled = 1;
+	}else{
+		close_browser();
+	}
+}
+function close_browser(){
+	browser_enabled = 0;
+	hist_browser.style.display = 'none';
+	if (transform_support == true){
+	portal_svg.style.display = 'inline';
+	}
+	portal_front.style.display = 'inline';
+	portal_back.style.display = 'inline';
+	
+}
 function load_hist(num){
+close_browser();
+	$.post('history.php', {id: currentid.value,dir: num}, function(data) {
 	live_mode = 0;
-	currentid.value = parseInt(currentid.value) + num;
+	currentid.value = parseInt(data);
 	request_data(currentid.value);
+	});
 }
 function set_mode(mode_req){
+	close_browser();
 	live_mode = mode_req;
 	clearTimeout(interval_obj);
 	livepage.style.display  = 'none';  
@@ -119,12 +149,12 @@ function running_man_click(){
 		$(".menu li:eq(4)").show();
 		$(".menu li:eq(5)").show();
 		suppress_menu_close = 1;
-		$('#menuicon').trigger('click');
+		$('#menu_icon').trigger('click');
 	}
 }
 function force_menu(){
 	suppress_menu_close = 1;
-	$('#menuicon').trigger('click');
+	$('#menu_icon').trigger('click');
 }
 
 function getSupportedTransform() {

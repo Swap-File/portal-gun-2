@@ -40,7 +40,7 @@ body {
 }
 @keyframes ckw {
     0% {
-    transform:  scale(1,1.65) rotate(360deg);
+    transform: scale(1,1.65) rotate(360deg);
 	-webkit-transform: scale(1,1.65) rotate(360deg);
     -ms-transform: scale(1,1.65) rotate(360deg);
     }
@@ -50,6 +50,7 @@ body {
     -ms-transform: scale(1,1.65) rotate(0deg) ;
     }
 }
+
 #timestampdiv {
 	padding-top: 5px;
 }
@@ -71,11 +72,17 @@ body {
     display: none;
     font-size: 12px;
 }
-#menuicon {
+.histbutton{
+	width:40px;
+}
+#hist_browser{
+	display: none;
+}
+#menu_icon {
     font-size: 38px;
 	padding-bottom: 2px;
 }
-#menudiv,#running_div{
+#menu_div,#running_div{
 	cursor: pointer;
 	-webkit-user-select: none;  
 	-moz-user-select: none; 
@@ -93,10 +100,9 @@ body {
 #running_div {
     float: right;
 }
-#menudiv {
+#menu_div {
     float: left;
 }
-
 
 .menu ul{
 	display:none;
@@ -131,13 +137,15 @@ body {
 	color:#fff;
 	text-decoration:none;
 }
+.portal_spacer{
+		padding-top: 5px;
+}
 .portal_image {
-	padding-top: 5px;
-    position: absolute;
-    left: 0;
+   position: absolute;
+	left: 0;
     right: 0;
     margin-left: auto;
-    margin-right: auto;
+    margin-right: auto;	
 }
 #gordontxt,#chelltxt {
     font-size: 22px;
