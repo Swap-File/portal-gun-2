@@ -7,8 +7,10 @@
 <title>Portal Gun 2.0</title>
 <link rel="stylesheet" type="text/css" href="portalstyle.css">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="datetimepicker/jquery.datetimepicker.css"/>
 <link rel="stylesheet" href="dropit/dropit.css" type="text/css" />
-<script src="jquery-2.2.2.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+<script src="datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script src="dropit/dropit.js"></script>
 
 </head>
@@ -55,11 +57,11 @@
 <div id="timestampdiv"></div>
 <div id="gordonstats_hist"></div>
 <div id="chellstats_hist"></div>
-<input class="histbutton" type="button" onclick="load_hist(-2)" value="<<">
-<input class="histbutton" type="button" onclick="load_hist(-1)" value="<">
-<input type="button" onclick="toggle_browser()" value= "Browse">
-<input class="histbutton" type="button" onclick="load_hist(1)" value= ">">
-<input class="histbutton" type="button" onclick="load_hist(2)" value=">>">
+<input class="histbutton" type="button" onclick="req_id(-2)" value="<<">
+<input class="histbutton" type="button" onclick="req_id(-1)" value="<">
+<input id="search_button" type="button" onclick="browser_toggle()" value= "Search">
+<input class="histbutton" type="button" onclick="req_id(1)" value= ">">
+<input class="histbutton" type="button" onclick="req_id(2)" value=">>">
 </div>
 
 <div class="portal_spacer"></div>
@@ -70,15 +72,20 @@
 <use id="use" xlink:href="#c1" />
 </svg>
 
-
-<div id="hist_browser">
-<input id="currentid" type="number" min="0" value="0" style="width:50px;" onchange="updatepage(this)">
+<div id="hist_browser">Searching for Portal Openings prior to:
+<input id="currentid" disabled="disabled" value="not loaded"><br><br>
+<input id="datetimepicker" type="text">
+<div id="hist_results"></div>
+<input id="find_button" type="button"  value="Find Records" onclick="initiate_search()" >
+<input id="search_again_button" type="button"  value="Search Again" onclick="datepicker_show()" >
 </div>
 
 </div>
+
+
 <script>
 
-var browser_enabled = 0;  //date browser
+var current_id = 0;
 var transform_support = true; //fallback to GIF if false
 var suppress_menu_close = 0; //this needs to be set before forcing open the menu
 var secret_menu_clicks = 0; //keeps track of clicks to load secret menu
@@ -86,7 +93,6 @@ var portal_color_saved = 0; //0 is orange 1 is blue
 var running_man_orientation = 0; //spin in degrees
 var interval_obj; //keeps track of timer for reset during mode changes
 var live_mode = 1; //selects live or historical data
-histpage.style.display  = 'none'; //live mode is initially set so hide history div
 
 //initial menu setup, since init portal is orange set to blue
 $(document).ready(function() {
@@ -94,43 +100,79 @@ $(document).ready(function() {
 	$(".menu ul.dropit-submenu a").addClass("blue");
 	$(".menu li:eq(4)").hide();
 	$(".menu li:eq(5)").hide();
-	
+
 	//check for SVG Transform support, if none, fallback to GIF
 	getSupportedTransform();
 	//load live data  
 	request_data(-1);
 });
-function toggle_browser(){
-	if (browser_enabled == 0){
-	hist_browser.style.display = 'inline';
-	portal_back.style.display = 'none';
-	portal_front.style.display = 'none';
-	portal_svg.style.display = 'none';
-	browser_enabled = 1;
+
+function initiate_search(){
+	var searchtime = parseInt($('#datetimepicker').datetimepicker('getValue').getTime() / 1000);	
+	$('#datetimepicker').datetimepicker('destroy');
+	find_button.style.display = 'none';
+	$.post('search.php', {time: searchtime}, function(data) {
+		hist_results.innerHTML = data;
+	});
+	hist_results.style.display = 'inline';
+	search_again_button.style.display = 'inline';
+}
+function datepicker_show(){
+	search_again_button.style.display = 'none';
+	find_button.style.display = 'inline';
+	hist_results.style.display = 'none';
+	$('#datetimepicker').datetimepicker({
+		inline:true,
+		theme:'dark',
+		onChangeDateTime:function(dp,$input){
+			 update_time_display();
+		}
+	});
+	 update_time_display();
+}
+function update_time_display(){
+	currentid.value = $('#datetimepicker').datetimepicker('getValue');
+}
+function browser_toggle(){
+	search_button.value = "Close";
+	
+	if (hist_browser.style.display == 'none'){
+		datepicker_show();
+		hist_browser.style.display = 'inline';
+		portal_back.style.display = 'none';
+		portal_front.style.display = 'none';
+		portal_svg.style.display = 'none';
 	}else{
-		close_browser();
+		browser_close();
 	}
 }
-function close_browser(){
-	browser_enabled = 0;
+function browser_close(){
+	search_button.value = "Search";
+	hist_results.style.display = 'none';
+	$('#datetimepicker').datetimepicker('destroy');
+	$('#datetimepicker').hide();
 	hist_browser.style.display = 'none';
 	if (transform_support == true){
-	portal_svg.style.display = 'inline';
+		portal_svg.style.display = 'inline';
 	}
 	portal_front.style.display = 'inline';
 	portal_back.style.display = 'inline';
 	
 }
-function load_hist(num){
-close_browser();
-	$.post('history.php', {id: currentid.value,dir: num}, function(data) {
-	live_mode = 0;
-	currentid.value = parseInt(data);
-	request_data(currentid.value);
+function req_id(num){
+	browser_close();
+	$.post('history.php', {id: current_id,dir: num}, function(data) {
+		live_mode = 0;
+		current_id = parseInt(data);
+		request_data(current_id);
 	});
 }
+function id_load(num){
+	browser_close();
+	request_data(num);
+}
 function set_mode(mode_req){
-	close_browser();
+	browser_close();
 	live_mode = mode_req;
 	clearTimeout(interval_obj);
 	livepage.style.display  = 'none';  
@@ -200,7 +242,7 @@ function request_data(number) {
 			
 			var g_state = parseFloat(line[15]);
 			var c_state = parseFloat(line[16]);
-			currentid.value = id;
+			current_id = id;
 			timestampdiv.innerHTML = timestamp;
 			
 			if (g_live){

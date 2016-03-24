@@ -17,7 +17,7 @@ body {
 	padding-top: 5px;
     background-color: black;
     color: white;
-    width: 300px;
+    width: 308px;
     text-align: center;
     font-family: Arial;
     margin: auto;
@@ -75,8 +75,15 @@ body {
 .histbutton{
 	width:40px;
 }
-#hist_browser{
+#search_button{
+	width:60px;
+	
+}
+#hist_browser,#search_again_button,#histpage{
 	display: none;
+}
+#hist_browser{
+	padding-top: 5px;
 }
 #menu_icon {
     font-size: 38px;
@@ -103,7 +110,9 @@ body {
 #menu_div {
     float: left;
 }
-
+#currentid{
+	width:300px;
+}
 .menu ul{
 	display:none;
 	text-align: left;
@@ -119,6 +128,7 @@ body {
 	-webkit-box-shadow:0px 1px 3px rgba(0,0,0,0.15);
 	-moz-box-shadow:0px 1px 3px rgba(0,0,0,0.15);
 	box-shadow:0px 1px 3px rgba(0,0,0,0.15);
+	z-index: 10000;
 }
 .menu ul.dropit-submenu a{
 	display:block;
