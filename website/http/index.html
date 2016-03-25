@@ -108,7 +108,8 @@ $(document).ready(function() {
 });
 
 function initiate_search(){
-	var searchtime = parseInt($('#datetimepicker').datetimepicker('getValue').getTime() / 1000);	
+	hist_results.innerHTML = "";
+	var searchtime = parseInt($('#datetimepicker').datetimepicker('getValue').getTime() / 1000);
 	$('#datetimepicker').datetimepicker('destroy');
 	find_button.style.display = 'none';
 	$.post('search.php', {time: searchtime}, function(data) {

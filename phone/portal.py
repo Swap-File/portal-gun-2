@@ -2,6 +2,12 @@ import pprint
 import time
 from datetime import datetime
 import requests
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import _thread
+
+hostName = "localhost"
+hostPort = 9000
+req_to_do = 0
 
 auth = ('', '')
 url_upload = 'https://swapfile.asuscomm.com/portalguns/add.php'
@@ -20,9 +26,44 @@ session_chell = requests.Session()
 session_upload = requests.Session()
 
 cycle = 0
-while (cycle < 30):
-	payload = {}
 
+class MyServer(BaseHTTPRequestHandler):
+	def do_GET(self):
+		global req_to_do
+		temp = -2
+		lock.acquire()
+		try:
+			if self.path == "/set":
+				req_to_do = 1
+			temp = req_to_do	
+		finally:
+			lock.release()
+			
+		self.send_response(200)
+		self.send_header("Content-type", "text/plain")
+		self.end_headers()
+		self.wfile.write(bytes("%s" % temp, "utf-8"))
+
+def start_server():
+	myServer = HTTPServer((hostName, hostPort), MyServer)
+	print(time.asctime(), "Server Starts - %s:%s" % (hostName, hostPort))
+	myServer.serve_forever()
+	  
+
+def upload_data(keyframe):
+	global cycle
+	global session_gordon
+	global session_chell
+	global session_upload
+	global gordon_packet_id_last
+	global chell_packet_id_last
+	global gordon_last_seen_time
+	global chell_last_seen_time
+
+	payload = {}
+	
+	payload['keyframe'] = keyframe
+	
 	try:
 		#get file from gun 1
 		gordon_text = session_gordon.get(url_goron_data).content.split( )
@@ -110,6 +151,48 @@ while (cycle < 30):
 			upload_result = str( upload_result.content, encoding=upload_result.encoding ) 
 		except:
 			print ("Upload Failed")
+	else:
+		print("Warming...")
+		
+	cycle = cycle + 1
+	
+	
+print("Warming")
+upload_data(0)
+time.sleep(2)
+upload_data(0)
+print("Warmup Complete")
 
-	cycle += 1
-	time.sleep(10)
+lock = _thread.allocate_lock()
+_thread.start_new_thread(start_server,())
+
+start_time = time.time()
+
+while 1:
+	#check if work to do flag is set
+	work_to_do = 0
+	lock.acquire()
+	try:
+		if req_to_do > 0:
+			work_to_do = 1
+	finally:
+		lock.release()	
+		
+	#rush datapoint
+	if (work_to_do > 0):
+		print("Keyframe!")
+		upload_data(1)
+		work_to_do = 0
+		#set work as being done
+		lock.acquire()
+		try:
+			req_to_do = 0
+		finally:
+			lock.release()	
+		
+	time.sleep(.5)
+	#normal datapoint
+	if (time.time() - start_time > 15):
+		upload_data(0)
+		start_time = time.time()
+	
