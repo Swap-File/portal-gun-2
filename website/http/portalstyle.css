@@ -13,6 +13,10 @@ a:hover {
 a:active {
 	text-decoration: none;
 }
+.tablelink{
+	cursor: pointer;
+	text-decoration: underline;
+}
 body {
 	padding-top: 5px;
     background-color: black;

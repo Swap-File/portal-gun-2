@@ -36,7 +36,7 @@
 <div class="hidden_div" id="imageWrapper"> 
 <br>
 <img class="portal_image" id="portal_back" alt="" src="black.png">
-<img class="portal_image" id="portal_front" alt="" src="black.png">
+<img class="portal_image" id="portal_front" alt="" onclick="takepic()" src="black.png">
 <div id="portal_text"></div>
 </div>
 <div class="hidden_div" id="playlist_div"> 
@@ -305,6 +305,23 @@ if (location.host == "192.168.1.22"){gun_name_div.innerHTML = "Gordon";}
 else if (location.host == "192.168.1.23"){gun_name_div.innerHTML = "Chell";}
 
 update_data();
+
+var clicktime = 0;
+
+function takepic(){
+	if (Date.now() - clicktime < 500){
+		var request = new XMLHttpRequest();
+		request.onload = function() {
+			if (parseInt(this.response) == 1){
+			portal_back.src = "/assets/shutter.png";
+			setTimeout(update_portal_background,300);
+			}
+		}
+		request.open("GET", "http://127.0.0.1:9000/set", true);
+		request.send(null);
+	}
+	clicktime = Date.now();
+}
 
 function playlist_load(num){
 
@@ -644,7 +661,7 @@ function update_data() {
 					irselect.value = "256";
 					ir_pwm_last= ir_pwm;
 				}
-			
+				
 				var connected = parseInt(res[2]);
 				if (connected != connected_last){
 					if (connected == 1 ){
@@ -713,7 +730,7 @@ function update_data() {
 					arduino_temp_last = arduino_temp;
 					core_temp_last = core_temp;
 				}
-					
+				
 
 				if((state_solo != state_solo_last || state_duo != state_duo_last) && loading == 0){
 					if (state_solo == 0 && state_duo == 0){
