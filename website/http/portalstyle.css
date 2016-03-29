@@ -114,8 +114,9 @@ body {
 #menu_div {
     float: left;
 }
-#currentid{
-	width:300px;
+input{
+	text-align: center;
+	width:170px;
 }
 .menu ul{
 	display:none;

@@ -10,7 +10,7 @@ try {
 		$time = time();
 	}
 	
-	$stmt = $conn->prepare("SELECT id,DATE_FORMAT(timestamp,'%r') as time FROM log WHERE timestamp <= FROM_UNIXTIME(:time) AND keyframe = 1 ORDER BY id DESC LIMIT 30");
+	$stmt = $conn->prepare("SELECT id,DATE_FORMAT(timestamp,'%a %r') as time FROM log WHERE timestamp <= FROM_UNIXTIME(:time) AND keyframe = 1 ORDER BY id DESC LIMIT 30");
 	$stmt->bindParam(':time', $time, PDO::PARAM_INT);
 	$stmt->execute();
 	$result = $stmt->fetchAll();
