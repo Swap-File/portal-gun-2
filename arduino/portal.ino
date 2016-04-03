@@ -217,12 +217,20 @@ void loop() {
 
 		//because we are running at 100hz, these buckets can't overflow
 		//if running slower use bigger buckets or saturating add
-		if (digitalRead(4)) pin4_1_bucket++;
-		else				pin4_0_bucket++;
-		
-		if (digitalRead(7)) pin7_1_bucket++;
-		else				pin7_0_bucket++;
-		
+		if (gloveid) {
+			if (digitalRead(7)) pin4_1_bucket++;
+			else				pin4_0_bucket++;
+
+			if (digitalRead(4)) pin7_1_bucket++;
+			else				pin7_0_bucket++;
+		}
+		else {
+			if (digitalRead(4)) pin4_1_bucket++;
+			else				pin4_0_bucket++;
+
+			if (digitalRead(7)) pin7_1_bucket++;
+			else				pin7_0_bucket++;
+		}
 		temperature = (temperature >> 1) +  (analogRead(A0) >> 1);
 		battery_level = (battery_level >> 1) + (analogRead(A2) >> 1);
 
@@ -394,8 +402,14 @@ void onPacket(const uint8_t* buffer, size_t size)
 				digitalWrite(LED_PIN, bitRead(blinkState, 2));
 
 				//output pwm data
-				analogWrite(5, buffer[0]);
-				analogWrite(6, buffer[1]);
+				if (gloveid) {
+					analogWrite(6, buffer[0]);
+					analogWrite(5, buffer[1]);
+				}
+				else {
+					analogWrite(5, buffer[0]);
+					analogWrite(6, buffer[1]);
+				}
 				analogWrite(3, buffer[2]);
 		}
 	}
