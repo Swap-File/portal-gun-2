@@ -135,11 +135,18 @@ int main(void){
 		}
 		
 		ahrs_command(0,0,0,ahrs_state);
-		audio_effects(this_gun);
+		
+		//disable sound & lights on low battery, but keep them on when on the 12V tether
+		if (arduino.battery_level_pretty > 13.8 || arduino.battery_level_pretty < 12.50){
+			audio_effects(this_gun);
+			//hic svnt dracones
+			if(freq_division) this_gun.brightness = led_update(this_gun,other_gun);
+		}else{
+			if(freq_division) ledcontrol_wipe();
+			this_gun.brightness = 255;
+		}
+		
 		gst_command(gst_state);	
-
-		//hic svnt dracones
-		if(freq_division) this_gun.brightness = led_update(this_gun,other_gun);
 
 		//send data to other gun
 		if (this_gun.clock - time_udp_send > 100){
