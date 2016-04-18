@@ -71,7 +71,7 @@ Nightvision Brightness:
 Camera Preview:
 <select id="preview_camera_select" onchange="preview_camera_onchange(this)">
 <option value="LIVE">LIVE</option>
-<option value="GIF">IMG</option>
+<option value="GIF">GIF</option>
 <option value="OFF">OFF</option>
 </select>
 </select>
@@ -80,7 +80,7 @@ Camera Preview:
 Projector Preview:
 <select id="preview_projection_select" onchange="preview_projection_onchange(this)">
 <option value="LIVE">LIVE</option>
-<option value="GIF">IMG</option>
+<option value="GIF">GIF</option>
 <option value="OFF">OFF</option>
 </select>
 <br>
@@ -108,6 +108,9 @@ Portal Type:
 <td class="centertop"><div>
 <b><u>DUO PLAYLISTS</u></b><br>
 <input type="button" class="button_text" onclick="playlist_load(5)" value="Empty Duo"/><br>
+<input type="button" class="button_text" onclick="playlist_load(6)" value="TV Effect"/><br>
+<input type="button" class="button_text" onclick="playlist_load(7)" value="GL Effect"/><br>
+<input type="button" class="button_text" onclick="playlist_load(8)" value="Blend 1"/><br>
 </div></td>
 <td class="centertop"><div>
 <b><u>SOLO PLAYLISTS</u></b><br>
@@ -324,6 +327,9 @@ menuselecter.value = "preview";
 
 if (location.host == "192.168.1.22"){gun_name_div.innerHTML = "Gordon";}
 else if (location.host == "192.168.1.23"){gun_name_div.innerHTML = "Chell";}
+else if (location.host.indexOf(":8022")){gun_name_div.innerHTML = "Gordon";}
+else if (location.host.indexOf(":8023")){gun_name_div.innerHTML = "Chell";}
+
 
 update_data();
 var clicktime = 0;
@@ -331,6 +337,9 @@ var clicktime = 0;
 function capture_keyframe(){
 	if (Date.now() - clicktime < 500){
 		var request = new XMLHttpRequest();
+		request.onerror = function() {
+			setTimeout(capture_keyframe,400);
+		}
 		request.onload = function() {
 			if (parseInt(this.response) == 1){
 				portal_back.src = "/assets/shutter.png";
@@ -344,15 +353,18 @@ function capture_keyframe(){
 }
 function check_if_keyframe_complete(){
 	var request = new XMLHttpRequest();
-		request.onload = function() {
-			if (parseInt(this.response) == 0){
-				update_portal_background();
-			}else{
-				setTimeout(check_if_keyframe_complete,400);
-			}
+	request.onerror = function() {
+		setTimeout(check_if_keyframe_complete,400);
+	}
+	request.onload = function() {
+		if (parseInt(this.response) == 0){
+			update_portal_background();
+		}else{
+			setTimeout(check_if_keyframe_complete,400);
 		}
-		request.open("GET", "http://127.0.0.1:9000", true);
-		request.send(null);
+	}
+	request.open("GET", "http://127.0.0.1:9000", true);
+	request.send(null);
 }
 function playlist_load(num){
 	switch(num) {
@@ -374,6 +386,18 @@ function playlist_load(num){
 		break;
 	case 5:	
 		post_text('mode=4 4 -1 -1 -1 -1 -1 -1 -1 -1 -1');
+		requested_mode = "custom";
+		break;
+	case 6:	
+		post_text('mode=4 4 19 20 21 22 23 24 25 26 27');
+		requested_mode = "custom";
+		break;
+	case 7:	
+		post_text('mode=4 30 28 29 37 31 32 33 34 35 36');
+		requested_mode = "custom";
+		break;
+	case 8:	
+		post_text('mode=4 4 20 19 29 37 30 24 25 28 31');
 		requested_mode = "custom";
 		break;
 	}
@@ -468,10 +492,19 @@ function menu(sel){
 		else if (location.host == "192.168.1.22"){
 			window.location.href = 'http://192.168.1.23';
 		}
+		else if (location.host.indexOf(":8022")){
+			window.location.href = 'http://' + location.host.replace(":8022", ":8023");
+		}
+		else if (location.host.indexOf(":8023")){
+			window.location.href = 'http://' + location.host.replace(":8023", ":8022");
+		}
+		
 	}else{
 		if (sel == "reboot"){
 			var r = confirm("Are you sure?");
 			if (r == true) {
+				missed_packets = 999;
+				update_data();
 				var request = new XMLHttpRequest();
 				request.open("GET", "reboot.php", true);
 				request.send(null);
@@ -640,6 +673,9 @@ function effect_name(a) {
 }
 function update_data() {
 	var request = new XMLHttpRequest();
+	request.onerror = function() {
+		interval_obj = setTimeout(update_data,update_rate);
+	}
 	request.onload = function() {
 		if (missed_packets > 2){
 			missed_packets = Math.min(missed_packets,3);
