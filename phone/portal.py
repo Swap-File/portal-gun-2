@@ -4,6 +4,7 @@ from datetime import datetime
 import requests
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import _thread
+import re
 
 hostName = "localhost"
 hostPort = 9000
@@ -11,9 +12,9 @@ req_to_do = 0
 
 auth = ('', '')
 url_upload = 'https://swapfile.asuscomm.com/portalguns/add.php'
-url_goron_data ='http://192.168.1.22/tmp/portal.txt'
+url_gordon_data ='http://192.168.1.22/tmp/portal.txt'
 url_chell_data ='http://192.168.1.23/tmp/portal.txt'
-url_goron_image = 'http://192.168.1.22/tmp/snapshot.jpg'
+url_gordon_image = 'http://192.168.1.22/tmp/snapshot.jpg'
 url_chell_image = 'http://192.168.1.23/tmp/snapshot.jpg'
 
 gordon_packet_id_last = -1
@@ -70,7 +71,7 @@ def upload_data(keyframe):
 		try:
 			retries = retries + 1
 			#get file from gun 1
-			gordon_text = session_gordon.get(url_goron_data,timeout=0.01).content.split( )
+			gordon_text = session_gordon.get(url_gordon_data,timeout=1).content.split( )
 
 			gordon_packet_counter = int(gordon_text[30])
 			if (gordon_packet_counter != gordon_packet_id_last and gordon_packet_id_last != -1):
@@ -106,7 +107,7 @@ def upload_data(keyframe):
 		try:
 			retries = retries + 1	
 			#get file from gun 2
-			chell_text = session_chell.get(url_chell_data,timeout=0.01).content.split( )
+			chell_text = session_chell.get(url_chell_data,timeout=1).content.split( )
 			
 			chell_packet_counter = int(chell_text[30])
 			if (chell_packet_counter != chell_packet_id_last and chell_packet_id_last != -1):
@@ -149,10 +150,10 @@ def upload_data(keyframe):
 			#determine which gun if any to get image from
 			files = {};
 			if payload['c_state'] < -1:
-				files['img'] = ('i.jpg', session_chell.get(url_chell_image,timeout=0.01).content)
+				files['img'] = ('i.jpg', session_chell.get(url_chell_image,timeout=1).content)
 					
 			if payload['g_state'] < -1:
-				files['img'] = ('i.jpg', session_gordon.get(url_goron_image,timeout=0.01).content)
+				files['img'] = ('i.jpg', session_gordon.get(url_gordon_image,timeout=1).content)
 			retries = 99;
 		except:
 			print("Img get Failed")
@@ -169,41 +170,54 @@ def upload_data(keyframe):
 		
 	cycle = cycle + 1
 	
-
+requests.packages.urllib3.disable_warnings()	
 ip = ""
-while (ip == ""):
-	fullfile = open('/proc/net/arp', 'r').read()
-	results = re.findall( r'[0-9]+(?:\.[0-9]+){3}', fullfile )
 
-	for item in results:
-		print ("Trying Gordon at " + item)
-		try:
-			requests.get("http://" + item + ":8022/tmp/portal.txt",timeout=0.01)
-		except:
-			print ("Gordon Failed")
-		else:
-			print ("Found Gordon")
-			ip = item
-			break
-			
-		print ("Trying Chell at " + item)
-		try:
-			requests.get("http://" + item + ":8023/tmp/portal.txt",timeout=0.01)
-		except:
-			print ("Chell Failed")
-		else:
-			print ("Found Chell")
-			ip = item
-			break
-			
-	time.sleep(10)
-		
-print ("Building URLs...")		
-url_goron_data ='http://' + ip + ':8022/tmp/portal.txt'
-url_chell_data ='http://' + ip + ':8023/tmp/portal.txt'
-url_goron_image = 'http://' + ip + ':8022/tmp/snapshot.jpg'
-url_chell_image = 'http://' + ip + ':8023/tmp/snapshot.jpg'
+try:
+	requests.get(url_gordon_data,timeout=.1)
+	requests.get(url_chell_data,timeout=.1)
+except:
+	print ("BT Scan Active")
+	while (ip == ""):
+		fullfile = open('/proc/net/arp', 'r').read()
+		results = re.findall( r'[0-9]+(?:\.[0-9]+){3}', fullfile )
 
+		for item in results:
+			print ("Trying Gordon at " + item)
+			try:
+				requests.get("http://" + item + ":8022/tmp/portal.txt",timeout=1)
+			except:
+				print ("Gordon Failed")
+			else:
+				print ("Found Gordon")
+				ip = item
+				break
+				
+			print ("Trying Chell at " + item)
+			try:
+				requests.get("http://" + item + ":8023/tmp/portal.txt",timeout=1)
+			except:
+				print ("Chell Failed")
+			else:
+				print ("Found Chell")
+				ip = item
+				break
+		time.sleep(10)
+else:
+	print ("LAN Mode Active")
+	print ('Gordon: http://192.168.1.22')
+	print ('Chell: http://192.168.1.23')
+	
+	
+
+if (ip != ""):
+	print ("Building URLs...")		
+	url_gordon_data ='http://' + ip + ':8022/tmp/portal.txt'
+	url_chell_data ='http://' + ip + ':8023/tmp/portal.txt'
+	url_gordon_image = 'http://' + ip + ':8022/tmp/snapshot.jpg'
+	url_chell_image = 'http://' + ip + ':8023/tmp/snapshot.jpg'
+	print ('Gordon: http://' + ip +':8022')
+	print ('Chell: http://' + ip +':8023')
 
 print("Warming")
 upload_data(0)
@@ -214,8 +228,9 @@ print("Warmup Complete")
 lock = _thread.allocate_lock()
 _thread.start_new_thread(start_server,())
 
+frames = 0
 start_time = time.time()
-
+fps_time = time.time()
 while 1:
 	#check if work to do flag is set
 	work_to_do = 0
@@ -239,8 +254,17 @@ while 1:
 			lock.release()	
 		
 	time.sleep(.5)
+	
+	#fps (minutes) display
+	if (time.time() - fps_time > 60):
+		print ("FPM: " + frames)
+		frames = 0
+		fps_time = time.time()
+		
 	#normal datapoint
-	if (time.time() - start_time > 15):
+	if (time.time() - start_time > 3):
 		upload_data(0)
 		start_time = time.time()
+		frames += 1
+	
 	
