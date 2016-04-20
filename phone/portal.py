@@ -253,18 +253,23 @@ while 1:
 		finally:
 			lock.release()	
 		
-	time.sleep(.5)
-	
 	#fps (minutes) display
 	if (time.time() - fps_time > 60):
-		print ("FPM: " + frames)
+		print ("FPM: " + str(frames))
 		frames = 0
 		fps_time = time.time()
 		
 	#normal datapoint
-	if (time.time() - start_time > 3):
+	 
+	if (time.time() >= start_time + 3):
+		#do a frame
 		upload_data(0)
-		start_time = time.time()
 		frames += 1
-	
-	
+		#upload every 3 seconds
+		start_time = start_time + 3;
+		#make sure next deadline is possible
+		if (start_time + 3 <= time.time()):
+			print("Skipping Delay")
+			start_time = time.time()
+	else:
+		time.sleep(.1)
