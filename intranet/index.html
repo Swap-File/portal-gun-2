@@ -111,6 +111,12 @@ Portal Type:
 <input type="button" class="button_text" onclick="playlist_load(6)" value="TV Effect"/><br>
 <input type="button" class="button_text" onclick="playlist_load(7)" value="GL Effect"/><br>
 <input type="button" class="button_text" onclick="playlist_load(8)" value="Blend 1"/><br>
+<input type="button" class="button_text" onclick="playlist_load(9)" value="Partner 1"/><br>
+<input type="button" class="button_text" onclick="playlist_load(10)" value="Partner 2"/><br>
+<input type="button" class="button_text" onclick="playlist_load(11)" value="Party 1"/><br>
+<input type="button" class="button_text" onclick="playlist_load(12)" value="Party 2"/><br>
+<input type="button" class="button_text" onclick="playlist_load(13)" value="Party 3"/><br>
+<input type="button" class="button_text" onclick="playlist_load(14)" value="Alternate"/><br>
 </div></td>
 <td class="centertop"><div>
 <b><u>SOLO PLAYLISTS</u></b><br>
@@ -374,15 +380,15 @@ function playlist_load(num){
 		break;
 	case 2:
 		post_text('mode=3 60 61 -1 -1 -1 -1 -1 -1 -1 -1');
-		requested_mode = "preview";
+		requested_mode = "custom";
 		break;
 	case 3:	
 		post_text('mode=3 50 51 52 53 54 55 56 57 58 59');
-		requested_mode = "preview";
+		requested_mode = "custom";
 		break;
 	case 4:	
 		post_text('mode=3 14 15 10 11 12 13 -1 -1 -1 -1');
-		requested_mode = "preview";
+		requested_mode = "custom";
 		break;
 	case 5:	
 		post_text('mode=4 4 -1 -1 -1 -1 -1 -1 -1 -1 -1');
@@ -398,6 +404,30 @@ function playlist_load(num){
 		break;
 	case 8:	
 		post_text('mode=4 4 20 19 29 37 30 24 25 28 31');
+		requested_mode = "custom";
+		break;
+	case 9:	//back forth1
+		post_text('mode=4 20 25 19 23 28 33 36 -1 -1 -1');
+		requested_mode = "custom";
+		break;
+	case 10://back forth2
+		post_text('mode=4 22 29 37 21 27 31 32 35 -1 -1');
+		requested_mode = "custom";
+		break;
+	case 11://party 1
+		post_text('mode=4 20 24 37 29 30 26 19 -1 -1 -1');
+		requested_mode = "custom";
+		break;
+	case 12://party 2
+		post_text('mode=4 20 15 24 11 37 10 29 14 30 13');
+		requested_mode = "custom";
+		break;
+	case 13://party 3
+		post_text('mode=4 10 29 14 30 13 20 15 24 11 37');
+		requested_mode = "custom";
+		break;
+	case 14://party 3
+		post_text('mode=4 4 20 4 37 4 29 4 30 4 31');
 		requested_mode = "custom";
 		break;
 	}
