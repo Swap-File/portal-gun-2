@@ -75,6 +75,7 @@ static void opengl_init(void)
 
 	static const EGLint attribute_list[] =
 	{
+		EGL_DEPTH_SIZE, 16,  //enable depth checking
 		EGL_RED_SIZE, 8,
 		EGL_GREEN_SIZE, 8,
 		EGL_BLUE_SIZE, 8,
@@ -82,6 +83,7 @@ static void opengl_init(void)
 		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
 		EGL_NONE
 	};
+
 
 	EGLConfig config;
 
@@ -197,13 +199,6 @@ static void redraw_scene()
 	glLoadIdentity();
 	glTranslatef(0, 0, -30);
 
-	//glScalef(1,1,1);
-	// Convert screen coords (right, up, out) to ground coords (north, east, down).
-	//glRotatef(spinning, 0, 0, 1);
-	// glRotatef(0, 0, 0, 1);
-	//glRotatef(0, 0, 1, 0);
-	// glRotatef(0, 0, 0, 1);
-	
 	// Convert ground coords to board coordinates.
 
 	//glMultMatrixf(final_matrix[0]);
@@ -287,13 +282,13 @@ int main(int argc, char *argv[])
 					//check the line
 					int temp[4];
 					
-					int result = sscanf(buffer,"%d %d %d %d", &temp[0], &temp[2], &temp[1], &temp[3]);
-					if (result != 4){
+					int result = sscanf(buffer,"%d", &temp[3]);
+					if (result != 1){
 						fprintf(stderr, "AHRS Unrecognized input with %d items.\n", result);
 					}else{
-						acceleration[0] = temp[0] * -1.0;
-						acceleration[1] = temp[1] * -1.0;
-						acceleration[2] = temp[2];
+						acceleration[0] = 0;
+						acceleration[1] = 0;
+						acceleration[2] = 0;
 						frame = temp[3];
 					}
 					
