@@ -11,7 +11,7 @@
 #include <EGL/eglext.h>
 
 #include "../png_texture.h"
-#define PI 3.14159265358979323846
+
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -19,7 +19,7 @@
 #define EX 20     // X dimension
 #define EY 20     // Y dimension
 
-static GLuint orange_1,red,orange_0,blue_0,blue_1,texture_orange,texture_blue, texture_blank,texture_black;
+static GLuint orange_1,red,orange_0,blue_0,blue_1,texture_orange,texture_blue;
 float portal_spin = 0;
 float portal_background_spin = 0;
 float portal_background_fader = 0;
@@ -32,99 +32,95 @@ int  blank_processed = 999; //impossible value to force process on boot
 
 int lastcolor = -1;
 
-static void Normal(GLfloat *n, GLfloat nx, GLfloat ny, GLfloat nz)
-{
+static void Normal(GLfloat *n, GLfloat nx, GLfloat ny, GLfloat nz){
 	n[0] = nx;
 	n[1] = ny;
 	n[2] = nz;
 }
 
-static void Vertex(GLfloat *v, GLfloat vx, GLfloat vy, GLfloat vz)
-{
+static void Vertex(GLfloat *v, GLfloat vx, GLfloat vy, GLfloat vz){
 	v[0] = vx;
 	v[1] = vy;
 	v[2] = vz;
 }
 
-static void Texcoord(GLfloat *v, GLfloat s, GLfloat t)
-{
+static void Texcoord(GLfloat *v, GLfloat s, GLfloat t){
 	v[0] = s;
 	v[1] = t;
 }
 
 /* Borrowed from glut, adapted */
-static void draw_torus(GLfloat r, GLfloat R, GLint nsides, GLint rings)
-{
-   int i, j;
-   GLfloat theta, phi, theta1;
-   GLfloat cosTheta, sinTheta;
-   GLfloat cosTheta1, sinTheta1;
-   GLfloat ringDelta, sideDelta;
-   GLfloat varray[100][3], narray[100][3], tarray[100][2];
-   int vcount;
+static void draw_torus(GLfloat r, GLfloat R, GLint nsides, GLint rings){
+	int i, j;
+	GLfloat theta, phi, theta1;
+	GLfloat cosTheta, sinTheta;
+	GLfloat cosTheta1, sinTheta1;
+	GLfloat ringDelta, sideDelta;
+	GLfloat varray[100][3], narray[100][3], tarray[100][2];
+	int vcount;
 
-   glVertexPointer(3, GL_FLOAT, 0, varray);
-   glNormalPointer(GL_FLOAT, 0, narray);
-   glTexCoordPointer(2, GL_FLOAT, 0, tarray);
+	glVertexPointer(3, GL_FLOAT, 0, varray);
+	glNormalPointer(GL_FLOAT, 0, narray);
+	glTexCoordPointer(2, GL_FLOAT, 0, tarray);
 
-   glEnableClientState(GL_NORMAL_ARRAY);
-   
-   ringDelta = 2.0 * M_PI / rings;
-   sideDelta = 2.0 * M_PI / nsides;
+	glEnableClientState(GL_NORMAL_ARRAY);
 
-   theta = 0.0;
-   cosTheta = 1.0;
-   sinTheta = 0.0;
-   for (i = rings - 1; i >= 0; i--) {
-      theta1 = theta + ringDelta;
-      cosTheta1 = cos(theta1);
-      sinTheta1 = sin(theta1);
+	ringDelta = 2.0 * M_PI / rings;
+	sideDelta = 2.0 * M_PI / nsides;
 
-      vcount = 0; /* glBegin(GL_QUAD_STRIP); */
+	theta = 0.0;
+	cosTheta = 1.0;
+	sinTheta = 0.0;
+	for (i = rings - 1; i >= 0; i--) {
+		theta1 = theta + ringDelta;
+		cosTheta1 = cos(theta1);
+		sinTheta1 = sin(theta1);
 
-      phi = 0.0;
-      for (j = nsides; j >= 0; j--) {
-         GLfloat s0, s1, t;
-         GLfloat cosPhi, sinPhi, dist;
+		vcount = 0; /* glBegin(GL_QUAD_STRIP); */
 
-         phi += sideDelta;
-         cosPhi = cos(phi);
-         sinPhi = sin(phi);
-         dist = R + r * cosPhi;
+		phi = 0.0;
+		for (j = nsides; j >= 0; j--) {
+			GLfloat s0, s1, t;
+			GLfloat cosPhi, sinPhi, dist;
 
-         s0 = 20.0 * theta / (2.0 * M_PI);
-         s1 = 20.0 * theta1 / (2.0 * M_PI);
-         t = 2.0 * phi / (2.0 * M_PI);  //this seems to control texture wrap around the nut
+			phi += sideDelta;
+			cosPhi = cos(phi);
+			sinPhi = sin(phi);
+			dist = R + r * cosPhi;
 
-         Normal(narray[vcount], cosTheta1 * cosPhi, -sinTheta1 * cosPhi, sinPhi);
-         Texcoord(tarray[vcount], s0, t);
-         Vertex(varray[vcount], cosTheta1 * dist, -sinTheta1 * dist, r * sinPhi);
-         vcount++;
+			s0 = 20.0 * theta / (2.0 * M_PI);
+			s1 = 20.0 * theta1 / (2.0 * M_PI);
+			t = 2.0 * phi / (2.0 * M_PI);  //this seems to control texture wrap around the nut
 
-         Normal(narray[vcount], cosTheta * cosPhi, -sinTheta * cosPhi, sinPhi);
-         Texcoord(tarray[vcount], s1, t);
-         Vertex(varray[vcount], cosTheta * dist, -sinTheta * dist,  r * sinPhi);
-         vcount++;
-      }
+			Normal(narray[vcount], cosTheta1 * cosPhi, -sinTheta1 * cosPhi, sinPhi);
+			Texcoord(tarray[vcount], s0, t);
+			Vertex(varray[vcount], cosTheta1 * dist, -sinTheta1 * dist, r * sinPhi);
+			vcount++;
 
-      /*glEnd();*/
-      assert(vcount <= 100);
-      glDrawArrays(GL_TRIANGLE_STRIP, 0, vcount);
+			Normal(narray[vcount], cosTheta * cosPhi, -sinTheta * cosPhi, sinPhi);
+			Texcoord(tarray[vcount], s1, t);
+			Vertex(varray[vcount], cosTheta * dist, -sinTheta * dist,  r * sinPhi);
+			vcount++;
+		}
 
-      theta = theta1;
-      cosTheta = cosTheta1;
-      sinTheta = sinTheta1;
-   }
+		/*glEnd();*/
+		assert(vcount <= 100);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, vcount);
 
-
-   glDisableClientState(GL_NORMAL_ARRAY);
-
+		theta = theta1;
+		cosTheta = cosTheta1;
+		sinTheta = sinTheta1;
+	}
+	glDisableClientState(GL_NORMAL_ARRAY);
 }
 
 
 void model_board_init(void)
 {
 	red = png_texture_load(ASSET_DIR "/red.png", NULL, NULL);
+	//override default of clamp
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	
 	orange_0 = png_texture_load(ASSET_DIR "/orange_0.png", NULL, NULL);
 	orange_1 = png_texture_load(ASSET_DIR "/orange_1.png", NULL, NULL);
@@ -135,17 +131,12 @@ void model_board_init(void)
 	texture_orange = png_texture_load(ASSET_DIR "/orange_portal.png", NULL, NULL);
 	texture_blue = png_texture_load(ASSET_DIR "/blue_portal.png", NULL, NULL);
 	
-	texture_blank = png_texture_load(ASSET_DIR "/blank.png", NULL, NULL);
-	texture_black = png_texture_load(ASSET_DIR "/black.png", NULL, NULL);
-	
-	if (texture_blank ==0||texture_black ==0||texture_orange == 0 || texture_blue == 0|| orange_0 == 0|| orange_1 == 0|| blue_0 == 0|| blue_1 == 0)
+	if (red == 0 || texture_orange == 0 || texture_blue == 0 || orange_0 == 0 || orange_1 == 0 || blue_0 == 0 || blue_1 == 0)
 	{
 		throw std::runtime_error("Loading textures failed.");
 	}
 	
-
-		
-//setup texture unit 0 
+	//setup texture unit 0 
 	glActiveTexture(GL_TEXTURE0);	
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 	GLfloat rgba[4] = {1.0,1.0,1.0,0.0};
@@ -182,11 +173,11 @@ void model_board_init(void)
 	glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_ALPHA, GL_PRIMARY_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA); 
+	
 }
 
 void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 {	
-
 
 	portal_spin += .50;
 	if (portal_spin > 360) portal_spin -= 360;
@@ -242,47 +233,39 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 		}
 	}
 	
-		//this controls fadeout speed of the portal
+	//this controls fadeout speed of the portal
 	if (closed_fader > 0 and closed_fader < 1 ){
 		closed_fader = closed_fader - 0.007;
 		if (closed_fader<0)	closed_fader = 0;
 	}
 	
-		//iris speed
+	//iris speed
 	if( blank_fader < 0 ){
 		blank_fader = blank_fader - .18 * blank_fader ;
 		if ( blank_fader > 0 ) blank_fader = 0;
 	}
 	
-	
-	//depth checking for torus
+	//depth checking
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 	GLfloat vertices1[] = {-EX,-EY,-.5,EX,-EY,-.5,-EX,EY,-.5,EX,EY,-.5};
 	GLfloat texCoords1[] = {0,0,1,0,0,1,1,1};
-	
 	
 	glClientActiveTexture(GL_TEXTURE1);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 0, vertices1);
-
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexCoordPointer(2, GL_FLOAT, 0, texCoords1);
 
 	glClientActiveTexture(GL_TEXTURE0);
-	
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 0, vertices1);
-
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexCoordPointer(2, GL_FLOAT, 0, texCoords1);
 	
-	glEnable(GL_TEXTURE0);
-
-	
+	glEnable(GL_TEXTURE0);	
 	glActiveTexture(GL_TEXTURE0);	
-	
 	glEnable(GL_TEXTURE_2D);
 
 	CHECK_BIT(frame,1) ? glBindTexture(GL_TEXTURE_2D, orange_0) : glBindTexture(GL_TEXTURE_2D, blue_0);
@@ -290,9 +273,6 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	
 	glEnable(GL_TEXTURE1);
 	glActiveTexture(GL_TEXTURE1);
-		
-		
-		
 	glEnable(GL_TEXTURE_2D);
 	
 	CHECK_BIT(frame,1) ? glBindTexture(GL_TEXTURE_2D, orange_1) : glBindTexture(GL_TEXTURE_2D, blue_1);
@@ -314,16 +294,14 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	glBindTexture(GL_TEXTURE_2D, 0); 
 	
 	glActiveTexture(GL_TEXTURE0);
-	glDisable(GL_TEXTURE0);		
+	glDisable(GL_TEXTURE0);	
 	glBindTexture(GL_TEXTURE_2D, 0); 
 	
 	
 	
 	glClientActiveTexture(GL_TEXTURE4);
-	
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 0, vertices1);
-
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexCoordPointer(2, GL_FLOAT, 0, texCoords1);
 	
@@ -336,13 +314,11 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	glColor4f(0,0,0,1);
 	// Portal
 	CHECK_BIT(frame,2) ? glBindTexture(GL_TEXTURE_2D, texture_orange) : glBindTexture(GL_TEXTURE_2D, texture_blue);
-	
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  
+
+
 	GLfloat texCoords2[] = {0,0,1,0,0,1,1,1};
-	texCoords2[8-8] = texCoords2[9-8] = texCoords2[11-8] =  texCoords2[12-8] = (blank_fader);
-	texCoords2[10-8] = texCoords2[13-8] = texCoords2[14-8] = texCoords2[15-8] = (1.0 - blank_fader);
+	texCoords2[0] = texCoords2[1] = texCoords2[3] =  texCoords2[4] = (blank_fader);
+	texCoords2[2]= texCoords2[5] = texCoords2[6] = texCoords2[7] = (1.0 - blank_fader);
 	glTexCoordPointer(2, GL_FLOAT, 0, texCoords2);
 	
 	GLfloat vertices2[] = {-EX,-EY,0,EX,-EY,0,-EX,EY,0,EX,EY,0};
@@ -351,39 +327,30 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	glScalef(2.08,1.17,1);
 	glRotatef(portal_spin, 0, 0, 1);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-			
-	//glBindTexture(GL_TEXTURE_2D, orange_1);
-	glBindTexture(GL_TEXTURE_2D, red);
 	
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-   
+	glBindTexture(GL_TEXTURE_2D, red);
 	draw_torus(1 , 8, 30, 60);
 	
-	glColor4f(0,0,0,1);	  
 	
-	GLfloat rgba4[4] = {1.0,1.0,1.0,1.0};
-	
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, rgba4);
+	//disable textures for shutter
+	glDisable(GL_TEXTURE4);	
+	glBindTexture(GL_TEXTURE_2D, 0); 
 	
 	// shutter
 	if  CHECK_BIT(frame,3){
-		glBindTexture(GL_TEXTURE_2D, texture_black);
+		glColor4f(0,0,0,1); //blocking black
 		lastcolor = -1;
 		blank_fader = -100;
 		blank_processed = 1;
 		closed_fader = 1;
 		close_processed = 1;
 	}else{
-		glBindTexture(GL_TEXTURE_2D, texture_blank);
+		glColor4f(0,0,0,0); //transparent black
 	}
 	
 	GLfloat vertices3[] = {-EX,-EY,10,EX,-EY,10,-EX,EY,10,EX,EY,10};
 	glVertexPointer(3, GL_FLOAT, 0, vertices3);
-	
-	GLfloat texCoords3[] = {0,0,1,0,0,1,1,1};
-	glTexCoordPointer(2, GL_FLOAT, 0, texCoords3);
-	
+
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	lastcolor = CHECK_BIT(frame,1) ? 1 : 2; //blue : orange
