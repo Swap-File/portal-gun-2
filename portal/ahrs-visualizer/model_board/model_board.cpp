@@ -23,7 +23,7 @@ static GLuint orange_1,red,orange_0,blue_0,blue_1,texture_orange,texture_blue;
 float portal_spin = 0;
 float portal_background_spin = 0;
 float portal_background_fader = 0;
-
+float portal_spin2 = 0;
 float closed_fader = 0;
 int close_processed = 999; //impossible value to force process on boot
 
@@ -31,7 +31,7 @@ float blank_fader = 0;
 int  blank_processed = 999; //impossible value to force process on boot
 
 int lastcolor = -1;
-
+GLfloat texturescroller = 0.0;
 static void Normal(GLfloat *n, GLfloat nx, GLfloat ny, GLfloat nz){
 	n[0] = nx;
 	n[1] = ny;
@@ -45,8 +45,8 @@ static void Vertex(GLfloat *v, GLfloat vx, GLfloat vy, GLfloat vz){
 }
 
 static void Texcoord(GLfloat *v, GLfloat s, GLfloat t){
-	v[0] = s;
-	v[1] = t;
+	v[0] = s ;
+	v[1] = t- texturescroller;
 }
 
 /* Borrowed from glut, adapted */
@@ -112,12 +112,13 @@ static void draw_torus(GLfloat r, GLfloat R, GLint nsides, GLint rings){
 		sinTheta = sinTheta1;
 	}
 	glDisableClientState(GL_NORMAL_ARRAY);
+
 }
 
 
 void model_board_init(void)
 {
-	red = png_texture_load(ASSET_DIR "/red.png", NULL, NULL);
+	red = png_texture_load(ASSET_DIR "/test.png", NULL, NULL);
 	//override default of clamp
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -176,11 +177,21 @@ void model_board_init(void)
 	
 }
 
+GLfloat pts[100];
+ GLfloat colors[100];
 void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 {	
 
+	//Create the framebuffer and bind it.
+
+
+	
+	
+	
 	portal_spin += .50;
 	if (portal_spin > 360) portal_spin -= 360;
+	portal_spin2 += 5;
+	if (portal_spin2 > 360) portal_spin2 -= 360;
 	
 	
 	portal_background_spin -= .01;
@@ -249,6 +260,9 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+	
+	
 	GLfloat vertices1[] = {-EX,-EY,-.5,EX,-EY,-.5,-EX,EY,-.5,EX,EY,-.5};
 	GLfloat texCoords1[] = {0,0,1,0,0,1,1,1};
 	
@@ -324,14 +338,69 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	GLfloat vertices2[] = {-EX,-EY,0,EX,-EY,0,-EX,EY,0,EX,EY,0};
 	glVertexPointer(3, GL_FLOAT, 0, vertices2);
 	
+	glPushMatrix(); //save before rotation
+	
 	glScalef(2.08,1.17,1);
 	glRotatef(portal_spin, 0, 0, 1);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	
+	
 	glBindTexture(GL_TEXTURE_2D, red);
-	draw_torus(1 , 8, 30, 60);
+	draw_torus(1 , 8 * ( 1 - blank_fader / -100.0), 30, 60);
+	
+	glPopMatrix();//un-rotate background	
 	
 	
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	
+	glEnableClientState(GL_COLOR_ARRAY);
+	
+	
+	float oscilator = cos(portal_spin2 * M_PI/180.0) *1.5;
+	float xtweak =  1.17* sin(portal_spin * M_PI/180.0) *oscilator; 
+	float ytweak = 2.08*cos(portal_spin* M_PI/180.0) *oscilator;
+	
+	float x =  1.17* sin(portal_spin * M_PI/180.0) *7.8; 
+	float y = 2.08*cos(portal_spin* M_PI/180.0) *7.8;
+	
+	glColor4f(1,1,1,1);
+	
+    
+	for (int xx = 0; xx < 20; xx++){
+		//shuffle positions
+		pts[xx*3+0] = pts[(xx +1)*3+0];
+		pts[xx*3+1] = pts[(xx +1)*3+1];
+		pts[xx*3+2] = pts[(xx +1)*3+2];
+		//shuffle colors
+		colors[xx*4+0] = colors[(xx + 1)*4+0];
+		colors[xx*4+1] = colors[(xx + 1)*4+1];
+		colors[xx*4+2] = colors[(xx + 1)*4+2];
+		colors[xx*4+3] = colors[(xx + 1)*4+3];
+		//decay colors
+		colors[xx*4+3] = MAX(0,colors[xx*4+3]-.04);
+	}
+	
+	//load coordinates
+	pts[20*3+0] = y + ytweak;
+	pts[20*3+1] = x + xtweak;
+	pts[20*3+2] = cos((portal_spin2/2) * M_PI/180.0) *1.5;
+	//load color
+	colors[20*4+0] = 1.0;
+	colors[20*4+1] = 1.0;
+	colors[20*4+2] = 1.0;
+	colors[20*3+3] = 1.0; 
+	
+	glColorPointer(4, GL_FLOAT, 0, colors);
+	glVertexPointer(3, GL_FLOAT, 0, pts);
+	glPointSize(20);
+	glEnable(GL_POINT_SMOOTH);
+	glDrawArrays(GL_POINTS,0,20);
+	
+	
+	glDisableClientState(GL_COLOR_ARRAY);
+	
+	texturescroller += .05;
 	//disable textures for shutter
 	glDisable(GL_TEXTURE4);	
 	glBindTexture(GL_TEXTURE_2D, 0); 
@@ -352,6 +421,7 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	glVertexPointer(3, GL_FLOAT, 0, vertices3);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
 
 	lastcolor = CHECK_BIT(frame,1) ? 1 : 2; //blue : orange
 }
