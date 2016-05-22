@@ -118,7 +118,7 @@ static void draw_torus(GLfloat r, GLfloat R, GLint nsides, GLint rings){
 
 void model_board_init(void)
 {
-	red = png_texture_load(ASSET_DIR "/test.png", NULL, NULL);
+	red = png_texture_load(ASSET_DIR "/red.png", NULL, NULL);
 	//override default of clamp
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -177,8 +177,9 @@ void model_board_init(void)
 	
 }
 
-GLfloat pts[100];
- GLfloat colors[100];
+GLfloat pts[700];
+GLfloat colors[700];
+
 void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 {	
 
@@ -190,7 +191,7 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	
 	portal_spin += .50;
 	if (portal_spin > 360) portal_spin -= 360;
-	portal_spin2 += 5;
+	portal_spin2 += 6;
 	if (portal_spin2 > 360) portal_spin2 -= 360;
 	
 	
@@ -344,67 +345,86 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	glRotatef(portal_spin, 0, 0, 1);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	
-	
 	glBindTexture(GL_TEXTURE_2D, red);
 	draw_torus(1 , 8 * ( 1 - blank_fader / -100.0), 30, 60);
 	
 	glPopMatrix();//un-rotate background	
 	
-	
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-	
 	glEnableClientState(GL_COLOR_ARRAY);
 	
 	
-	float oscilator = cos(portal_spin2 * M_PI/180.0) *1.5;
-	float xtweak =  1.17* sin(portal_spin * M_PI/180.0) *oscilator; 
-	float ytweak = 2.08*cos(portal_spin* M_PI/180.0) *oscilator;
+	int point_location = 0;
+	int color_location = 0;
+	#define PARTICLE_CHAIN_LENGTH 20
+	#define LEADING_PARTICLES 6
 	
-	float x =  1.17* sin(portal_spin * M_PI/180.0) *7.8; 
-	float y = 2.08*cos(portal_spin* M_PI/180.0) *7.8;
+	int particle_angle_offset = 360/LEADING_PARTICLES;
+
+
+	float portal_spin2_current = portal_spin2;
+	float portal_spin_current = portal_spin;
 	
-	glColor4f(1,1,1,1);
-	
-    
-	for (int xx = 0; xx < 20; xx++){
-		//shuffle positions
-		pts[xx*3+0] = pts[(xx +1)*3+0];
-		pts[xx*3+1] = pts[(xx +1)*3+1];
-		pts[xx*3+2] = pts[(xx +1)*3+2];
-		//shuffle colors
-		colors[xx*4+0] = colors[(xx + 1)*4+0];
-		colors[xx*4+1] = colors[(xx + 1)*4+1];
-		colors[xx*4+2] = colors[(xx + 1)*4+2];
-		colors[xx*4+3] = colors[(xx + 1)*4+3];
-		//decay colors
-		colors[xx*4+3] = MAX(0,colors[xx*4+3]-.04);
+	for (int cur_particle = 0; cur_particle < LEADING_PARTICLES; cur_particle++){
+
+		
+		float oscilator = cos(portal_spin2_current * M_PI/180.0) *1.5;
+		float xtweak =  1.17* sin(portal_spin_current * M_PI/180.0) *oscilator; 
+		float ytweak = 2.08*cos(portal_spin_current* M_PI/180.0) *oscilator;
+		
+		float x =  1.17* sin(portal_spin_current * M_PI/180.0) *7.8; 
+		float y = 2.08*cos(portal_spin_current* M_PI/180.0) *7.8;
+		
+		glColor4f(1,1,1,1);
+		
+		for (int xx = 0; xx < PARTICLE_CHAIN_LENGTH; xx++){
+			//shuffle positions
+			
+			pts[point_location] = pts[point_location+3];
+			point_location++;
+			pts[point_location] = pts[point_location+3];
+			point_location++;
+			pts[point_location] = pts[point_location+3];
+			point_location++;
+			//shuffle colors
+			colors[color_location] = colors[color_location+4];
+			color_location++;
+			colors[color_location] = colors[color_location+4];
+			color_location++;
+			colors[color_location] = colors[color_location+4];
+			color_location++;
+			//decay alpha while moving
+			colors[color_location] = MAX(0,colors[color_location+4] - 0.01);
+			color_location++;
+		}
+		
+		//load coordinates
+		pts[point_location++] = y + ytweak;
+		pts[point_location++] = x + xtweak;
+		pts[point_location++] = sin((portal_spin2_current) * M_PI/180.0) *1.5;
+		//load color
+		colors[color_location++] = 1.0;
+		colors[color_location++] = 1.0;
+		colors[color_location++] = 1.0;
+		colors[color_location++] = 1.0; 
+		
+		portal_spin_current += particle_angle_offset;
+	    portal_spin2_current -= 120;
 	}
 	
-	//load coordinates
-	pts[20*3+0] = y + ytweak;
-	pts[20*3+1] = x + xtweak;
-	pts[20*3+2] = cos((portal_spin2/2) * M_PI/180.0) *1.5;
-	//load color
-	colors[20*4+0] = 1.0;
-	colors[20*4+1] = 1.0;
-	colors[20*4+2] = 1.0;
-	colors[20*3+3] = 1.0; 
-	
+
 	glColorPointer(4, GL_FLOAT, 0, colors);
 	glVertexPointer(3, GL_FLOAT, 0, pts);
 	glPointSize(20);
 	glEnable(GL_POINT_SMOOTH);
-	glDrawArrays(GL_POINTS,0,20);
-	
-	
+	glDrawArrays(GL_POINTS,0,LEADING_PARTICLES * PARTICLE_CHAIN_LENGTH);
 	glDisableClientState(GL_COLOR_ARRAY);
-	
+
 	texturescroller += .05;
 	//disable textures for shutter
 	glDisable(GL_TEXTURE4);	
 	glBindTexture(GL_TEXTURE_2D, 0); 
-	
+
 	// shutter
 	if  CHECK_BIT(frame,3){
 		glColor4f(0,0,0,1); //blocking black
@@ -416,7 +436,7 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	}else{
 		glColor4f(0,0,0,0); //transparent black
 	}
-	
+
 	GLfloat vertices3[] = {-EX,-EY,10,EX,-EY,10,-EX,EY,10,EX,EY,10};
 	glVertexPointer(3, GL_FLOAT, 0, vertices3);
 
