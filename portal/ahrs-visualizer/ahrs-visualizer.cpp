@@ -38,7 +38,7 @@ float matrix[4][4];
 float final_matrix[4][4];
 
 // Acceleration vector in units of g (9.8 m/s^2).
-float acceleration[3];
+int acceleration[3];
 
 // Magnetic field vector where each component is approximately between -1 and 1.
 float magnetic_field[3];
@@ -205,7 +205,7 @@ static void redraw_scene()
 	
 	glMultMatrixf(locked_matrix[0]);
 	
-	model_board_redraw(acceleration, magnetic_field,frame);
+	model_board_redraw(acceleration,frame);
 	eglSwapBuffers(display, surface);
 }
 
@@ -282,14 +282,14 @@ int main(int argc, char *argv[])
 					//check the line
 					int temp[4];
 					
-					int result = sscanf(buffer,"%d", &temp[3]);
-					if (result != 1){
+					int result = sscanf(buffer,"%d %d %d", &temp[0], &temp[1],  &temp[2]);
+					if (result != 3){
 						fprintf(stderr, "AHRS Unrecognized input with %d items.\n", result);
 					}else{
-						acceleration[0] = 0;
-						acceleration[1] = 0;
+						acceleration[0] = temp[1];
+						acceleration[1] = temp[2];
 						acceleration[2] = 0;
-						frame = temp[3];
+						frame = temp[0];
 					}
 					
 				}

@@ -18,8 +18,8 @@
 
 #define EX 20     // X dimension
 #define EY 20     // Y dimension
-
-static GLuint orange_1,red,orange_0,blue_0,blue_1,texture_orange,texture_blue;
+int last_acceleration[2] = {0,0};
+static GLuint orange_1,red,blue_n,orange_n,orange_0,blue_0,blue_1,texture_orange,texture_blue;
 float portal_spin = 0;
 float portal_background_spin = 0;
 float portal_background_fader = 0;
@@ -48,10 +48,14 @@ static void Texcoord(GLfloat *v, GLfloat s, GLfloat t){
 	v[0] = s ;
 	v[1] = t- texturescroller;
 }
-
+float offset_thing[360];
+float running_magnitude;
+float angle_target;
+float angle_target_delayed;
 /* Borrowed from glut, adapted */
 static void draw_torus(GLfloat r, GLfloat R, GLint nsides, GLint rings){
 	int i, j;
+	GLfloat r_using, R_using;
 	GLfloat theta, phi, theta1;
 	GLfloat cosTheta, sinTheta;
 	GLfloat cosTheta1, sinTheta1;
@@ -65,41 +69,56 @@ static void draw_torus(GLfloat r, GLfloat R, GLint nsides, GLint rings){
 
 	glEnableClientState(GL_NORMAL_ARRAY);
 
-	ringDelta = 2.0 * M_PI / rings;
-	sideDelta = 2.0 * M_PI / nsides;
+	ringDelta = 2.0 * M_PI / rings;  //x and y 
+	sideDelta = 2.0 * M_PI / nsides; //z
 
 	theta = 0.0;
 	cosTheta = 1.0;
 	sinTheta = 0.0;
 	for (i = rings - 1; i >= 0; i--) {
-		theta1 = theta + ringDelta;
+		theta1 = theta + ringDelta; //from 0 to 6.28
+		
 		cosTheta1 = cos(theta1);
 		sinTheta1 = sin(theta1);
 
 		vcount = 0; /* glBegin(GL_QUAD_STRIP); */
 
 		phi = 0.0;
+		
+		int index_deg = (360 - portal_spin + ( theta1 * 360  / (2*M_PI)));
+		
+		while (index_deg >= 360) index_deg -=360;
+		
+		
+		r_using = r+ offset_thing[index_deg];
+		R_using = R- offset_thing[index_deg];
+			
 		for (j = nsides; j >= 0; j--) {
 			GLfloat s0, s1, t;
 			GLfloat cosPhi, sinPhi, dist;
 
 			phi += sideDelta;
+		
+			
 			cosPhi = cos(phi);
+			cosPhi = cos(phi);
+			
+			
 			sinPhi = sin(phi);
-			dist = R + r * cosPhi;
-
+			dist = R_using + r_using * cosPhi;
+			
 			s0 = 20.0 * theta / (2.0 * M_PI);
 			s1 = 20.0 * theta1 / (2.0 * M_PI);
 			t = 2.0 * phi / (2.0 * M_PI);  //this seems to control texture wrap around the nut
 
 			Normal(narray[vcount], cosTheta1 * cosPhi, -sinTheta1 * cosPhi, sinPhi);
 			Texcoord(tarray[vcount], s0, t);
-			Vertex(varray[vcount], cosTheta1 * dist, -sinTheta1 * dist, r * sinPhi);
+			Vertex(varray[vcount], cosTheta1 * dist, -sinTheta1 * dist, r_using * sinPhi);
 			vcount++;
 
 			Normal(narray[vcount], cosTheta * cosPhi, -sinTheta * cosPhi, sinPhi);
 			Texcoord(tarray[vcount], s1, t);
-			Vertex(varray[vcount], cosTheta * dist, -sinTheta * dist,  r * sinPhi);
+			Vertex(varray[vcount], cosTheta * dist, -sinTheta * dist,  r_using * sinPhi);
 			vcount++;
 		}
 
@@ -118,7 +137,17 @@ static void draw_torus(GLfloat r, GLfloat R, GLint nsides, GLint rings){
 
 void model_board_init(void)
 {
-	red = png_texture_load(ASSET_DIR "/red.png", NULL, NULL);
+	for (int i = 0; i <  360; i ++){
+		//offset_thing[i] = sin(((float)i)/360.0 * M_PI);
+		offset_thing[i] = 3;
+		
+	}
+	
+	orange_n = png_texture_load(ASSET_DIR "/orange_n.png", NULL, NULL);
+	//override default of clamp
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	blue_n = png_texture_load(ASSET_DIR "/blue_n.png", NULL, NULL);
 	//override default of clamp
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -180,14 +209,62 @@ void model_board_init(void)
 GLfloat pts[700];
 GLfloat colors[700];
 
-void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
+
+int running_acceleration[2] = {0,0};
+
+void model_board_redraw(int * acceleration, int frame)
 {	
 
-	//Create the framebuffer and bind it.
-
-
+	for (int i = 0; i <  360; i ++){
+		offset_thing[i] *= .9;
+	}
 	
 	
+	int relative_acceleration[2];
+
+	float alpha = .5;
+	
+	//filter acceleration
+	for (int i = 0; i < 2; i++){
+		
+		relative_acceleration[i] = (last_acceleration[i] - acceleration[i]);
+
+		//decay values
+		//running_acceleration[i] *= .95;
+		
+		//ignore small disturbances
+		if (abs(relative_acceleration[i] ) < 2 && abs(running_acceleration[i]) < 2  ){
+			relative_acceleration[i] = 0;
+		}
+		
+		//if ((relative_acceleration[i] >= 0 && running_acceleration[i] >= 0 )|| (relative_acceleration[0] <= 0 && running_acceleration[i]<= 0 )){
+		//	running_acceleration[i] = running_acceleration[i] * alpha + (1-alpha)*relative_acceleration[i];
+		//}
+		running_acceleration[i] = running_acceleration[i] * alpha + (1-alpha)*relative_acceleration[i];
+	}
+
+	//scale magnitude to 0 to 1
+	running_magnitude *= .95;
+	float temp_mag = sqrt( running_acceleration[0]  * running_acceleration[0]  + running_acceleration[1] * running_acceleration[1]);
+	if (temp_mag > running_magnitude){
+	running_magnitude = running_magnitude * .5 + .5 *temp_mag;
+	
+	}
+	
+
+	angle_target =  atan2(running_acceleration[1],running_acceleration[0] ) ;
+	for (int i = 0; i <  360; i ++){
+		
+		offset_thing[i] = offset_thing[i] * .8 + .2 * ((cos( ((float)i)/360.0 * 2 *M_PI + angle_target  )  + M_PI)/ (2* M_PI)) * running_magnitude/10;
+		offset_thing[i] = MIN(offset_thing[i],3);
+	}
+	
+	
+	
+
+	angle_target_delayed = angle_target_delayed * .5 + angle_target * .5;
+	
+	printf( "%f %f\n", running_magnitude,angle_target);
 	
 	portal_spin += .50;
 	if (portal_spin > 360) portal_spin -= 360;
@@ -345,8 +422,12 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 	glRotatef(portal_spin, 0, 0, 1);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	
-	glBindTexture(GL_TEXTURE_2D, red);
-	draw_torus(1 , 8 * ( 1 - blank_fader / -100.0), 30, 60);
+	//glBindTexture(GL_TEXTURE_2D, red);
+	CHECK_BIT(frame,1) ? glBindTexture(GL_TEXTURE_2D, orange_n) : glBindTexture(GL_TEXTURE_2D, blue_n);
+	
+	
+	float backwards_scaler = ( 1 - blank_fader / -100.0);
+	draw_torus(1 , 8 * backwards_scaler, 30, 60);
 	
 	glPopMatrix();//un-rotate background	
 	
@@ -372,8 +453,8 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 		float xtweak =  1.17* sin(portal_spin_current * M_PI/180.0) *oscilator; 
 		float ytweak = 2.08*cos(portal_spin_current* M_PI/180.0) *oscilator;
 		
-		float x =  1.17* sin(portal_spin_current * M_PI/180.0) *7.8; 
-		float y = 2.08*cos(portal_spin_current* M_PI/180.0) *7.8;
+		float x = backwards_scaler* 1.17* sin(portal_spin_current * M_PI/180.0) *7.8; 
+		float y = backwards_scaler*2.08*cos(portal_spin_current* M_PI/180.0) *7.8;
 		
 		glColor4f(1,1,1,1);
 		
@@ -409,7 +490,7 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 		colors[color_location++] = 1.0; 
 		
 		portal_spin_current += particle_angle_offset;
-	    portal_spin2_current -= 120;
+		portal_spin2_current -= 120;
 	}
 	
 
@@ -444,4 +525,6 @@ void model_board_redraw(float * acceleration, float * magnetic_field, int frame)
 
 
 	lastcolor = CHECK_BIT(frame,1) ? 1 : 2; //blue : orange
+	last_acceleration[0] = acceleration[0];
+	last_acceleration[1] = acceleration[1];
 }
