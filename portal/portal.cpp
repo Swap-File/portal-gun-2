@@ -134,7 +134,7 @@ int main(void){
 			else if (this_gun.state_solo >= 4) ahrs_state = AHRS_OPEN_ORANGE;
 		}
 		
-		ahrs_command(0,0,0,ahrs_state);
+		ahrs_command(arduino.aaRealz/50,arduino.aaRealx/50,0,ahrs_state);
 		
 		//disable sound & lights on low battery, but keep them on when on the 12V tether
 		if (arduino.battery_level_pretty > 13.8 || arduino.battery_level_pretty < 12.50){

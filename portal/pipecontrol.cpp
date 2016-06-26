@@ -84,7 +84,7 @@ void ahrs_command(int x, int y, int z, int number){
 	errno = 0;
 	int completed = 0;
 	while (completed == 0){
-		fprintf(ahrs_fp, "%d %d %d %d\n",x,y,z,number);
+		fprintf(ahrs_fp, "%d %d %d\n",number,x,y);
 		fflush(ahrs_fp);
 		if (errno == EPIPE) {
 			printf("BROKEN PIPE TO AHRS_CONTROL!\n");

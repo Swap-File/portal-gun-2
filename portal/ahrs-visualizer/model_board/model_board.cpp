@@ -19,7 +19,7 @@
 #define EX 20     // X dimension
 #define EY 20     // Y dimension
 int last_acceleration[2] = {0,0};
-static GLuint orange_1,red,blue_n,orange_n,orange_0,blue_0,blue_1,texture_orange,texture_blue;
+static GLuint orange_1,blue_n,orange_n,orange_0,blue_0,blue_1,texture_orange,texture_blue;
 float portal_spin = 0;
 float portal_background_spin = 0;
 float portal_background_fader = 0;
@@ -161,7 +161,7 @@ void model_board_init(void)
 	texture_orange = png_texture_load(ASSET_DIR "/orange_portal.png", NULL, NULL);
 	texture_blue = png_texture_load(ASSET_DIR "/blue_portal.png", NULL, NULL);
 	
-	if (red == 0 || texture_orange == 0 || texture_blue == 0 || orange_0 == 0 || orange_1 == 0 || blue_0 == 0 || blue_1 == 0)
+	if (orange_n == 0 || blue_n == 0 || texture_orange == 0 || texture_blue == 0 || orange_0 == 0 || orange_1 == 0 || blue_0 == 0 || blue_1 == 0)
 	{
 		throw std::runtime_error("Loading textures failed.");
 	}
@@ -252,7 +252,7 @@ void model_board_redraw(int * acceleration, int frame)
 	}
 	
 
-	angle_target =  atan2(running_acceleration[1],running_acceleration[0] ) ;
+	angle_target =  atan2(-running_acceleration[1],-running_acceleration[0] ) ;
 	for (int i = 0; i <  360; i ++){
 		
 		offset_thing[i] = offset_thing[i] * .8 + .2 * ((cos( ((float)i)/360.0 * 2 *M_PI + angle_target  )  + M_PI)/ (2* M_PI)) * running_magnitude/10;
@@ -264,7 +264,7 @@ void model_board_redraw(int * acceleration, int frame)
 
 	angle_target_delayed = angle_target_delayed * .5 + angle_target * .5;
 	
-	printf( "%f %f\n", running_magnitude,angle_target);
+	//printf( "%f %f\n", running_magnitude,angle_target);
 	
 	portal_spin += .50;
 	if (portal_spin > 360) portal_spin -= 360;
@@ -373,6 +373,8 @@ void model_board_redraw(int * acceleration, int frame)
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, rgba2);
 	
 	glColor4f(1.0 ,1.0 ,1.0 ,closed_fader);
+
+	
 	
 	glPushMatrix(); //save before rotation
 	
@@ -484,9 +486,27 @@ void model_board_redraw(int * acceleration, int frame)
 		pts[point_location++] = x + xtweak;
 		pts[point_location++] = sin((portal_spin2_current) * M_PI/180.0) *1.5;
 		//load color
-		colors[color_location++] = 1.0;
-		colors[color_location++] = 1.0;
-		colors[color_location++] = 1.0;
+		
+			if CHECK_BIT(frame,2){
+				//	colors[color_location++] = 247.0/255.0;
+	//	colors[color_location++] = 145.0/255.0;
+	//	colors[color_location++] = 38.0/255.0;
+		colors[color_location++] = 247.0/255.0;
+	colors[color_location++] = 208.0/255.0;
+	colors[color_location++] = 168.0/255.0;
+	
+	}else{
+		colors[color_location++] = 158/255.0;
+		colors[color_location++] = 218.0/255.0;
+		colors[color_location++] = 233.0/255.0;
+			//colors[color_location++] = 23.0/255.0;
+		//colors[color_location++] = 192.0/255.0;
+		//colors[color_location++] = 233.0/255.0;
+	}
+	
+		//colors[color_location++] = 1.0;
+		//colors[color_location++] = 1.0;
+		//colors[color_location++] = 1.0;
 		colors[color_location++] = 1.0; 
 		
 		portal_spin_current += particle_angle_offset;
