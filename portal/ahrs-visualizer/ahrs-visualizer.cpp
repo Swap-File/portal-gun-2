@@ -259,7 +259,8 @@ int main(int argc, char *argv[])
 		uint32_t render_done_time = 0;
 		//non blocking sdtin read
 		fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
-	
+		
+		time_start = millis();
 		while(1)
 		{			
 			
@@ -272,9 +273,10 @@ int main(int argc, char *argv[])
 				time_delay += predicted_delay;
 			}else{
 				time_start = millis(); //reset timer to now
-				//printf("AHRS Logic Skipping Idle...\n");
+				printf("AHRS Logic Skipping Idle...\n");
 				logic_missed++;
 			}
+			
 			
 			
 			int count = 1;
@@ -309,10 +311,12 @@ int main(int argc, char *argv[])
 			model_board_redraw(acceleration,frame);  //this advances the frame, controlls speed
 			fps_logic++;
 			
-			if (render_done_time + 12 < millis()){ //dont let rendering hog the GPU, this will sync to the video framerate
+			if (render_done_time + 15 < millis()){ //dont let rendering hog the GPU
 				redraw_scene(); //this re-draws the scene
 				render_done_time = millis();
 				fps_video++;
+			}else{
+				frame_missed++;
 			}
 			
 			
