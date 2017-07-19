@@ -56,7 +56,6 @@ install_assets:
 .PHONY: install
 install: $(BIN) install_assets
 	install $(BIN) $(bindir)
-	install -m 0644 $(BIN).1 $(man1dir)
 
 # Options that came from the Raspberry Pi example 3D code but are apparently
 # not necessary because I was able to remove them:

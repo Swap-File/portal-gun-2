@@ -205,7 +205,8 @@ static void redraw_scene()
 	
 	glMultMatrixf(locked_matrix[0]);
 	
-	model_board_redraw(acceleration,frame);
+
+	model_board_redraw();
 	eglSwapBuffers(display, surface);
 }
 
@@ -248,17 +249,21 @@ int main(int argc, char *argv[])
 		fflush(stdout);
 		
 		uint32_t time_start = 0;
-		int missed = 0;
+		int frame_missed = 0;
+		int logic_missed = 0;
 		uint32_t time_fps = 0;
-		int fps = 0;
+		int fps_video = 0;
+		int fps_logic = 0;
 		uint32_t time_delay = 0;
 			
+		uint32_t render_done_time = 0;
 		//non blocking sdtin read
 		fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
 	
 		while(1)
 		{			
-	
+			
+			//let the logic hog the CPU
 			time_start += 20;
 			uint32_t predicted_delay = time_start - millis(); //calc predicted delay
 			if (predicted_delay > 20) predicted_delay = 0; //check for overflow
@@ -267,10 +272,11 @@ int main(int argc, char *argv[])
 				time_delay += predicted_delay;
 			}else{
 				time_start = millis(); //reset timer to now
-				printf("AHRS Skipping Idle...\n");
-				missed++;
+				//printf("AHRS Logic Skipping Idle...\n");
+				logic_missed++;
 			}
-
+			
+			
 			int count = 1;
 			char buffer[100];
 			//stdin is line buffered so we can cheat a little bit
@@ -299,12 +305,22 @@ int main(int argc, char *argv[])
 				state = frame;
 				changes++;
 			}	
-			redraw_scene();
-
-			fps++;
+			
+			model_board_redraw(acceleration,frame);  //this advances the frame, controlls speed
+			fps_logic++;
+			
+			if (render_done_time + 12 < millis()){ //dont let rendering hog the GPU, this will sync to the video framerate
+				redraw_scene(); //this re-draws the scene
+				render_done_time = millis();
+				fps_video++;
+			}
+			
+			
+			
 			if (time_fps < millis()){
-				printf("AHRS FPS:%d  mis:%d idle:%d%% changes:%d\n",fps,missed,time_delay/10, changes);
-				fps = 0;
+				printf("AHRS Video_FPS:%d Logic_FPS:%d logic_mis:%d frame_mis:%d idle:%d%% changes:%d\n",fps_video,fps_logic,logic_missed,frame_missed,time_delay/10, changes);
+				fps_video = 0;
+				fps_logic = 0;
 				time_delay = 0;
 				time_fps += 1000;
 				if (time_fps < millis()) time_fps = millis()+1000;	
