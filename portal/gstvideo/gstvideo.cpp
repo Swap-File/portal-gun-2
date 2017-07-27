@@ -4,51 +4,47 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include <gst/gst.h>  
 #include <unistd.h>
 #include <fcntl.h>
 #include <wiringPi.h>
 
 int main(int argc, char *argv[]) {
 	//gstreamer launch codes
-	char rpicamsrc22[] = "rpicamsrc keyframe-interval=10 preview=0 ! video/x-h264,width=400,height=240,framerate=30/1,profile=baseline ! tee name=t ! queue max-size-time=50000000 leaky=upstream ! rtph264pay config-interval=1 pt=96 ! udpsink host=192.168.1.22 port=9000 t. ! queue max-size-time=50000000 leaky=upstream ! avdec_h264 ! videorate ! video/x-raw,framerate=10/1 ! videoflip method=3 ! jpegenc ! multifilesink location=/var/www/html/tmp/snapshot.jpg";
-	char rpicamsrc23[] = "rpicamsrc keyframe-interval=10 preview=0 ! video/x-h264,width=400,height=240,framerate=30/1,profile=baseline ! tee name=t ! queue max-size-time=50000000 leaky=upstream ! rtph264pay config-interval=1 pt=96 ! udpsink host=192.168.1.23 port=9000 t. ! queue max-size-time=50000000 leaky=upstream ! avdec_h264 ! videorate ! video/x-raw,framerate=10/1 ! videoflip method=3 ! jpegenc ! multifilesink location=/var/www/html/tmp/snapshot.jpg";
+	char rpicamsrc22[] = "rpicamsrc keyframe-interval=10 preview=0 ! video/x-h264,width=640,height=420,framerate=40/1,profile=high ! tee name=t ! queue max-size-time=50000000 leaky=upstream ! rtph264pay config-interval=-1 pt=96 ! udpsink host=10.183.0.114 port=9000 sync=false t. ! queue max-size-time=50000000 leaky=upstream ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=4/1 ! jpegenc !  multifilesink location=/var/www/html/tmp/snapshot.jpg";
+	char rpicamsrc23[] = "rpicamsrc keyframe-interval=10 preview=0 ! video/x-h264,width=640,height=420,framerate=40/1,profile=high ! tee name=t ! queue max-size-time=50000000 leaky=upstream ! rtph264pay config-interval=-1 pt=96 ! udpsink host=192.168.1.13 port=9000 sync=false t. ! queue max-size-time=50000000 leaky=upstream ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=4/1 ! jpegenc !  multifilesink location=/var/www/html/tmp/snapshot.jpg";
 
 	char blank[] = "";
 
-	char videotestsrc[] = "videotestsrc ! queue ! videoflip method=1 ! eglglessink";
-	char videotestsrc_cubed[] = "videotestsrc ! queue ! glupload ! glfiltercube ! gldownload ! eglglessink";
+	char videotestsrc[] =       "videotestsrc is-live=true ! video/x-raw,width=640,height=420 ! queue ! glimagesink";
+	char videotestsrc_cubed[] = "videotestsrc is-live=true ! video/x-raw,width=640,height=420 ! queue ! glupload ! glfiltercube ! glimagesink";
 
-
-	char libvisual_jess[] = 	"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_jess ! video/x-raw,width=240,height=400,framerate=20/1 ! tee name=t ! queue ! videoflip method=1 ! eglglessink t. ! queue ! videorate ! video/x-raw,framerate=10/1 ! videoscale ! video/x-raw,width=240,height=400 ! jpegenc ! multifilesink location=/var/www/html/tmp/snapshot.jpg";
-	char libvisual_infinite[] = "alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_infinite ! video/x-raw,width=400,height=240,framerate=20/1 ! tee name=t ! queue ! eglglessink t. ! queue ! videorate ! video/x-raw,framerate=10/1 ! videoflip method=3 ! jpegenc ! multifilesink location=/var/www/html/tmp/snapshot.jpg";
-	char libvisual_jakdaw[] = 	"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_jakdaw ! video/x-raw,width=400,height=240,framerate=20/1 ! tee name=t ! queue ! eglglessink t. ! queue ! videorate ! video/x-raw,framerate=10/1 ! videoflip method=3 ! jpegenc ! multifilesink location=/var/www/html/tmp/snapshot.jpg";
-	char libvisual_oinksie[] = 	"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_oinksie ! video/x-raw,width=400,height=240,framerate=20/1 ! tee name=t ! queue ! eglglessink t. ! queue ! videorate ! video/x-raw,framerate=10/1 ! videoflip method=3 ! jpegenc ! multifilesink location=/var/www/html/tmp/snapshot.jpg";
-	char goom[] = 				"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! goom ! video/x-raw,width=320,height=240,framerate=20/1 ! tee name=t ! capssetter caps=video/x-raw,height=200 ! queue ! eglglessink t. ! queue ! videorate ! video/x-raw,framerate=10/1 ! videoflip method=3 ! videoscale ! video/x-raw,width=240,height=400 ! jpegenc ! multifilesink location=/var/www/html/tmp/snapshot.jpg";
-	char goom2k1[] = 			"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! goom2k1 ! video/x-raw,width=240,height=400,framerate=20/1 ! tee name=t ! queue ! videoflip method=1 ! eglglessink t. ! queue ! videorate ! video/x-raw,framerate=10/1 ! videoscale ! video/x-raw,width=240,height=400 ! jpegenc ! multifilesink location=/var/www/html/tmp/snapshot.jpg";
+	char libvisual_jess[] = 	"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_jess ! video/x-raw,width=320,height=210,framerate=20/1 ! queue ! glupload ! glvideomixer ! video/x-raw(memory:GLMemory),width=320,height=210 !  glcolorscale ! video/x-raw(memory:GLMemory),width=640,height=420 ! glimagesink";
+	char libvisual_infinite[] = "alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_infinite ! video/x-raw,width=320,height=210,framerate=20/1 ! queue ! glupload ! glvideomixer ! video/x-raw(memory:GLMemory),width=320,height=210 !  glcolorscale ! video/x-raw(memory:GLMemory),width=640,height=420 ! glimagesink";
+	char libvisual_jakdaw[] = 	"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_jakdaw ! video/x-raw,width=320,height=210,framerate=20/1 ! queue ! glupload ! glvideomixer ! video/x-raw(memory:GLMemory),width=320,height=210 !  glcolorscale ! video/x-raw(memory:GLMemory),width=640,height=420 ! glimagesink";
+	char libvisual_oinksie[] = 	"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! libvisual_oinksie ! video/x-raw,width=320,height=210,framerate=20/1 ! queue ! glupload ! glvideomixer ! video/x-raw(memory:GLMemory),width=320,height=210 !  glcolorscale ! video/x-raw(memory:GLMemory),width=640,height=420 ! glimagesink";
+	char goom[] = 				"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! goom ! video/x-raw,width=320,height=210,framerate=20/1 ! queue ! glupload ! glvideomixer ! video/x-raw(memory:GLMemory),width=320,height=210 !  glcolorscale ! video/x-raw(memory:GLMemory),width=640,height=420 ! glimagesink";
+	char goom2k1[] = 			"alsasrc device=hw:1 buffer-time=20000 ! queue max-size-time=50000000 leaky=upstream ! goom2k1 ! video/x-raw,width=320,height=210,framerate=20/1 ! queue ! glupload ! glvideomixer ! video/x-raw(memory:GLMemory),width=320,height=210 !  glcolorscale ! video/x-raw(memory:GLMemory),width=640,height=420 ! glimagesink";
 	
-
-	char normal[] =            "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! queue max-size-time=50000000 leaky=upstream ! eglglessink";
-	char glfiltercube[] =      "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! glupload ! glfiltercube ! gldownload ! eglglessink";
-	char gleffects_mirror[] =  "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! queue max-size-time=50000000 leaky=upstream ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! videoflip method=1 ! glupload ! gleffects_mirror ! gldownload ! videoflip method=3 ! eglglessink";
-	char gleffects_squeeze[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! glupload ! gleffects_squeeze ! gldownload ! eglglessink";
-	char gleffects_stretch[] = "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! glupload ! gleffects_stretch ! gldownload ! eglglessink";
-	char gleffects_tunnel[] =  "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! glupload ! gleffects_tunnel ! gldownload ! eglglessink";
-	char gleffects_twirl[] =   "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! glupload ! gleffects_twirl ! gldownload ! eglglessink";
-	char gleffects_bulge[] =   "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! glupload ! gleffects_bulge ! gldownload ! eglglessink";
-	char gleffects_heat[] =    "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! glupload ! gleffects_heat ! gldownload ! eglglessink";
-	char radioactv[] =         "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! videoscale ! video/x-raw,width=320,height=240 ! radioactv !  capssetter caps=video/x-raw,height=200 ! eglglessink";
-	char revtv[] =             "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! videoflip method=3 ! revtv ! videoflip method=1 ! eglglessink";
-	char agingtv[] =           "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! videoflip method=1 ! agingtv ! videoflip method=3 ! eglglessink";
-	char dicetv[] =            "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! dicetv ! eglglessink";
-	char warptv[] =            "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! warptv ! eglglessink";
-	char shagadelictv[] =      "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! shagadelictv ! eglglessink";
-	char vertigotv[] =         "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! vertigotv ! eglglessink";
-	char kaleidoscope[] =      "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! kaleidoscope ! eglglessink";
-	char marble[] =            "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! marble ! eglglessink";
-	char rippletv[] =          "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! rippletv ! eglglessink";
-	char edgetv[] =            "udpsrc port=9000 caps=application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264 ! rtph264depay ! avdec_h264 ! videoconvert ! queue max-size-time=50000000 leaky=upstream ! edgetv ! eglglessink";
-
+	char normal[] =            "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! glimagesink sync=false";
+	char glfiltercube[] =      "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! glupload ! glfiltercube ! glimagesink sync=false";
+	char gleffects_mirror[] =  "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! glupload ! gleffects_mirror ! glimagesink sync=false";
+	char gleffects_squeeze[] = "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! glupload ! gleffects_squeeze ! glimagesink sync=false";
+	char gleffects_stretch[] = "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! glupload ! gleffects_stretch ! glimagesink sync=false";
+	char gleffects_tunnel[] =  "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! glupload ! gleffects_tunnel ! glimagesink sync=false";
+	char gleffects_twirl[] =   "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! glupload ! gleffects_twirl ! glimagesink sync=false";
+	char gleffects_bulge[] =   "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! glupload ! gleffects_bulge ! glimagesink sync=false";
+	char gleffects_heat[] =    "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! glupload ! gleffects_heat ! glimagesink sync=false";
+	char radioactv[] =         "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! radioactv ! glimagesink sync=false";
+	char revtv[] =             "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! revtv ! glimagesink sync=false";
+	char agingtv[] =           "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! agingtv ! glimagesink sync=false";
+	char dicetv[] =            "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! dicetv ! glimagesink sync=false";
+	char warptv[] =            "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! warptv ! glimagesink sync=false";
+	char shagadelictv[] =      "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! shagadelictv ! glimagesink sync=false";
+	char vertigotv[] =         "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! vertigotv ! glimagesink sync=false";
+	char rippletv[] =          "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! rippletv ! glimagesink sync=false";
+	char edgetv[] =            "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! edgetv ! glimagesink sync=false";
+	char streaktv[] =          "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! streaktv ! glimagesink sync=false";
+	//redo all movies
 	char movie1[] =  "filesrc location=/home/pi/movies/1.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
 	char movie2[] =  "filesrc location=/home/pi/movies/2.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
 	char movie3[] =  "filesrc location=/home/pi/movies/3.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
@@ -68,7 +64,7 @@ int main(int argc, char *argv[]) {
 	int requested_state = 0;
 	int active_state = -1; //force change to state 0 on launch
 
-	GstElement *pipeline = NULL;
+	
 
 	int changes = 0;
 	
@@ -76,14 +72,8 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Need IP As Argument (22 or 23)\n");
 		exit(1);
 	}
+	
 
-	const char *arg1_gst[]  = {"gstvideo"};
-	const char *arg2_gst[]  = {"--gst-disable-registry-update"};
-	const char *arg3_gst[]  = {"--gst-debug-level=0"};
-	char ** argv_gst[3] = {(char **)arg1_gst,(char **)arg2_gst,(char **)arg3_gst};
-	int argc_gst = 3;
-	/* Initialize GStreamer */
-	gst_init (&argc_gst, argv_gst );
 
 	//read src and set variables
 	int ip = atoi(argv[1]);
@@ -102,10 +92,17 @@ int main(int argc, char *argv[]) {
 	int fps = 0;
 	uint32_t time_delay = 0;
 	
+	//init remote control
+	FILE *bash_fp;
+	system("pkill gst-launch");
+	bash_fp = popen("bash", "w");
+	fcntl(fileno(bash_fp), F_SETFL, fcntl(fileno(bash_fp), F_GETFL, 0) | O_NONBLOCK);
+	
 	//non blocking sdtin read
 	fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
 	
 	while (1){
+		
 		
 		time_start += 20;
 		uint32_t predicted_delay = time_start - millis(); //calc predicted delay
@@ -163,6 +160,7 @@ int main(int argc, char *argv[]) {
 			case GST_GOOM: new_cmd = goom; break;	//good		
 			case GST_GOOM2K1: new_cmd = goom2k1; break;	//good		
 				//tv effects	
+			case GST_STREAKTV: new_cmd = streaktv; break;//fixed
 			case GST_RADIOACTV: new_cmd = radioactv; break;//fixed
 			case GST_REVTV: new_cmd = revtv; break;//good
 			case GST_AGINGTV: new_cmd = agingtv; break;//steampunk
@@ -170,8 +168,6 @@ int main(int argc, char *argv[]) {
 			case GST_WARPTV: new_cmd = warptv; break;//works
 			case GST_SHAGADELICTV: new_cmd = shagadelictv; break;//works			
 			case GST_VERTIGOTV: new_cmd = vertigotv; break;//works
-			case GST_KALEIDOSCOPE: new_cmd = kaleidoscope; break;//
-			case GST_MARBLE: new_cmd = marble; break;//
 			case GST_RIPPLETV: new_cmd = rippletv; break;//works
 			case GST_EDGETV: new_cmd = edgetv; break;//works					
 				//gl effects	
@@ -179,8 +175,8 @@ int main(int argc, char *argv[]) {
 			case GST_GLMIRROR: new_cmd = gleffects_mirror; break;
 			case GST_GLSQUEEZE: new_cmd = gleffects_squeeze; break;
 			case GST_GLSTRETCH: new_cmd = gleffects_stretch; break;
-			case GST_GLTUNNEL: new_cmd = gleffects_tunnel; break;	//really good O	
-			case GST_GLTWIRL: new_cmd = gleffects_twirl; break; //creepy as fuck
+			case GST_GLTUNNEL: new_cmd = gleffects_tunnel; break;
+			case GST_GLTWIRL: new_cmd = gleffects_twirl; break;
 			case GST_GLBULGE: new_cmd = gleffects_bulge; break;	
 			case GST_GLHEAT: new_cmd = gleffects_heat; break;
 
@@ -205,20 +201,12 @@ int main(int argc, char *argv[]) {
 			if (active_state != requested_state){
 
 				//kill old pieline
-				if (GST_IS_ELEMENT(pipeline)){
-					gst_element_set_state (pipeline, GST_STATE_NULL);
-					gst_object_unref (pipeline);
-				}
+				system("pkill gst-launch");
 				
 				//make new pipeline
-				if (new_cmd != blank){
-					pipeline = gst_parse_launch (new_cmd, NULL);
-				}
-				
-				//new start pipeline
-				if (GST_IS_ELEMENT(pipeline)){
-					gst_element_set_state (pipeline, GST_STATE_PLAYING);
-				}
+				fprintf(bash_fp, "gst-launch-1.0 --gst-disable-registry-update --no-fault %s &\n",new_cmd);
+				fflush(bash_fp);
+
 				
 				//mark request as completed
 				active_state = requested_state;

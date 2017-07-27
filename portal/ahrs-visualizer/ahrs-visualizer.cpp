@@ -198,7 +198,7 @@ static void redraw_scene()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0, 0, -30);
-
+	glScalef(.856,1.01,1);
 	// Convert ground coords to board coordinates.
 
 	//glMultMatrixf(final_matrix[0]);
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
 			model_board_redraw(acceleration,frame);  //this advances the frame, controlls speed
 			fps_logic++;
 			
-			if (render_done_time + 15 < millis()){ //dont let rendering hog the GPU
+			if (render_done_time + 5 < millis()){ //dont let 3d rendering hog the GPU, let video take priority 
 				redraw_scene(); //this re-draws the scene
 				render_done_time = millis();
 				fps_video++;
