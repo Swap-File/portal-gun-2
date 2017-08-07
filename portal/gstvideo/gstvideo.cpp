@@ -10,8 +10,8 @@
 
 int main(int argc, char *argv[]) {
 	//gstreamer launch codes
-	char rpicamsrc22[] = "rpicamsrc keyframe-interval=3 preview=0 ! video/x-h264,width=640,height=420,framerate=40/1,profile=high ! tee name=t ! queue max-size-time=50000000 leaky=upstream ! rtph264pay config-interval=-1 pt=96 ! udpsink host=192.168.1.22 port=9000 sync=false t. ! queue max-size-time=50000000 leaky=upstream ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=4/1 ! jpegenc !  multifilesink location=/var/www/html/tmp/snapshot.jpg";
-	char rpicamsrc23[] = "rpicamsrc keyframe-interval=3 preview=0 ! video/x-h264,width=640,height=420,framerate=40/1,profile=high ! tee name=t ! queue max-size-time=50000000 leaky=upstream ! rtph264pay config-interval=-1 pt=96 ! udpsink host=192.168.1.23 port=9000 sync=false t. ! queue max-size-time=50000000 leaky=upstream ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=4/1 ! jpegenc !  multifilesink location=/var/www/html/tmp/snapshot.jpg";
+	char rpicamsrc22[] = "rpicamsrc keyframe-interval=3 preview=0 ! video/x-h264,width=640,height=420,framerate=40/1,profile=high ! tee name=t ! queue max-size-time=50000000 leaky=upstream ! rtph264pay config-interval=-1 pt=96 ! udpsink host=192.168.1.22 port=9000 sync=false t. ! queue max-size-time=50000000 leaky=upstream ! h264parse ! omxh264dec ! videorate ! videoscale ! video/x-raw,width=400,height=240,framerate=4/1 ! videoflip method=3 ! jpegenc !  multifilesink location=/var/www/html/tmp/snapshot.jpg";
+	char rpicamsrc23[] = "rpicamsrc keyframe-interval=3 preview=0 ! video/x-h264,width=640,height=420,framerate=40/1,profile=high ! tee name=t ! queue max-size-time=50000000 leaky=upstream ! rtph264pay config-interval=-1 pt=96 ! udpsink host=192.168.1.23 port=9000 sync=false t. ! queue max-size-time=50000000 leaky=upstream ! h264parse ! omxh264dec ! videorate ! videoscale ! video/x-raw,width=400,height=240,framerate=4/1 ! videoflip method=3 ! jpegenc !  multifilesink location=/var/www/html/tmp/snapshot.jpg";
 
 	char blank[] = "";
 
@@ -45,18 +45,30 @@ int main(int argc, char *argv[]) {
 	char edgetv[] =            "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! edgetv ! glimagesink sync=false";
 	char streaktv[] =          "udpsrc port=9000 caps='application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! queue ! streaktv ! glimagesink sync=false";
 	//redo all movies
-	char movie1[] =  "filesrc location=/home/pi/movies/1.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie2[] =  "filesrc location=/home/pi/movies/2.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie3[] =  "filesrc location=/home/pi/movies/3.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie4[] =  "filesrc location=/home/pi/movies/4.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie5[] =  "filesrc location=/home/pi/movies/5.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie6[] =  "filesrc location=/home/pi/movies/6.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie7[] =  "filesrc location=/home/pi/movies/7.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie8[] =  "filesrc location=/home/pi/movies/8.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie9[] =  "filesrc location=/home/pi/movies/9.mp4  ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie10[] = "filesrc location=/home/pi/movies/10.mp4 ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie11[] = "filesrc location=/home/pi/movies/11.mp4 ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
-	char movie12[] = "filesrc location=/home/pi/movies/12.mp4 ! qtdemux name=dmux ! queue ! h264parse ! omxh264dec ! videoflip method=1 ! eglglessink  dmux. ! queue ! aacparse !  avdec_aac ! audioconvert ! audio/x-raw,channels=2 ! alsasink device=hw:0";
+	//char movie1[] =  "filesrc location=/home/pi/movies/1.mp4 ";
+	//char movie2[] =  "filesrc location=/home/pi/movies/2.mp4 ";
+	//char movie3[] =  "filesrc location=/home/pi/movies/3.mp4 ";
+	//char movie4[] =  "filesrc location=/home/pi/movies/4.mp4 ";
+	//char movie5[] =  "filesrc location=/home/pi/movies/5.mp4 ";
+	//char movie6[] =  "filesrc location=/home/pi/movies/6.mp4 ";
+	//char movie7[] =  "filesrc location=/home/pi/movies/7.mp4 ";
+	//char movie8[] =  "filesrc location=/home/pi/movies/8.mp4 ";
+	//char movie9[] =  "filesrc location=/home/pi/movies/9.mp4 ";
+	//char movie10[] = "filesrc location=/home/pi/movies/10.mp4";
+	//char movie11[] = "filesrc location=/home/pi/movies/11.mp4";
+	//char movie12[] = "filesrc location=/home/pi/movies/12.mp4";
+	char movie1[] =  "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/1.mp4";
+	char movie2[] =  "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/2.mp4";
+	char movie3[] =  "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/3.mp4";
+	char movie4[] =  "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/4.mp4";
+	char movie5[] =  "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/5.mp4";
+	char movie6[] =  "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/6.mp4";
+	char movie7[] =  "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/7.mp4";
+	char movie8[] =  "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/8.mp4";
+	char movie9[] =  "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/9.mp4";
+	char movie10[] = "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/10.mp4";
+	char movie11[] = "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/11.mp4";
+	char movie12[] = "omxplayer --audio_fifo 1 -o hdmi /home/pi/movies/12.mp4";
 
 	char * new_cmd;
 	char * rpicamsrc;
@@ -200,11 +212,25 @@ int main(int argc, char *argv[]) {
 			
 			if (active_state != requested_state){
 
-				//kill old pieline
-				system("sudo pkill gst-launch");
 				
+				
+				
+				if (active_state <= GST_MOVIE_LAST && active_state >= GST_MOVIE_FIRST){
+					//kill old pieline
+					system("sudo pkill omxplayer");
+				}
+				else{
+					//kill old pieline
+					system("sudo pkill gst-launch");
+				}
+				if (requested_state <= GST_MOVIE_LAST && requested_state >= GST_MOVIE_FIRST){
+					fprintf(bash_fp, "%s &\n",new_cmd);
+				}
+				else{
+					fprintf(bash_fp, "sudo nice --10 gst-launch-1.0 --gst-disable-registry-update --no-fault %s &\n",new_cmd);
+				}
 				//make new pipeline
-				fprintf(bash_fp, "sudo nice --10 gst-launch-1.0 --gst-disable-registry-update --no-fault %s &\n",new_cmd);
+			
 				fflush(bash_fp);
 
 				
