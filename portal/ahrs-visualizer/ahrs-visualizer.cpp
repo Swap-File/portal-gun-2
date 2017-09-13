@@ -198,15 +198,14 @@ static void redraw_scene()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0, 0, -30);
-	glScalef(.856,1.01,1);
+
 	// Convert ground coords to board coordinates.
 
 	//glMultMatrixf(final_matrix[0]);
 	
 	glMultMatrixf(locked_matrix[0]);
 	
-
-	model_board_redraw();
+	model_board_redraw(acceleration,frame);
 	eglSwapBuffers(display, surface);
 }
 
@@ -249,22 +248,17 @@ int main(int argc, char *argv[])
 		fflush(stdout);
 		
 		uint32_t time_start = 0;
-		int frame_missed = 0;
-		int logic_missed = 0;
+		int missed = 0;
 		uint32_t time_fps = 0;
-		int fps_video = 0;
-		int fps_logic = 0;
+		int fps = 0;
 		uint32_t time_delay = 0;
 			
-		uint32_t render_done_time = 0;
 		//non blocking sdtin read
 		fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
-		
-		time_start = millis();
+	
 		while(1)
 		{			
-			
-			//let the logic hog the CPU
+	
 			time_start += 20;
 			uint32_t predicted_delay = time_start - millis(); //calc predicted delay
 			if (predicted_delay > 20) predicted_delay = 0; //check for overflow
@@ -273,12 +267,10 @@ int main(int argc, char *argv[])
 				time_delay += predicted_delay;
 			}else{
 				time_start = millis(); //reset timer to now
-				printf("AHRS Logic Skipping Idle...\n");
-				logic_missed++;
+				printf("AHRS Skipping Idle...\n");
+				missed++;
 			}
-			
-			
-			
+
 			int count = 1;
 			char buffer[100];
 			//stdin is line buffered so we can cheat a little bit
@@ -307,24 +299,12 @@ int main(int argc, char *argv[])
 				state = frame;
 				changes++;
 			}	
-			
-			model_board_redraw(acceleration,frame);  //this advances the frame, controlls speed
-			fps_logic++;
-			
-			if (render_done_time + 5 < millis()){ //dont let 3d rendering hog the GPU, let video take priority 
-				redraw_scene(); //this re-draws the scene
-				render_done_time = millis();
-				fps_video++;
-			}else{
-				frame_missed++;
-			}
-			
-			
-			
+			redraw_scene();
+
+			fps++;
 			if (time_fps < millis()){
-				printf("AHRS Video_FPS:%d Logic_FPS:%d logic_mis:%d frame_mis:%d idle:%d%% changes:%d\n",fps_video,fps_logic,logic_missed,frame_missed,time_delay/10, changes);
-				fps_video = 0;
-				fps_logic = 0;
+				printf("AHRS FPS:%d  mis:%d idle:%d%% changes:%d\n",fps,missed,time_delay/10, changes);
+				fps = 0;
 				time_delay = 0;
 				time_fps += 1000;
 				if (time_fps < millis()) time_fps = millis()+1000;	

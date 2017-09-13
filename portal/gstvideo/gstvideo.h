@@ -16,9 +16,8 @@
 #define GST_GOOM2K1 15
 #define GST_LIBVISUAL_LAST 15
 
-#define GST_FIRST_EFFECT 18
-#define GST_FIRST_TV_EFFECT 18
-#define GST_STREAKTV 18
+#define GST_FIRST_EFFECT 19
+#define GST_FIRST_TV_EFFECT 19
 #define GST_RADIOACTV 19 
 #define GST_REVTV 20
 #define GST_AGINGTV 21
@@ -26,6 +25,8 @@
 #define GST_WARPTV 23
 #define GST_SHAGADELICTV 24
 #define GST_VERTIGOTV 25
+#define GST_KALEIDOSCOPE 26
+#define GST_MARBLE 27
 #define GST_RIPPLETV 28 
 #define GST_EDGETV 29
 #define GST_LAST_TV_EFFECT 29
@@ -57,6 +58,4 @@
 #define GST_MOVIE12 61
 #define GST_MOVIE_LAST 61
 			
-void link_and_unlink(int command, int link);
-
 #endif

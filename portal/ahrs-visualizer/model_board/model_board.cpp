@@ -211,10 +211,10 @@ GLfloat colors[700];
 
 
 int running_acceleration[2] = {0,0};
-int frame_saved = 0;
+
 void model_board_redraw(int * acceleration, int frame)
 {	
-frame_saved = frame;
+
 	for (int i = 0; i <  360; i ++){
 		offset_thing[i] *= .9;
 	}
@@ -251,7 +251,16 @@ frame_saved = frame;
 	
 	}
 	
+
 	angle_target =  atan2(-running_acceleration[1],-running_acceleration[0] ) ;
+	for (int i = 0; i <  360; i ++){
+		
+		offset_thing[i] = offset_thing[i] * .8 + .2 * ((cos( ((float)i)/360.0 * 2 *M_PI + angle_target  )  + M_PI)/ (2* M_PI)) * running_magnitude/10;
+		offset_thing[i] = MIN(offset_thing[i],3);
+	}
+	
+	
+	
 
 	angle_target_delayed = angle_target_delayed * .5 + angle_target * .5;
 	
@@ -324,22 +333,13 @@ frame_saved = frame;
 		blank_fader = blank_fader - .18 * blank_fader ;
 		if ( blank_fader > 0 ) blank_fader = 0;
 	}
-	last_acceleration[0] = acceleration[0];
-	last_acceleration[1] = acceleration[1];
-	
-}
-
-void model_board_redraw(){	
-	
-	for (int i = 0; i <  360; i ++){
-		offset_thing[i] = offset_thing[i] * .8 + .2 * ((cos( ((float)i)/360.0 * 2 *M_PI + angle_target  )  + M_PI)/ (2* M_PI)) * running_magnitude/10;
-		offset_thing[i] = MIN(offset_thing[i],3);
-	}
 	
 	//depth checking
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+	
 	
 	GLfloat vertices1[] = {-EX,-EY,-.5,EX,-EY,-.5,-EX,EY,-.5,EX,EY,-.5};
 	GLfloat texCoords1[] = {0,0,1,0,0,1,1,1};
@@ -360,14 +360,14 @@ void model_board_redraw(){
 	glActiveTexture(GL_TEXTURE0);	
 	glEnable(GL_TEXTURE_2D);
 
-	CHECK_BIT(frame_saved,1) ? glBindTexture(GL_TEXTURE_2D, orange_0) : glBindTexture(GL_TEXTURE_2D, blue_0);
+	CHECK_BIT(frame,1) ? glBindTexture(GL_TEXTURE_2D, orange_0) : glBindTexture(GL_TEXTURE_2D, blue_0);
 	
 	
 	glEnable(GL_TEXTURE1);
 	glActiveTexture(GL_TEXTURE1);
 	glEnable(GL_TEXTURE_2D);
 	
-	CHECK_BIT(frame_saved,1) ? glBindTexture(GL_TEXTURE_2D, orange_1) : glBindTexture(GL_TEXTURE_2D, blue_1);
+	CHECK_BIT(frame,1) ? glBindTexture(GL_TEXTURE_2D, orange_1) : glBindTexture(GL_TEXTURE_2D, blue_1);
 	
 	GLfloat rgba2[4] = {1.0,1.0,1.0,(GLfloat)fabs(portal_background_fader)};
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, rgba2);
@@ -407,7 +407,7 @@ void model_board_redraw(){
 
 	glColor4f(0,0,0,1);
 	// Portal
-	CHECK_BIT(frame_saved,2) ? glBindTexture(GL_TEXTURE_2D, texture_orange) : glBindTexture(GL_TEXTURE_2D, texture_blue);
+	CHECK_BIT(frame,2) ? glBindTexture(GL_TEXTURE_2D, texture_orange) : glBindTexture(GL_TEXTURE_2D, texture_blue);
 
 
 	GLfloat texCoords2[] = {0,0,1,0,0,1,1,1};
@@ -425,7 +425,7 @@ void model_board_redraw(){
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	
 	//glBindTexture(GL_TEXTURE_2D, red);
-	CHECK_BIT(frame_saved,1) ? glBindTexture(GL_TEXTURE_2D, orange_n) : glBindTexture(GL_TEXTURE_2D, blue_n);
+	CHECK_BIT(frame,1) ? glBindTexture(GL_TEXTURE_2D, orange_n) : glBindTexture(GL_TEXTURE_2D, blue_n);
 	
 	
 	float backwards_scaler = ( 1 - blank_fader / -100.0);
@@ -487,7 +487,7 @@ void model_board_redraw(){
 		pts[point_location++] = sin((portal_spin2_current) * M_PI/180.0) *1.5;
 		//load color
 		
-			if CHECK_BIT(frame_saved,2){
+			if CHECK_BIT(frame,2){
 				//	colors[color_location++] = 247.0/255.0;
 	//	colors[color_location++] = 145.0/255.0;
 	//	colors[color_location++] = 38.0/255.0;
@@ -527,7 +527,7 @@ void model_board_redraw(){
 	glBindTexture(GL_TEXTURE_2D, 0); 
 
 	// shutter
-	if  CHECK_BIT(frame_saved,3){
+	if  CHECK_BIT(frame,3){
 		glColor4f(0,0,0,1); //blocking black
 		lastcolor = -1;
 		blank_fader = -100;
@@ -544,6 +544,7 @@ void model_board_redraw(){
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 
-	lastcolor = CHECK_BIT(frame_saved,1) ? 1 : 2; //blue : orange
-
+	lastcolor = CHECK_BIT(frame,1) ? 1 : 2; //blue : orange
+	last_acceleration[0] = acceleration[0];
+	last_acceleration[1] = acceleration[1];
 }
