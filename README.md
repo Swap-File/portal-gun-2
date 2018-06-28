@@ -7,7 +7,7 @@ Gun:
 
 MultiWii Lite (328P Arduino Clone + MPU6050) for I/O, PWM output, and analog input
 
-4S 5000mAh Lipo + 5 Amp 5v regulator
+4S 5000mAh Lipo + 5 Amp 5v regulator + LPD8806 LEDs
 
 Phone:
 
